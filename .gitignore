@@ -1,0 +1,26 @@
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+*.pk
+
+# env files
+.env
+
+# Node.js
+node_modules
+.next
+dist
+coverage
+*.tsbuildinfo
+
+# Arduino IDE build artifacts
+debug_custom.json
+debug.cfg
+esp32.svd
+
+# custom
+assets/
+tmp/
+firmware/libraries/**/examples/**
+firmware/libraries/**/tests/**

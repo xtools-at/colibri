@@ -1,0 +1,49 @@
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "~/.arduino15/packages/esp32/hardware/esp32/**",
+        "~/.arduino15/packages/**",
+        "${workspaceFolder}/firmware/**",
+        "${workspaceFolder}/firmware/libraries/**/**/**",
+        "~/Arduino/**"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "linux-gcc-x64"
+    },
+    {
+      "name": "Mac",
+      "includePath": [
+        "~/Library/Arduino15/packages/**",
+        "${workspaceFolder}/**",
+        "~/Documents/Arduino/**"
+      ],
+      "defines": [],
+      "macFrameworkPath": [
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64"
+    },
+    {
+      "name": "Windows",
+      "includePath": [
+        "C:/Program Files (x86)/Arduino/**",
+        "${workspaceFolder}/**",
+        "C:/Users/${env:USERNAME}/Documents/Arduino/**"
+      ],
+      "defines": [],
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio 2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
+}

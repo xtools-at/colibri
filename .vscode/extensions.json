@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "ms-vscode.cpptools-extension-pack",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
