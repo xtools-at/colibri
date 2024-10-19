@@ -2,19 +2,14 @@
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/xtools-at/colibri/main/.github/images/banner.png?sanitize=true"
-        width="400" alt="Colibri - DIY crypto hardware wallet" />
+        width="860" alt="Colibri - DIY crypto hardware wallet" />
 </p>
 <p align="center">
     <img alt="version: early development" src="https://img.shields.io/badge/version-early_development-crimson" />
-
     <a href="https://matrix.to/#/#colibriwallet:matrix.org">
-      <img alt="chat on matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-brightgreen?logo=element" />
-    </a>
-
+      <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-brightgreen?logo=element" /></a>
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
-      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-telegram-cornflowerblue?logo=telegram" />
-    </a>
-
+      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-telegram-cornflowerblue?logo=telegram" /></a>
 </p>
 
 ## Warning: this repository is still work in progress, don't expect ANYTHING to work at this stage
