@@ -5,7 +5,7 @@
         width="860" alt="Colibri - DIY crypto hardware wallet" />
 </p>
 <p align="center">
-    <img alt="version: 0.0.1 (pre-alpha)" src="version-0.0.1_(pre--alpha)-crimson" />
+    <img alt="version: 0.0.1 (pre-alpha)" src="https://img.shields.io/badge/version-0.0.1_(pre--alpha)-crimson" />
     <a href="https://matrix.to/#/#colibriwallet:matrix.org">
       <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" /></a>
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
