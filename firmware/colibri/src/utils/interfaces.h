@@ -1,0 +1,16 @@
+#pragma once
+
+#include "../../config.h"
+
+#if defined(INTERFACE_BLE_NIMBLE)
+  #include "../interfaces/NimBLEInterface.h"
+#endif
+
+#if defined(DEBUG_INTERFACE_SERIAL)
+  #include "../interfaces/SerialDebugInterface.h"
+#endif
+
+void initInterfaces();
+void updateInterfaces();
+void stopInterfaces();
+void wipeInterfaces();
