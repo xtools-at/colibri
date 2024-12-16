@@ -4,9 +4,9 @@
       "name": "Linux",
       "includePath": [
         "~/.arduino15/packages/esp32/hardware/esp32/**",
+        "~/.arduino15/packages/esp32/**",
         "~/.arduino15/packages/**",
         "${workspaceFolder}/firmware/**",
-        "${workspaceFolder}/firmware/libraries/**/**/**",
         "~/Arduino/**"
       ],
       "defines": [],

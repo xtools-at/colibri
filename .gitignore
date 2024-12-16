@@ -14,13 +14,21 @@ dist
 coverage
 *.tsbuildinfo
 
-# Arduino IDE build artifacts
+# Arduino IDE and platform.io
 debug_custom.json
 debug.cfg
 esp32.svd
+launch.json
+.pio
+.vscode/.browse.c_cpp.db*
 
 # custom
 assets/
 tmp/
-firmware/libraries/**/examples/**
-firmware/libraries/**/tests/**
+
+# library files
+firmware/lib/**/examples/**
+firmware/lib/**/extras/**
+firmware/lib/**/tests/**
+firmware/lib/**/docs/**
+firmware/**/*.xx
