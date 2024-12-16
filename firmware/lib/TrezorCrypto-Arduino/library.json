@@ -1,0 +1,23 @@
+{
+  "name": "TrezorCrypto-Arduino",
+  "keywords": "trezor, crypto, wallet, ethereum, bitcoin",
+  "description": "Trezor Crypto library port for Arduino. Cryptography library used in Trezor firmware.",
+  "homepage": "https://github.com/xtools-at/colibri",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xtools-at/colibri.git"
+  },
+  "version": "0.1.0",
+  "authors": {
+    "name": "xtools-at",
+    "url": "https://github.com/xtools-at"
+  },
+  "export": {
+    "include": ["src/*", "LICENSE"]
+  },
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "libArchive": false
+  }
+}
