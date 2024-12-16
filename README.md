@@ -107,17 +107,19 @@ The minimum requirements for your development board are:
 
 ## How to use
 
-Colibri uses a modular structure to make it easy to add new hardware interfaces. At their core, all interfaces share the same JSON-RPC commands.
-
-### Debug Serial Interface
-
-If you've enabled **debugging** features for your build, the serial interface should automatically connect to your host PC, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
+Colibri uses a modular structure to make it easy to add new hardware interfaces (e.g. BLE). At their core, all interfaces share the same JSON-RPC commands.
 
 You can start out with this command to get an overview of all commands and their parameters:
 
 ```json
 { "method": "listMethods" }
 ```
+
+### Interfaces
+
+#### Debug Serial Interface
+
+If you've enabled **debugging** features for your build, the serial interface should automatically connect to your host PC, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
 
 ### Button actions
 
@@ -130,7 +132,7 @@ Additionally the following actions can be triggered on the device directly:
 
 ### Wallet setup
 
-First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information on the device, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 words.
+First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information on the device, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
 
 ```json
 { "method": "setPassword", "params": ["CorrectHorseBatteryStaple"] }
@@ -192,7 +194,7 @@ To e.g. sign a personal message, try
 
 `0.2.x`:
 
-- Display integration
+- Display integration and GUI
   - Show transaction data on device
   - Recover seed phrase on device
   - Enter password on device
@@ -242,9 +244,9 @@ Valuable extensions to the project, once the core product is functional:
 
 ## License
 
-[AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License
+Colibri is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License
 
-## Disclaimer
+### Disclaimer
 
 Colibri is still under development and hasn't been peer-reviewed, or audited for security yet. Use at your own risk, and do _not_ use your real keys (yet).
 _The software is provided “as is,” without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software._

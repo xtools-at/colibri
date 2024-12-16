@@ -42,7 +42,8 @@
     "segwit",
     "utoa",
     "utxo",
-    "webusb"
+    "webusb",
+    "xtools"
   ],
   "files.associations": {
     "new": "cpp",
