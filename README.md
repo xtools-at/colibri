@@ -109,13 +109,15 @@ The minimum requirements for your development board are:
 
 Colibri uses a modular structure to make it easy to add new hardware interfaces (e.g. BLE). At their core, all interfaces share the same JSON-RPC commands.
 
-You can start out with this command to get an overview of all commands and their parameters:
+No matter which interface you're using to connect to your device, you can start out with this command to get an overview of all available methods and their parameters:
 
 ```json
 { "method": "listMethods" }
 ```
 
 ### Interfaces
+
+Every interface has slightly different requirements to establish a connection.
 
 #### Debug Serial Interface
 
@@ -138,7 +140,7 @@ First we need to set a _password_ for our wallet. This is used to encrypt **all*
 { "method": "setPassword", "params": ["CorrectHorseBatteryStaple"] }
 ```
 
-Next we need to generate or add a mnemonic seed phrase to our wallet. Use a **metal seed storage** to back up your seed phrase - we recommend the [SAFU Ninja](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/) as a cheap and reliable DIY solution.
+Next we need to generate or add a mnemonic seed phrase to our wallet. Use a **metal seed storage** to back up your seed phrase - we recommend [SAFU Ninja](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/) as a cheap and reliable DIY solution.
 
 ```javascript
 // generate a 24-word mnemonic
@@ -200,7 +202,7 @@ To e.g. sign a personal message, try
   - Enter password on device
 - More presets for common dev-boards
 - Typescript SDK
-- 3rd-party wallet integration
+- 3rd-party wallet integrations
 
 `to be prioritized`:
 
@@ -249,4 +251,4 @@ Colibri is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/bl
 ### Disclaimer
 
 Colibri is still under development and hasn't been peer-reviewed, or audited for security yet. Use at your own risk, and do _not_ use your real keys (yet).
-_The software is provided “as is,” without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software._
+_The software is provided “as-is,” without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software._
