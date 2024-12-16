@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
 #include "Ethereum.h"
@@ -22,9 +23,9 @@ std::string EthereumChain::signDigest(HDNode *node, uint8_t digest[HASH_LENGTH])
 };
 
 /*
- * START ported code from Trezor legacy firmware (licensed under GPL 3.0, see `./GPL-3.0.txt`):
+ * START ported code from Trezor legacy firmware (originally licensed under GPL 3.0, see
+ * `./GPL-3.0.txt`):
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/ethereum.h
- * Original copyright notice:
  */
 static void hashEthereumMessage(const uint8_t *message, size_t message_len, uint8_t hash[32]) {
   struct SHA3_CTX ctx = {0};
