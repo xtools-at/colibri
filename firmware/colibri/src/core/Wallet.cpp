@@ -58,7 +58,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
   // hash password
   uint8_t passwordHash[HASH_LENGTH];
   doubleHash((const uint8_t*)password.c_str(), password.length(), passwordHash, iv);
-  log_s("password hash: %s", toHex(passwordHash, HASH_LENGTH).c_str());
+  // log_s("password hash: %s", toHex(passwordHash, HASH_LENGTH).c_str());
 
   // generate device key and checksum
   uint8_t key[HASH_LENGTH];
@@ -67,15 +67,13 @@ WalletResponse Wallet::setPassword(std::string& password) {
   doubleHash(key, HASH_LENGTH, checksum, iv);
   // log_s("generated device key: %s", toHex(key, HASH_LENGTH).c_str());
   log_s("generated checksum: %s", toHex(checksum, HASH_LENGTH).c_str());
+  store.putBytes(STORAGE_SYS, STORAGE_SYS_CHECKSUM, checksum, HASH_LENGTH);
 
   // encrypt key with password hash and IV
   uint8_t encryptedKey[HASH_LENGTH];
   aesEncrypt(key, HASH_LENGTH, encryptedKey, passwordHash, iv);
   log_s("encrypted key: %s", toHex(encryptedKey, HASH_LENGTH).c_str());
-
-  // store encrypted key and checksum
   store.writeMnemonic(0, encryptedKey, HASH_LENGTH);
-  store.putBytes(STORAGE_SYS, STORAGE_SYS_CHECKSUM, checksum, HASH_LENGTH);
 
   // clear memory
   memzero(iv, sizeof(iv));
@@ -261,12 +259,8 @@ WalletResponse Wallet::selectWallet(
     xPub = std::string(xPubArray);
     log_i("master xpub: %s", xPub.c_str());
 
-    // derive the fingerprint
+    // derive the fingerprint before setting the hd path
     uint32_t fpNum = hdnode_fingerprint(&hdNode);
-    uint8_t fpBytes[4];
-    uint32ToBytes(fpNum, fpBytes);
-    fingerprint = toHex(fpBytes, 4);
-    log_i("master fingerprint: %s", fingerprint);
 
     // store id and count
     walletId = id;
@@ -275,11 +269,17 @@ WalletResponse Wallet::selectWallet(
     // set hd path (also fills public key)
     status = setHdPath(inHdPath) ? Status::Ok : Status::InvalidParams;
 
-    // store chain type if passed in
+    // override chain type if passed in
     if (inChainType) {
       log_d("overriding chain type: %d to %d", chainType, inChainType);
       chainType = inChainType;
     }
+
+    // store fingerprint
+    uint8_t fpBytes[4];
+    uint32ToBytes(fpNum, fpBytes);
+    fingerprint = toHex(fpBytes, 4, chainType == ETH);
+    log_i("master fingerprint: %s", fingerprint);
 
     log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
     log_i("wallet pubkey: %s", getPublicKey().c_str());
