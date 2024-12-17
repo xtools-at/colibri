@@ -35,23 +35,23 @@ const char RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH[] = "eth_signTypedDataHash";
 // ===== RPC PARAMS & RESULTS ===== //
 const char RPC_PARAMS_PW[] = "[string: password]";
 const char RPC_PARAMS_ADD_MNEMONIC[] = "[string: 12/18/24 word mnemonic phrase]";
-const char RPC_PARAMS_CREATE_MNEMONIC[] = "[number: length in words (opt.) (12|18|24=default)]";
+const char RPC_PARAMS_CREATE_MNEMONIC[] = "[number: (opt.) length in words (12|18|24=default)]";
 const char RPC_PARAMS_SELECT_WALLET[] =
     "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase, number: (opt.) "
     "force chain type (1=ETH|2=BTC)]";
 const char RPC_PARAMS_MSG[] = "[string: plaintext message to sign]";
-const char RPC_PARAMS_TYPED_DATA[] =
+const char RPC_PARAMS_TYPED_DATA_HASH[] =
     "[string: hex domain separator hash, string: hex message hash]";
 
 const char RPC_RESULT_SUCCESS[] = "bool: success";
 const char RPC_RESULT_STRING[] = "string: result";
-const char RPC_RESULT_SIGNATURE[] = "string: signature (hex)";
+const char RPC_RESULT_SIGNATURE[] = "string: signature";
 const char RPC_RESULT_LIST_METHODS[] =
     "[...object: {string: method, string: params, string: result}]";
 const char RPC_RESULT_CREATE_MNEMONIC[] = "[number: wallet id, string: mnemonic phrase]";
 const char RPC_RESULT_ADD_MNEMONIC[] = "number: wallet id";
 const char RPC_RESULT_SELECTED_WALLET[] =
-    "[number: wallet id, string: address, string: pubkey, string hdPath, string master xpub, "
+    "[number: wallet id, string: address, string: pubkey, string: hdPath, string: master xpub, "
     "number: master fingerprint]";
 const char RPC_RESULT_STATUS[] = "[bool: unlocked, bool: key set, bool: password set]";
 const char RPC_RESULT_INFO[] =

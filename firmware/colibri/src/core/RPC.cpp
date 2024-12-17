@@ -221,7 +221,7 @@ void JsonRpcHandler::init() {
   // - signing
   addMethod(RPC_METHOD_ETH_SIGN_MSG, signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE);
   addMethod(
-      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA,
+      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH,
       RPC_RESULT_SIGNATURE
   );
 
