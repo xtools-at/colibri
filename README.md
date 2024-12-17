@@ -7,9 +7,14 @@
 <p align="center">
     <img alt="version: 0.0.1 (pre-alpha)" src="https://img.shields.io/badge/version-0.0.1_(pre--alpha)-crimson" />
     <a href="https://matrix.to/#/#colibriwallet:matrix.org">
-      <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" /></a>
+      <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" />
+    </a>
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
-      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_telegram-cornflowerblue?logo=telegram" /></a>
+      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_telegram-cornflowerblue?logo=telegram" />
+    </a>
+    <a href="https://bsky.app/profile/xtools.at">
+      <img alt="connect on Bluesky" src="https://img.shields.io/badge/%F0%9F%A6%8Bconnect-on_Bluesky-dodgerblue" />
+    </a>
 </p>
 
 **Colibri** is a free and open source DIY project, with the goal to enable everyone with _$5 and access to a laptop and Internet_ to create their own secure _hardware wallet_, using off-the-shelf hardware development boards.
@@ -232,10 +237,10 @@ Valuable extensions to the project, once the core product is functional:
 - inspired by [ricmoo](https://github.com/ricmoo)'s [Firefly](https://github.com/firefly/wallet) Arduino Wallet
 - preliminary work: [ESP-5791](https://github.com/xtools-at/esp5791) - Physical backed tokens with ESP32
 
-### Libraries used
+### Open-source libraries & Co.
 
 - [Trezor crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/src/LICENSE))
-- [Trezor legacy firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/src/chains/GPL-3.0.txt))
+- [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/src/chains/GPL-3.0.txt))
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
 - [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
 
