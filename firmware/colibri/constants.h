@@ -83,6 +83,7 @@ const char RPC_ERROR_WALLET_NOT_FOUND[] = "Wallet not found or invalid HD path";
 const char RPC_ERROR_WALLET_INTERNAL[] = "Internal error setting up wallet";
 
 // ===== Storage ===== //
+const char STORAGE_NVS_PARTITION_NAME[] = NVS_PARTITION_NAME;
 const char STORAGE_SYS[] = "sys";
 const char STORAGE_KEYS[] = "keys";
 const char STORAGE_IVS[] = "ivs";

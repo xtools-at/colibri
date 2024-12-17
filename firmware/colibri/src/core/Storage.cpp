@@ -5,17 +5,17 @@
 
 void Storage::wipe() {
   // delete storage keys
-  preferences.begin(STORAGE_KEYS);
+  preferences.begin(STORAGE_KEYS, false, STORAGE_NVS_PARTITION_NAME);
   preferences.clear();
   preferences.end();
   delay(10);
 
-  preferences.begin(STORAGE_IVS);
+  preferences.begin(STORAGE_IVS, false, STORAGE_NVS_PARTITION_NAME);
   preferences.clear();
   preferences.end();
   delay(10);
 
-  preferences.begin(STORAGE_SYS);
+  preferences.begin(STORAGE_SYS, false, STORAGE_NVS_PARTITION_NAME);
   preferences.clear();
   preferences.end();
   delay(10);
@@ -28,7 +28,7 @@ void Storage::wipe() {
 }
 
 uint16_t Storage::readWalletCounter() {
-  preferences.begin(STORAGE_SYS);
+  preferences.begin(STORAGE_SYS, true, STORAGE_NVS_PARTITION_NAME);
   uint16_t counter = preferences.getUShort(STORAGE_SYS_COUNTER);
   preferences.end();
 
@@ -36,7 +36,7 @@ uint16_t Storage::readWalletCounter() {
 }
 
 void Storage::writeWalletCounter(uint16_t counter) {
-  preferences.begin(STORAGE_SYS);
+  preferences.begin(STORAGE_SYS, false, STORAGE_NVS_PARTITION_NAME);
   preferences.putUShort(STORAGE_SYS_COUNTER, counter);
   preferences.end();
 }
@@ -64,7 +64,7 @@ size_t Storage::readIv(uint16_t index, uint8_t* iv) {
 bool Storage::hasIv(uint16_t index) { return hasBytes(STORAGE_IVS, index, AES_IV_SIZE); }
 
 bool Storage::putBytes(const char* category, const char* key, const uint8_t* value, size_t len) {
-  preferences.begin(category);
+  preferences.begin(category, false, STORAGE_NVS_PARTITION_NAME);
   size_t savedLen = preferences.putBytes(key, value, len);
   preferences.end();
 
@@ -83,7 +83,7 @@ bool Storage::putBytes(const char* category, uint16_t index, const uint8_t* valu
 }
 
 size_t Storage::getBytes(const char* category, const char* key, uint8_t* value, size_t maxLen) {
-  preferences.begin(category);
+  preferences.begin(category, true, STORAGE_NVS_PARTITION_NAME);
   size_t len = preferences.getBytes(key, value, maxLen);
   preferences.end();
 

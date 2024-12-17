@@ -90,3 +90,5 @@
 // #define NVS_MAX_AVAILABLE_STORAGE 7000
 // -- Arduino IDE reserves 20k for NVS storage by default, but that's shared with BLE & Co.
 // -- Using the config default of 7k here is enough to store 30 mnemonic phrases.
+// #define NVS_PARTITION_NAME "nvs"
+// -- (expert mode) if you've added a custom NVS partition, change the name here
