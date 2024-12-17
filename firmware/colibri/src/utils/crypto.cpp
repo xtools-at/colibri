@@ -62,7 +62,7 @@ std::string generateMnemonic(uint8_t words) {
 
   uint8_t entropy[32] = {0};
   generateEntropy(entropy);
-  // log_s("Entropy: %s", toHex(entropy, sizeof(entropy)).c_str());
+  log_ss("Entropy: %s", toHex(entropy, sizeof(entropy)).c_str());
 
   const char *mnemonic = mnemonic_from_data(entropy, strength / 8);
 
@@ -70,7 +70,7 @@ std::string generateMnemonic(uint8_t words) {
   memzero(entropy, sizeof(entropy));
   mnemonic_clear();
 
-  // log_s("Generated mnemonic phrase: %s", m.c_str());
+  log_ss("Generated mnemonic phrase: %s", m.c_str());
 
   return m;
 }

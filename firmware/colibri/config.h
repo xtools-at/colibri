@@ -56,8 +56,10 @@
 #endif
 
 // ========== Debug ========== //
-// Additional flag to log sensitive information (mnemonics, password, etc.)
-// #define DEBUG_LOG_SENSITIVE 1
+// Additional flag to log sensitive information (mnemonics, password, etc.).
+// Set `0` to disable, `1` to enable, `2` to log critically sensitive data - keep disabled unless
+// you REALLY know what you're doing!
+#define DEBUG_LOG_SENSITIVE 0
 
 // Arduino core serial debug log level (insecure) - should be set in Arduino IDE directly instead
 #ifndef CORE_DEBUG_LEVEL
@@ -83,13 +85,21 @@
     #if (defined(DEBUG_LOG_SENSITIVE) && DEBUG_LOG_SENSITIVE > 0)
       #warning "XXX Sensitive information logging enabled, data may leak XXX"
       #define log_s(...) log_d(__VA_ARGS__)
+
+      #if DEBUG_LOG_SENSITIVE >= 2
+        #define log_ss(...) log_d(__VA_ARGS__)
+      #else
+        #define log_ss(...)
+      #endif
     #else
       #define log_s(...)
+      #define log_ss(...)
     #endif
   #endif
 
 #else
   #define log_s(...)
+  #define log_ss(...)
   #define log_print(...)
   #define log_println(...)
   #define log_printf(...)
