@@ -472,7 +472,9 @@ WalletResponse Wallet::signMessage(std::string& message) {
   return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
 }
 
-WalletResponse Wallet::signTypedData(std::string& domainSeparatorHash, std::string& messageHash) {
+WalletResponse Wallet::signTypedDataHash(
+    std::string& domainSeparatorHash, std::string& messageHash
+) {
   log_i(
       "Signing typed data - domainSeparatorHash: %s; messageHash: %s", domainSeparatorHash.c_str(),
       messageHash.c_str()
@@ -483,7 +485,7 @@ WalletResponse Wallet::signTypedData(std::string& domainSeparatorHash, std::stri
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (chainType == ETH) {
-    signature = ethereum.signTypedData(&hdNode, domainSeparatorHash, messageHash);
+    signature = ethereum.signTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
     return !signature.empty() ? WalletResponse(signature)
                               : WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
   }

@@ -132,6 +132,7 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
   uint16_t id = request[RPC_PARAMS][0];
   const char* hdPath = request[RPC_PARAMS][1];
   const char* bip32Passphrase = request[RPC_PARAMS][2];
+  uint16_t chainType = request[RPC_PARAMS][3];
 
   // check input
   if (id == NULL || id < 1 || (hdPath != nullptr && strlen(hdPath) == 0) ||
@@ -139,11 +140,11 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
     return rpcError(response, RPC_ERROR_INVALID_PARAMS, Status::InvalidParams);
   }
 
-  WalletResponse r = wallet.selectWallet(id, hdPath, bip32Passphrase);
+  WalletResponse r = wallet.selectWallet(id, hdPath, bip32Passphrase, (ChainType)chainType);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
-    response[RPC_RESULT] = true;
+    getSelectedWallet(request, response);
   }
 }
 
@@ -160,11 +161,11 @@ void signMessage(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void signTypedData(const JsonDocument& request, JsonDocument& response) {
+void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
   std::string domainSeparatorHash = request[RPC_PARAMS][0];
   std::string msgHash = request[RPC_PARAMS][1];
 
-  WalletResponse r = wallet.signTypedData(domainSeparatorHash, msgHash);
+  WalletResponse r = wallet.signTypedDataHash(domainSeparatorHash, msgHash);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
@@ -213,12 +214,15 @@ void JsonRpcHandler::init() {
 
   // after unlock + keys set
   addMethod(RPC_METHOD_GET_WALLET, getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET);
-  addMethod(RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SUCCESS);
+  addMethod(
+      RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET
+  );
 
   // - signing
   addMethod(RPC_METHOD_ETH_SIGN_MSG, signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE);
   addMethod(
-      RPC_METHOD_ETH_SIGN_TYPED_DATA, signTypedData, RPC_PARAMS_TYPED_DATA, RPC_RESULT_SIGNATURE
+      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA,
+      RPC_RESULT_SIGNATURE
   );
 
   initialised = true;

@@ -30,14 +30,15 @@ const char RPC_METHOD_CREATE_MNEMONIC[] = "createMnemonic";
 const char RPC_METHOD_ADD_MNEMONIC[] = "addMnemonic";
 const char RPC_METHOD_SELECT_WALLET[] = "selectWallet";
 const char RPC_METHOD_ETH_SIGN_MSG[] = "eth_signMessage";
-const char RPC_METHOD_ETH_SIGN_TYPED_DATA[] = "eth_signTypedData";
+const char RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH[] = "eth_signTypedDataHash";
 
 // ===== RPC PARAMS & RESULTS ===== //
 const char RPC_PARAMS_PW[] = "[string: password]";
 const char RPC_PARAMS_ADD_MNEMONIC[] = "[string: 12/18/24 word mnemonic phrase]";
 const char RPC_PARAMS_CREATE_MNEMONIC[] = "[number: length in words (opt.) (12|18|24=default)]";
 const char RPC_PARAMS_SELECT_WALLET[] =
-    "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase]";
+    "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase, number: (opt.) "
+    "force chain type (1=ETH|2=BTC)]";
 const char RPC_PARAMS_MSG[] = "[string: plaintext message to sign]";
 const char RPC_PARAMS_TYPED_DATA[] =
     "[string: hex domain separator hash, string: hex message hash]";

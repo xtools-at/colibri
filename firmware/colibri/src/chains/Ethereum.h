@@ -10,7 +10,7 @@ class EthereumChain : public Chain {
 
   std::string getAddress(HDNode *node);
   std::string signMessage(HDNode *node, std::string &message);
-  std::string signTypedData(
+  std::string signTypedDataHash(
       HDNode *node, std::string &domainSeparatorHash, std::string &messageHash
   );
 

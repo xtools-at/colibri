@@ -51,7 +51,7 @@ class Wallet {
   std::string getAddress();
 
   WalletResponse signMessage(std::string& message);
-  WalletResponse signTypedData(std::string& domainSeparatorHash, std::string& messageHash);
+  WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
 
  private:
   bool locked;
