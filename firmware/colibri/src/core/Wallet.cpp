@@ -310,13 +310,30 @@ WalletResponse Wallet::selectWallet(
   return WalletResponse(getAddress());
 }
 
-WalletResponse Wallet::addMnemonic(std::string& mnemonic) {
+WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   // check input
   uint16_t counter = store.readWalletCounter();
   log_d("Read wallet counter: %d", counter);
 
-  uint16_t walletId = counter + 1;
+  uint16_t newCounter = counter + 1;
+  uint16_t walletId = newCounter;
+
+  // overwrite existing wallet
+  if (overwriteId) {
+    if (overwriteId < walletId) {
+      log_d("Overwriting wallet #%d", overwriteId);
+
+      walletId = overwriteId;
+      newCounter = counter;
+    } else {
+      log_e(
+          "Error: non-existing wallet id #%d passed, using next available slot #%d instead",
+          overwriteId, walletId
+      );
+    }
+  }
+
   if (store.isOutOfBounds(walletId))
     return WalletResponse(InvalidRequest, RPC_ERROR_MNEMONIC_STORE);
 
@@ -342,8 +359,8 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic) {
   store.writeMnemonic(walletId, encryptedMnemonic, mnemonicLen);
 
   // update counters
-  store.writeWalletCounter(walletId);
-  storedMnemonics = walletId;
+  store.writeWalletCounter(newCounter);
+  storedMnemonics = newCounter;
 
   // clear memory
   memzero(encryptedMnemonic, sizeof(encryptedMnemonic));
@@ -354,17 +371,17 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic) {
     selectWallet(walletId);
   }
 
-  // return mnemonic
+  // return walletId (compatible with Status since always >=1) and mnemonic
   return WalletResponse((Status)walletId, mnemonic);
 }
 
-WalletResponse Wallet::createMnemonic(uint8_t words) {
+WalletResponse Wallet::createMnemonic(uint8_t words, uint16_t overwriteId) {
   std::string mnemonic = generateMnemonic(words);
   if (mnemonic.length() == 0) {
     return WalletResponse(InvalidParams, RPC_ERROR_INVALID_PARAMS);
   }
 
-  return addMnemonic(mnemonic);
+  return addMnemonic(mnemonic, overwriteId);
 }
 
 void Wallet::deleteHdNode() {

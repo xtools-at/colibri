@@ -95,9 +95,11 @@ void wipe(const JsonDocument& request, JsonDocument& response) {
 
 void createMnemonic(const JsonDocument& request, JsonDocument& response) {
   uint8_t words = request[RPC_PARAMS][0];
+  uint16_t id = request[RPC_PARAMS][1];
+
   if (!words) words = DEFAULT_MNEMONIC_WORDS;
 
-  WalletResponse r = wallet.createMnemonic(words);
+  WalletResponse r = wallet.createMnemonic(words, id);
 
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
@@ -117,7 +119,10 @@ void createMnemonic(const JsonDocument& request, JsonDocument& response) {
 
 void addMnemonic(const JsonDocument& request, JsonDocument& response) {
   std::string mnemonic = request[RPC_PARAMS][0];
-  WalletResponse r = wallet.addMnemonic(mnemonic);
+  uint16_t id = request[RPC_PARAMS][1];
+
+  WalletResponse r = wallet.addMnemonic(mnemonic, id);
+
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {

@@ -38,8 +38,8 @@ class Wallet {
   void lock();
 
   WalletResponse setPassword(std::string& password);
-  WalletResponse addMnemonic(std::string& mnemonic);
-  WalletResponse createMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS);
+  WalletResponse addMnemonic(std::string& mnemonic, uint16_t overwriteId = 0);
+  WalletResponse createMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS, uint16_t overwriteId = 0);
   WalletResponse unlock(std::string& password, bool requiresApproval = true);
   WalletResponse wipeRemote();
   WalletResponse selectWallet(

@@ -34,8 +34,11 @@ const char RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH[] = "eth_signTypedDataHash";
 
 // ===== RPC PARAMS & RESULTS ===== //
 const char RPC_PARAMS_PW[] = "[string: password]";
-const char RPC_PARAMS_ADD_MNEMONIC[] = "[string: 12/18/24 word mnemonic phrase]";
-const char RPC_PARAMS_CREATE_MNEMONIC[] = "[number: (opt.) length in words (12|18|24=default)]";
+const char RPC_PARAMS_ADD_MNEMONIC[] =
+    "[string: 12/18/24 word mnemonic phrase, number: (opt.) existing wallet id to overwrite]";
+const char RPC_PARAMS_CREATE_MNEMONIC[] =
+    "[number: (opt.) length in words (12|18|24=default), number: (opt.) existing wallet id to "
+    "overwrite]";
 const char RPC_PARAMS_SELECT_WALLET[] =
     "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase, number: (opt.) "
     "force chain type (1=ETH|2=BTC)]";
