@@ -3,7 +3,7 @@
 
 #include <string>
 
-enum ChainType { UNKNOWN = 0, ETH = 1, BTC = 2 };
+enum ChainType : uint16_t { UNKNOWN = 0, ETH = 1, BTC = 2 };
 
 enum Permission {
   Always = 0,

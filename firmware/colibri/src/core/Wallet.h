@@ -23,12 +23,12 @@ class Wallet {
 
   std::string hdPath;
   std::string xPub;
+  std::string fingerprint;
   uint16_t walletId;
   uint16_t storedMnemonics;
-  uint32_t fingerprint;
+  uint16_t chainType;
   uint32_t bipId;
   uint32_t slip44;
-  int chainType;
 
   bool isLocked();
   bool isPasswordSet();

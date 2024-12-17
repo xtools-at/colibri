@@ -162,7 +162,7 @@ void Wallet::lock() {
 
   hdPath.clear();
   xPub.clear();
-  memzero(&fingerprint, sizeof(fingerprint));
+  fingerprint.clear();
   memzero(&bipId, sizeof(bipId));
   memzero(&slip44, sizeof(slip44));
   memzero(&chainType, sizeof(chainType));
@@ -237,8 +237,11 @@ WalletResponse Wallet::selectWallet(
     log_i("master xpub: %s", xPub.c_str());
 
     // derive the fingerprint
-    fingerprint = hdnode_fingerprint(&hdNode);
-    log_i("master fingerprint: %08x", fingerprint);
+    uint32_t fpNum = hdnode_fingerprint(&hdNode);
+    uint8_t fpBytes[4];
+    uint32ToBytes(fpNum, fpBytes);
+    fingerprint = toHex(fpBytes, 4);
+    log_i("master fingerprint: %s", fingerprint);
 
     // store id and count
     walletId = id;
@@ -253,7 +256,7 @@ WalletResponse Wallet::selectWallet(
       chainType = inChainType;
     }
 
-    log_i("used chain type: %s", chainType == ETH ? "ETH" : "BTC");
+    log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
     log_i("wallet pubkey: %s", getPublicKey().c_str());
     log_i("wallet address: %s", getAddress().c_str());
   } else {

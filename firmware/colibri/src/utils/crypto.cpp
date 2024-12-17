@@ -131,3 +131,11 @@ size_t fromHex(const char *hex, uint8_t *bytes, size_t maxBytesLen) {
 
   return bytesLen;
 }
+
+// Helper method to convert uint32_t to bytes
+void uint32ToBytes(uint32_t value, uint8_t output[4]) {
+  output[0] = (value >> 24) & 0xFF;
+  output[1] = (value >> 16) & 0xFF;
+  output[2] = (value >> 8) & 0xFF;
+  output[3] = value & 0xFF;
+}
