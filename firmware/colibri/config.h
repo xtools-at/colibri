@@ -139,7 +139,7 @@
 
 // - storage
 #ifndef NVS_MAX_AVAILABLE_STORAGE
-  #define NVS_MAX_AVAILABLE_STORAGE 7250
+  #define NVS_MAX_AVAILABLE_STORAGE 7280
 #endif
 
 #ifndef NVS_PARTITION_NAME
@@ -160,7 +160,7 @@
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity
-#if defined(INTERFACE_BLE_DISABLED)
+#if (defined(INTERFACE_BLE_DISABLED) || defined(INTERFACE_BLE_NIMBLE_DISABLED))
   #define RNG_ANTENNA_DISABLED
 #endif
 
