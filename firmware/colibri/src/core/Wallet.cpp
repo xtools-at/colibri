@@ -101,8 +101,16 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   if (!isPasswordSet()) return WalletResponse(InvalidRequest, RPC_ERROR_PW_NOT_SET);
 
   // approve request on hardware
-  if (requiresApproval && !waitForApproval())
+  if (requiresApproval && !waitForApproval()) {
     return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  }
+
+// self-destruct after n failed attempts
+#if SELF_DESTRUCT_ENABLED
+  uint16_t logins = store.readLoginAttempts();
+  logins++;
+  store.writeLoginAttempts(logins);
+#endif
 
   // read encrypted key and IV
   uint8_t encrDeviceKey[HASH_LENGTH];
@@ -138,10 +146,27 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   log_i("password match: %s", success == 1 ? "true" : "false");
   memzero(checksum, sizeof(checksum));
   memzero(storedChecksum, sizeof(storedChecksum));
+
+  // wrong password
   if (!success) {
     lock();
+
+#if SELF_DESTRUCT_ENABLED
+    // self-destruct after n failed attempts
+    log_w("triggered self-destruct after %d failed login attempts", logins);
+    if (logins > SELF_DESTRUCT_MAX_FAILED_ATTEMPTS) {
+      wipe();
+    }
+#endif
+
     return WalletResponse(InvalidParams, RPC_ERROR_PW_WRONG);
   }
+
+  // successful unlock
+#if SELF_DESTRUCT_ENABLED
+  // reset login attempts
+  store.writeLoginAttempts(0);
+#endif
 
   // unlock wallet
   locked = false;

@@ -139,11 +139,24 @@
 
 // - storage
 #ifndef NVS_MAX_AVAILABLE_STORAGE
-  #define NVS_MAX_AVAILABLE_STORAGE 7000
+  #define NVS_MAX_AVAILABLE_STORAGE 7250
 #endif
 
 #ifndef NVS_PARTITION_NAME
   #define NVS_PARTITION_NAME "nvs"
+#endif
+
+// - self-destruct
+#ifndef SELF_DESTRUCT_ENABLED
+  #define SELF_DESTRUCT_ENABLED false
+#endif
+
+#ifndef SELF_DESTRUCT_MAX_FAILED_ATTEMPTS
+  #define SELF_DESTRUCT_MAX_FAILED_ATTEMPTS 10
+#endif
+
+#if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
+  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be at least 3"
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity
@@ -215,7 +228,9 @@
 #define MIN_PASSPHRASE_LENGTH 12
 #define MAX_PASSPHRASE_LENGTH 256
 #define MAX_MNEMONIC_LENGTH 196
-#define SYSTEM_STORAGE (2 * HASH_LENGTH + AES_IV_SIZE + 32)
+#define SYSTEM_STORAGE \
+  (2 * HASH_LENGTH /* device key + checksum */ + AES_IV_SIZE /* device IV */ + \
+   16 /* login attempts */ + 64 /* storage keys & metadata */)
 #define MAX_STORED_KEYS \
   ((NVS_MAX_AVAILABLE_STORAGE - SYSTEM_STORAGE) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 

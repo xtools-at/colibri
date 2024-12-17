@@ -27,18 +27,16 @@ void Storage::wipe() {
   delay(50);
 }
 
-uint16_t Storage::readWalletCounter() {
-  preferences.begin(STORAGE_SYS, true, STORAGE_NVS_PARTITION_NAME);
-  uint16_t counter = preferences.getUShort(STORAGE_SYS_COUNTER);
-  preferences.end();
-
-  return counter;
-}
+uint16_t Storage::readWalletCounter() { return getUShort(STORAGE_SYS_WALLET_COUNTER); }
 
 void Storage::writeWalletCounter(uint16_t counter) {
-  preferences.begin(STORAGE_SYS, false, STORAGE_NVS_PARTITION_NAME);
-  preferences.putUShort(STORAGE_SYS_COUNTER, counter);
-  preferences.end();
+  return putUShort(STORAGE_SYS_WALLET_COUNTER, counter);
+}
+
+uint16_t Storage::readLoginAttempts() { return getUShort(STORAGE_SYS_LOGIN_ATTEMPTS); }
+
+void Storage::writeLoginAttempts(uint16_t attempts) {
+  return putUShort(STORAGE_SYS_LOGIN_ATTEMPTS, attempts);
 }
 
 bool Storage::writeMnemonic(uint16_t index, const uint8_t* mnemonic, size_t len) {
@@ -99,6 +97,20 @@ size_t Storage::getBytes(const char* category, uint16_t index, uint8_t* value, s
   utoa(index, key, 10);
 
   return getBytes(category, key, value, maxLen);
+}
+
+void Storage::putUShort(const char* category, uint16_t number) {
+  preferences.begin(STORAGE_SYS, false, STORAGE_NVS_PARTITION_NAME);
+  preferences.putUShort(category, number);
+  preferences.end();
+}
+
+uint16_t Storage::getUShort(const char* category) {
+  preferences.begin(STORAGE_SYS, true, STORAGE_NVS_PARTITION_NAME);
+  uint16_t counter = preferences.getUShort(category);
+  preferences.end();
+
+  return counter;
 }
 
 bool Storage::isAllZero(const uint8_t* value, size_t len) {

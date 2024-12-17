@@ -87,5 +87,6 @@ const char STORAGE_NVS_PARTITION_NAME[] = NVS_PARTITION_NAME;
 const char STORAGE_SYS[] = "sys";
 const char STORAGE_KEYS[] = "keys";
 const char STORAGE_IVS[] = "ivs";
-const char STORAGE_SYS_COUNTER[] = "count";
+const char STORAGE_SYS_WALLET_COUNTER[] = "count";
+const char STORAGE_SYS_LOGIN_ATTEMPTS[] = "l";
 const char STORAGE_SYS_CHECKSUM[] = "cks";

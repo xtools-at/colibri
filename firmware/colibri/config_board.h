@@ -6,7 +6,7 @@
 // ========== PRE-CONFIGURED BOARDS ========== //
 // Either UNCOMMENT to select board:
 
-// -- Actively supported boards:
+// -- Actively supported boards (more coming soon!):
 // #include "src/boards/c3_supermini.h";
 // #include "src/boards/s3_supermini.h";
 
@@ -83,12 +83,3 @@
 // - shared:
 // #define DISPLAY_GPIO_BACKLIGHT -1
 // #define DISPLAY_GPIO_RST -1  // -1 if NC or connected to EN
-
-// ========== DEFAULT OVERRIDES ========== //
-// Board specifics
-// #define BOARD_SERIAL_BAUD_RATE 115200
-// #define NVS_MAX_AVAILABLE_STORAGE 7000
-// -- Arduino IDE reserves 20k for NVS storage by default, but that's shared with BLE & Co.
-// -- Using the config default of 7k here is enough to store 30 mnemonic phrases.
-// #define NVS_PARTITION_NAME "nvs"
-// -- (expert mode) if you've added a custom NVS partition, change the name here
