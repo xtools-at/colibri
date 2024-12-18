@@ -3,7 +3,7 @@ name: Release Typescript SDK
 on:
   push:
     tags:
-      - 'v*'
+      - 'ts*'
 
 jobs:
   release:
