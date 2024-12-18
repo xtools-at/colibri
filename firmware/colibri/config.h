@@ -44,7 +44,7 @@
 
 // ========== System ========== //
 #define HW_NAME "Colibri"
-#define HW_FIRMWARE_VERSION "0.0.1"
+#define HW_FIRMWARE_VERSION "0.0.2"
 #ifndef DISPLAY_TYPE_ID
   #ifndef DISPLAY_ENABLED
     #define DISPLAY_TYPE_ID 0  // No screen
