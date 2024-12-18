@@ -74,8 +74,9 @@ void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
 void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
-  // return wallet id, address, pubkey, hdPath, xpub, fingerprint
+  // return wallet id, current chainType, address, pubkey, hdPath, xpub, fingerprint
   resultsArray.add(wallet.walletId);
+  resultsArray.add(wallet.chainType);
   resultsArray.add(wallet.getAddress());
   resultsArray.add(wallet.getPublicKey());
   resultsArray.add(wallet.hdPath);
