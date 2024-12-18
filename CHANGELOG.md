@@ -1,5 +1,7 @@
 # Colibri Changelog
 
+(\* = new feature; \+ = improvement; \# = bugfix; \~ = chore)
+
 ## v0.0.2
 
 (date tbd)
