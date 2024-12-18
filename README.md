@@ -32,7 +32,7 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ## Current version
 
-**0.0.2** - `0.0.X` pre-alpha, public preview
+**0.0.2** - `0.0.X` pre-alpha, public preview - find the full **changelog** [here](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
 ### What you can do:
 
