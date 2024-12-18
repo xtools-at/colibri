@@ -54,10 +54,18 @@ class Wallet {
   WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
 
  private:
+  void deleteHdNode();
+  bool setHdPath(const char* hdPath);
+
+ protected:
   bool locked;
   uint8_t pwHash[HASH_LENGTH];
   HDNode hdNode;
 
-  void deleteHdNode();
-  bool setHdPath(const char* hdPath);
+  void decryptStoredMnemonic(
+      uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH] = nullptr
+  );
+  void encryptAndStoreMnemonic(
+      uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH] = nullptr
+  );
 };

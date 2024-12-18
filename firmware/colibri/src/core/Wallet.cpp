@@ -36,13 +36,14 @@ WalletResponse Wallet::setPassword(std::string& password) {
   // approve request on hardware
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
+  // password is set and encrypted keys exist -> reset password
+  bool isPasswordChange = false;
   if (isPasswordSet() && isKeySet()) {
-    // currently the wallet needs to be wiped to change the password.
-    // TODO: re-encrypt already stored keys here
+    // wallet needs to be unlocked to change password
+    if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
 
-    // if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-
-    return WalletResponse(InvalidRequest, RPC_ERROR_PW_SET);
+    // re-encrypt mnemonics after setting new password
+    isPasswordChange = true;
   }
 
   // check the provided password
@@ -75,6 +76,22 @@ WalletResponse Wallet::setPassword(std::string& password) {
   aesEncrypt(key, HASH_LENGTH, encryptedKey, passwordHash, iv);
   log_s("encrypted key: %s", toHex(encryptedKey, HASH_LENGTH).c_str());
   store.writeMnemonic(0, encryptedKey, HASH_LENGTH);
+
+  // re-encrypt stored mnemonics
+  if (isPasswordChange) {
+    // get number of stored mnemonics
+    uint16_t numWallets = store.readWalletCounter();
+
+    // de- and re-encrypt all stored mnemonics
+    for (uint16_t i = 1; i <= numWallets; i++) {
+      std::string mnemonic;
+      decryptStoredMnemonic(i, mnemonic);
+      encryptAndStoreMnemonic(i, mnemonic, passwordHash);
+
+      mnemonic.clear();
+      updateUi();
+    }
+  }
 
   // clear memory
   memzero(iv, sizeof(iv));
@@ -218,26 +235,13 @@ WalletResponse Wallet::selectWallet(
   uint16_t currentId = walletId > 1 ? walletId : 1;
   const char* currentHdPath = hdPath.length() > 0 ? hdPath.c_str() : DEFAULT_HD_PATH;
 
-  // decrypt mnemonic with password (TODO: break out into separate function)
-  // - read encrypted mnemonic and IV
-  uint8_t encrMnemonic[MAX_MNEMONIC_LENGTH];
-  size_t mnemonicLen = store.readMnemonic(id, encrMnemonic);
-  log_s("read encr. mnemonic bytes: %s", toHex(encrMnemonic, mnemonicLen).c_str());
-  uint8_t iv[AES_IV_SIZE];
-  store.readIv(id, iv);
-  log_s("read IV: %s", toHex(iv, AES_IV_SIZE).c_str());
-
-  // - decrypt mnemonic
-  uint8_t mnemonicBytes[mnemonicLen];
-  aesDecrypt(encrMnemonic, mnemonicLen, mnemonicBytes, pwHash, iv);
-  char mnemonicStr[mnemonicLen + 1];
-  strncpy(mnemonicStr, (const char*)mnemonicBytes, mnemonicLen);
-  mnemonicStr[mnemonicLen] = '\0';
-  log_ss("decrypted mnemonic string: %s", mnemonicStr);
+  // decrypt mnemonic with password
+  std::string mnemonic;
+  decryptStoredMnemonic(id, mnemonic);
 
   // create seed from mnemonic and (optional) passphrase
   uint8_t seed[BIP39_SEED_SIZE];
-  mnemonic_to_seed(mnemonicStr, bip32Passphrase, seed, NULL);
+  mnemonic_to_seed(mnemonic.c_str(), bip32Passphrase, seed, NULL);
   log_ss("seed: %s", toHex(seed, BIP39_SEED_SIZE).c_str());
 
   // create hd node from seed
@@ -246,6 +250,7 @@ WalletResponse Wallet::selectWallet(
   const char* curveType = SECP256K1_NAME;
   int status = hdnode_from_seed(seed, BIP39_SEED_SIZE, curveType, &hdNode);
   log_d("hdnode creation: %s", status == 1 ? "success" : "error");
+  memzero(seed, sizeof(seed));
 
   // grab master xpub and fingerprint before setting path
   if (status) {
@@ -289,13 +294,6 @@ WalletResponse Wallet::selectWallet(
   } else {
     status = Status::InternalError;
   }
-
-  // clear memory
-  memzero(mnemonicBytes, sizeof(mnemonicBytes));
-  memzero(mnemonicStr, sizeof(mnemonicStr));
-  memzero(seed, sizeof(seed));
-  memzero(encrMnemonic, sizeof(encrMnemonic));
-  memzero(iv, sizeof(iv));
 
   // restore on error
   if (status < Status::Ok) {
@@ -347,27 +345,12 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
   // approve request on hardware
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
-  // encrypt mnemonic with password (TODO: break out into separate function)
-  // - create and store iv
-  uint8_t iv[AES_IV_SIZE];
-  generateEntropy(iv, AES_IV_SIZE);
-  store.writeIv(walletId, iv);
-  log_s("generated IV: %s", toHex(iv, AES_IV_SIZE).c_str());
-
-  // - encrypt and store mnemonic
-  size_t mnemonicLen = mnemonic.length() + 1;
-  uint8_t encryptedMnemonic[mnemonicLen];
-  aesEncrypt((uint8_t*)mnemonic.c_str(), mnemonicLen, encryptedMnemonic, pwHash, iv);
-  log_s("encrypted mnemonic bytes: %s", toHex(encryptedMnemonic, mnemonicLen).c_str());
-  store.writeMnemonic(walletId, encryptedMnemonic, mnemonicLen);
+  // encrypt mnemonic with password
+  encryptAndStoreMnemonic(walletId, mnemonic);
 
   // update counters
   store.writeWalletCounter(newCounter);
   storedMnemonics = newCounter;
-
-  // clear memory
-  memzero(encryptedMnemonic, sizeof(encryptedMnemonic));
-  memzero(iv, sizeof(iv));
 
   // select wallet if it's the first one
   if (walletId == 1) {
@@ -453,8 +436,6 @@ std::string Wallet::getPublicKey() {
   }
 
   bool use0xPrefix = chainType == ETH;
-
-  // TODO: do not hexlify other chains
   return toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, use0xPrefix);
 }
 
@@ -539,4 +520,60 @@ WalletResponse Wallet::signTypedDataHash(
   }
 
   return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+}
+
+void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH]) {
+  // optional input key
+  if (encKey == nullptr) {
+    encKey = pwHash;
+  }
+
+  // read encrypted mnemonic and IV
+  uint8_t encrMnemonic[MAX_MNEMONIC_LENGTH];
+  size_t mnemonicLen = store.readMnemonic(id, encrMnemonic);
+  log_s("read encr. mnemonic bytes: %s", toHex(encrMnemonic, mnemonicLen).c_str());
+  uint8_t iv[AES_IV_SIZE];
+  store.readIv(id, iv);
+  log_s("read IV: %s", toHex(iv, AES_IV_SIZE).c_str());
+
+  // decrypt mnemonic
+  uint8_t mnemonicBytes[mnemonicLen];
+  aesDecrypt(encrMnemonic, mnemonicLen, mnemonicBytes, pwHash, iv);
+  char mnemonicStr[mnemonicLen + 1];
+  strncpy(mnemonicStr, (const char*)mnemonicBytes, mnemonicLen);
+  mnemonicStr[mnemonicLen] = '\0';
+  log_ss("decrypted mnemonic string: %s", mnemonicStr);
+  output = std::string(mnemonicStr);
+
+  // clear memory
+  memzero(encrMnemonic, sizeof(encrMnemonic));
+  memzero(iv, sizeof(iv));
+  memzero(mnemonicBytes, sizeof(mnemonicBytes));
+  memzero(mnemonicStr, sizeof(mnemonicStr));
+}
+
+void Wallet::encryptAndStoreMnemonic(
+    uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]
+) {
+  // optional input key
+  if (encKey == nullptr) {
+    encKey = pwHash;
+  }
+
+  // create and store iv
+  uint8_t iv[AES_IV_SIZE];
+  generateEntropy(iv, AES_IV_SIZE);
+  store.writeIv(id, iv);
+  log_s("generated IV: %s", toHex(iv, AES_IV_SIZE).c_str());
+
+  // encrypt and store mnemonic
+  size_t mnemonicLen = mnemonic.length() + 1;
+  uint8_t encryptedMnemonic[mnemonicLen];
+  aesEncrypt((uint8_t*)mnemonic.c_str(), mnemonicLen, encryptedMnemonic, encKey, iv);
+  log_s("encrypted mnemonic bytes: %s", toHex(encryptedMnemonic, mnemonicLen).c_str());
+  store.writeMnemonic(id, encryptedMnemonic, mnemonicLen);
+
+  // clear memory
+  memzero(encryptedMnemonic, sizeof(encryptedMnemonic));
+  memzero(iv, sizeof(iv));
 }
