@@ -25,14 +25,14 @@ The project aims to achieve this by
 - utilizing cheap and widely available ESP32 development boards: one can get them for as little as ~$3
 - building by the principle that "unhackable" hardware doesn't exist: any valuable data is encrypted to make it functionally impossible to extract instead
 
-_Version 0.1.X_ is targeted to release early 2025, and will focus on getting the Colibri core ready - creating a secure hardware keystore and communication interface, and adding support for most Ethereum-compatible networks.
+_Version `0.1.X`_ is targeted to release early 2025, and will focus on getting the Colibri core ready - creating a secure hardware keystore and communication interface, and adding support for most Ethereum-compatible networks.
 It's supposed to run on most common ESP32 development boards, with a intuitively designed UI and reasonable security despite the lack of a display.
 
-_Version 0.2.X_ will introduce support for a wide range of display types commonly used by makers and pre-built into dev kits. This will also improve security, allowing users to verify transaction parameters, typing passwords on the device directly and recover stored mnemonics.
+_Version `0.2.X`_ will introduce support for a wide range of display types commonly used by makers and pre-built into dev kits. This will also improve security, allowing users to verify transaction parameters, typing passwords on the device directly and recover stored mnemonics.
 
 ## Current version
 
-**0.0.1** - pre-alpha, public preview
+**0.0.1** - `0.0.X` pre-alpha, public preview
 
 ### What you can do:
 
