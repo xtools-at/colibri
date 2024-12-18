@@ -10,7 +10,7 @@
       <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" />
     </a>
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
-      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_telegram-cornflowerblue?logo=telegram" />
+      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
     </a>
     <a href="https://bsky.app/profile/xtools.at">
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/%F0%9F%A6%8Bconnect-on_Bluesky-dodgerblue" />
@@ -167,14 +167,16 @@ All done! Next time we want to use our wallet, we'll need to unlock it first:
 To select a specific wallet, you can use
 
 ```javascript
+// use your second stored mnemonic for signing, with default settings:
+{ "method": "selectWallet", "params": [2] }
+// this call also returns additional info for the wallet, like the address, pubkey and HD path.
+
+// ...or be more specific:
+{ "method": "selectWallet", "params": [1, "m/44'/60'/0'/0/2", "optionalPassphrase"] }
 // params:
-// - id of seed phrase to use
+// - id of seed phrase to use (here: 1)
 // - optional wallet HD path (here: Ethereum, wallet index 2)
 // - optional BIP32 passphrase
-{ "method": "selectWallet", "params": [1, "m/44'/60'/0'/0/2", "optionalPassphrase"] }
-
-// ... then get wallet info like address, pubkey, etc.
-{ "method": "getSelectedWallet" }
 ```
 
 To e.g. sign a personal message, try
