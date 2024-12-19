@@ -4,7 +4,7 @@
 
 ## v0.0.2
 
-(date tbd)
+2024-12-19
 
 - `*` Interfaces: finished communication via BLE
 - `*` Wallet: added optional self-destruct mode after n failed login attempts
