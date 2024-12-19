@@ -5,7 +5,7 @@
 
 #include "../../constants.h"
 
-void rpcError(JsonDocument& response, const char* errorMsg, int errorCode) {
+static void rpcError(JsonDocument& response, const char* errorMsg, int errorCode) {
   log_v("rpcError called: %s\n", errorMsg);
 
   JsonObject jsonError = response[RPC_ERROR].to<JsonObject>();
@@ -74,8 +74,9 @@ void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
 void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
-  // return wallet id, address, pubkey, hdPath, xpub, fingerprint
+  // return wallet id, current chainType, address, pubkey, hdPath, xpub, fingerprint
   resultsArray.add(wallet.walletId);
+  resultsArray.add(wallet.chainType);
   resultsArray.add(wallet.getAddress());
   resultsArray.add(wallet.getPublicKey());
   resultsArray.add(wallet.hdPath);
@@ -84,7 +85,9 @@ void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
 }
 
 void wipe(const JsonDocument& request, JsonDocument& response) {
-  WalletResponse r = wallet.wipeRemote();
+  bool interfacesOnly = request[RPC_PARAMS][0];
+
+  WalletResponse r = wallet.wipeRemote(!!interfacesOnly);
 
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
@@ -95,9 +98,11 @@ void wipe(const JsonDocument& request, JsonDocument& response) {
 
 void createMnemonic(const JsonDocument& request, JsonDocument& response) {
   uint8_t words = request[RPC_PARAMS][0];
+  uint16_t id = request[RPC_PARAMS][1];
+
   if (!words) words = DEFAULT_MNEMONIC_WORDS;
 
-  WalletResponse r = wallet.createMnemonic(words);
+  WalletResponse r = wallet.createMnemonic(words, id);
 
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
@@ -117,7 +122,10 @@ void createMnemonic(const JsonDocument& request, JsonDocument& response) {
 
 void addMnemonic(const JsonDocument& request, JsonDocument& response) {
   std::string mnemonic = request[RPC_PARAMS][0];
-  WalletResponse r = wallet.addMnemonic(mnemonic);
+  uint16_t id = request[RPC_PARAMS][1];
+
+  WalletResponse r = wallet.addMnemonic(mnemonic, id);
+
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
@@ -132,6 +140,7 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
   uint16_t id = request[RPC_PARAMS][0];
   const char* hdPath = request[RPC_PARAMS][1];
   const char* bip32Passphrase = request[RPC_PARAMS][2];
+  uint16_t chainType = request[RPC_PARAMS][3];
 
   // check input
   if (id == NULL || id < 1 || (hdPath != nullptr && strlen(hdPath) == 0) ||
@@ -139,11 +148,11 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
     return rpcError(response, RPC_ERROR_INVALID_PARAMS, Status::InvalidParams);
   }
 
-  WalletResponse r = wallet.selectWallet(id, hdPath, bip32Passphrase);
+  WalletResponse r = wallet.selectWallet(id, hdPath, bip32Passphrase, (ChainType)chainType);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
-    response[RPC_RESULT] = true;
+    getSelectedWallet(request, response);
   }
 }
 
@@ -160,11 +169,11 @@ void signMessage(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void signTypedData(const JsonDocument& request, JsonDocument& response) {
+void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
   std::string domainSeparatorHash = request[RPC_PARAMS][0];
   std::string msgHash = request[RPC_PARAMS][1];
 
-  WalletResponse r = wallet.signTypedData(domainSeparatorHash, msgHash);
+  WalletResponse r = wallet.signTypedDataHash(domainSeparatorHash, msgHash);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
@@ -174,6 +183,10 @@ void signTypedData(const JsonDocument& request, JsonDocument& response) {
   domainSeparatorHash.clear();
   msgHash.clear();
   memzero(&r, sizeof(r));
+}
+
+void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
+  // TODO: implement
 }
 
 JsonRpcHandler::JsonRpcHandler() : initialised(false) {}
@@ -200,7 +213,7 @@ void JsonRpcHandler::init() {
   addMethod(RPC_METHOD_LOCK, lock, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterSetupPassword);
 
   // after unlock
-  addMethod(RPC_METHOD_WIPE, wipe, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
+  addMethod(RPC_METHOD_WIPE, wipe, RPC_PARAMS_WIPE, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
   addMethod(
       RPC_METHOD_CREATE_MNEMONIC, createMnemonic, RPC_PARAMS_CREATE_MNEMONIC,
       RPC_RESULT_CREATE_MNEMONIC, Permission::AfterUnlock
@@ -213,12 +226,19 @@ void JsonRpcHandler::init() {
 
   // after unlock + keys set
   addMethod(RPC_METHOD_GET_WALLET, getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET);
-  addMethod(RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SUCCESS);
+  addMethod(
+      RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET
+  );
 
   // - signing
   addMethod(RPC_METHOD_ETH_SIGN_MSG, signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE);
   addMethod(
-      RPC_METHOD_ETH_SIGN_TYPED_DATA, signTypedData, RPC_PARAMS_TYPED_DATA, RPC_RESULT_SIGNATURE
+      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH,
+      RPC_RESULT_SIGNATURE
+  );
+  addMethod(
+      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX,
+      RPC_RESULT_SIGNATURE_TX
   );
 
   initialised = true;
@@ -286,7 +306,8 @@ bool JsonRpcHandler::validateRequest(const JsonDocument& request, JsonDocument& 
   // Methods with only one optional parameter are not supported, hardcode affected ones here.
   bool methodRequiresParams = strlen(methods[methodName].paramsDescription) != 0 &&
       methodName.compare(RPC_METHOD_LIST_METHODS) != 0 &&
-      methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0;
+      methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0 &&
+      methodName.compare(RPC_METHOD_WIPE) != 0;
   if (methodRequiresParams &&
       (request[RPC_PARAMS].isNull() || request[RPC_PARAMS].size() == 0 ||
        request[RPC_PARAMS][0].isNull())) {

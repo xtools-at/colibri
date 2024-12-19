@@ -30,28 +30,36 @@ const char RPC_METHOD_CREATE_MNEMONIC[] = "createMnemonic";
 const char RPC_METHOD_ADD_MNEMONIC[] = "addMnemonic";
 const char RPC_METHOD_SELECT_WALLET[] = "selectWallet";
 const char RPC_METHOD_ETH_SIGN_MSG[] = "eth_signMessage";
-const char RPC_METHOD_ETH_SIGN_TYPED_DATA[] = "eth_signTypedData";
+const char RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH[] = "eth_signTypedDataHash";
+const char RPC_METHOD_ETH_SIGN_TX[] = "eth_signTransaction";
 
 // ===== RPC PARAMS & RESULTS ===== //
 const char RPC_PARAMS_PW[] = "[string: password]";
-const char RPC_PARAMS_ADD_MNEMONIC[] = "[string: 12/18/24 word mnemonic phrase]";
-const char RPC_PARAMS_CREATE_MNEMONIC[] = "[number: length in words (opt.) (12|18|24=default)]";
+const char RPC_PARAMS_WIPE[] = "[bool: (opt.) clear interfaces only]";
+const char RPC_PARAMS_ADD_MNEMONIC[] =
+    "[string: 12/18/24 word mnemonic phrase, number: (opt.) existing wallet id to overwrite]";
+const char RPC_PARAMS_CREATE_MNEMONIC[] =
+    "[number: (opt.) length in words (12|18|24=default), number: (opt.) existing wallet id to "
+    "overwrite]";
 const char RPC_PARAMS_SELECT_WALLET[] =
-    "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase]";
+    "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase, number: (opt.) "
+    "force chain type (1=ETH|2=BTC)]";
 const char RPC_PARAMS_MSG[] = "[string: plaintext message to sign]";
-const char RPC_PARAMS_TYPED_DATA[] =
+const char RPC_PARAMS_TYPED_DATA_HASH[] =
     "[string: hex domain separator hash, string: hex message hash]";
+const char RPC_PARAMS_ETH_SIGN_TX[] = "[coming soon]";
 
 const char RPC_RESULT_SUCCESS[] = "bool: success";
 const char RPC_RESULT_STRING[] = "string: result";
-const char RPC_RESULT_SIGNATURE[] = "string: signature (hex)";
+const char RPC_RESULT_SIGNATURE[] = "string: signature";
+const char RPC_RESULT_SIGNATURE_TX[] = "[string: signature, string: r, string: s, string: v]";
 const char RPC_RESULT_LIST_METHODS[] =
     "[...object: {string: method, string: params, string: result}]";
 const char RPC_RESULT_CREATE_MNEMONIC[] = "[number: wallet id, string: mnemonic phrase]";
 const char RPC_RESULT_ADD_MNEMONIC[] = "number: wallet id";
 const char RPC_RESULT_SELECTED_WALLET[] =
-    "[number: wallet id, string: address, string: pubkey, string hdPath, string master xpub, "
-    "number: master fingerprint]";
+    "[number: wallet id, number: chain type (1=ETH|2=BTC), string: address, string: pubkey, "
+    "string: hdPath, string: master xpub, string: master fingerprint]";
 const char RPC_RESULT_STATUS[] = "[bool: unlocked, bool: key set, bool: password set]";
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, number: display type, number: "
@@ -82,8 +90,14 @@ const char RPC_ERROR_WALLET_NOT_FOUND[] = "Wallet not found or invalid HD path";
 const char RPC_ERROR_WALLET_INTERNAL[] = "Internal error setting up wallet";
 
 // ===== Storage ===== //
+const char STORAGE_NVS_PARTITION_NAME[] = NVS_PARTITION_NAME;
 const char STORAGE_SYS[] = "sys";
 const char STORAGE_KEYS[] = "keys";
 const char STORAGE_IVS[] = "ivs";
-const char STORAGE_SYS_COUNTER[] = "count";
+const char STORAGE_SYS_WALLET_COUNTER[] = "count";
+const char STORAGE_SYS_LOGIN_ATTEMPTS[] = "l";
 const char STORAGE_SYS_CHECKSUM[] = "cks";
+
+// ===== BLE ===== //
+const char BLE_INPUT_DEFAULT_MSG[] = "RPC Input";
+const char BLE_OUTPUT_DEFAULT_MSG[] = "RPC Output";

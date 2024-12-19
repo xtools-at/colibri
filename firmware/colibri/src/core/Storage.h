@@ -16,6 +16,9 @@ class Storage {
  public:
   void writeWalletCounter(uint16_t counter);
   uint16_t readWalletCounter();
+  void writeLoginAttempts(uint16_t attempts);
+  uint16_t readLoginAttempts();
+
   bool writeMnemonic(uint16_t index, const uint8_t* mnemonic, size_t len);
   size_t readMnemonic(uint16_t index, uint8_t* mnemonic);
   bool hasMnemonic(uint16_t index);
@@ -33,6 +36,8 @@ class Storage {
   bool putBytes(const char* category, uint16_t index, const uint8_t* value, size_t len);
   size_t getBytes(const char* category, uint16_t index, uint8_t* value, size_t maxLen);
   bool hasBytes(const char* category, uint16_t index, size_t len);
+  void putUShort(const char* category, uint16_t number);
+  uint16_t getUShort(const char* category);
 
   Preferences preferences;
 };

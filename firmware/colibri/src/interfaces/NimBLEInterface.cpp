@@ -7,22 +7,17 @@ const uint32_t propRead =
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::READ_AUTHEN;
 const uint32_t propWrite =
     NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN;
+const size_t maxCharValueLen = 251 - 3;
 
 std::string requestBuffer;
 bool requestReady = false;
-
-#ifdef DISPLAY_ENABLED
-uint32_t pairingKey = 0;
-#else
-uint32_t pairingKey = BLE_PAIRING_KEY;
-#endif
 
 // ========== BLE Callbacks ========== //
 class BLEWriteCallback : public NimBLECharacteristicCallbacks {
   NimBLEUUID inputUuid = NimBLEUUID(BLE_CHARACTERISTIC_INPUT);
 
   void onWrite(NimBLECharacteristic *pCharacteristic) {
-    if (pCharacteristic->getUUID() != inputUuid) {
+    if (requestReady || (pCharacteristic->getUUID() != inputUuid)) {
       return;
     }
 
@@ -38,7 +33,7 @@ class BLEWriteCallback : public NimBLECharacteristicCallbacks {
 
     requestBuffer += value;
 
-    if (requestBuffer.substr(requestBuffer.size() - 1) == "}") {
+    if (requestBuffer[requestBuffer.size() - 1] == '}') {
       requestReady = true;
     }
   }
@@ -60,6 +55,9 @@ class BLEServerCallback : public NimBLEServerCallbacks {
 
     // stop advertising
     pServer->stopAdvertising();
+
+    // request data length update from peer
+    pServer->setDataLen(desc->conn_handle, 0x00FB);
   }
 
   void onDisconnect(NimBLEServer *pServer) {
@@ -75,35 +73,22 @@ class BLEServerCallback : public NimBLEServerCallbacks {
   }
 
   uint32_t onPassKeyRequest() {
-    if (pairingKey == 0) {
-      pairingKey = randomNumber(111111, 999999);
-    }
+#ifdef DISPLAY_ENABLED
+    // TODO: show passkey on display
+#endif
 
-    return pairingKey;
+    return NimBLEDevice::getSecurityPasskey();
   }
 
   bool onConfirmPIN(uint32_t pin) {
-    // approve pairing via hardware button
-    if (pairingKey == 0 || !waitForApproval(Connecting)) {
+    // approve pairing request on wallet
+    if (!waitForApproval(Connecting)) {
       return false;
     }
 
-    return pin == pairingKey;
+    // check pin
+    return (NimBLEDevice::getSecurityPasskey() == pin);
   }
-
-  // TODO: remove after debugging if not needed
-  /*
-  void onAuthenticationComplete(ble_gap_conn_desc *desc) {
-    // check if successfully authenticated
-    if (desc->sec_state.encrypted && desc->sec_state.authenticated) {
-      // wallet.unlock();
-    } else {
-      // wallet.lock();
-    }
-
-    // led indicator
-  }
-  */
 };
 
 // ========== NimBLE Interface Class ========== //
@@ -114,27 +99,26 @@ void NimBLEInterface::init() {
 
   // init
   NimBLEDevice::init(BLE_SERVER_NAME);
-  NimBLEDevice::setMTU(512);
   NimBLEDevice::setSecurityAuth(true, true, true);
-  NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
-  NimBLEDevice::setPower(ESP_PWR_LVL_P6);
+  NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
+  NimBLEDevice::setPower(ESP_PWR_LVL_P9);
+  NimBLEDevice::setMTU(BLE_ATT_MTU_MAX);
 
   pServer = NimBLEDevice::createServer();
-  pServer->setCallbacks(new BLEServerCallbacks());
+  pServer->setCallbacks(new BLEServerCallback());
   pService = pServer->createService(BLE_SERVICE_UUID);
 
   // BLE service characteristics
-  // output:
-  pCharOutput =
-      pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
-  pCharOutput->setValue(BLE_DEFAULT_OUTPUT);
-
-  // input:
+  // - input:
   BLEWriteCallback *writeCallback = new BLEWriteCallback();
   pCharInput = pService->createCharacteristic(BLE_CHARACTERISTIC_INPUT, propRead | propWrite);
   pCharInput->setCallbacks(writeCallback);
-  pCharInput->setValue(BLE_DEFAULT_INPUT);
-  pCharInput->createDescriptor("2904");
+  pCharInput->setValue(std::string(BLE_INPUT_DEFAULT_MSG));
+
+  // - output:
+  pCharOutput =
+      pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
+  pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
 
   // start BLE advertising
   pService->start();
@@ -144,6 +128,14 @@ void NimBLEInterface::init() {
   pAdvertising->setMinPreferred(0x06);
   pAdvertising->setMinPreferred(0x12);
   pAdvertising->start();
+
+  // set/generate pairing key
+#ifndef DISPLAY_ENABLED
+  delay(20);
+  NimBLEDevice::setSecurityPasskey(BLE_PAIRING_KEY);
+#else
+  NimBLEDevice::setSecurityPasskey(randomNumber(111111, 999999));
+#endif
 }
 
 void NimBLEInterface::stop() {
@@ -191,10 +183,7 @@ void NimBLEInterface::update() {
   if (requestReady) {
     std::string output;
     rpc.handleRequest(requestBuffer, output);
-
     requestBuffer.clear();
-    requestReady = false;
-    pCharInput->setValue(BLE_DEFAULT_INPUT);
 
     sendResponse(output);
     output.clear();
@@ -203,11 +192,18 @@ void NimBLEInterface::update() {
 
 void NimBLEInterface::sendResponse(std::string &data) {
   if (pServer->getConnectedCount() == 0) {
+    requestReady = false;
     return;
   }
 
+  bool hasSubscribers = pCharOutput->getSubscribedCount() > 0;
+
+  // prevent messages from getting truncated, figure out "sweet spot" for chunk size
   size_t peerMtu = pServer->getPeerMTU(pServer->getPeerInfo(0).getConnHandle());
-  size_t maxLen = peerMtu > 3 ? peerMtu - 3 : NimBLEDevice::getMTU() - 3;
+  size_t maxLen = peerMtu > 3 ? peerMtu - 3 : 20;
+  if (maxLen > maxCharValueLen) maxLen = maxCharValueLen;
+
+  // send data in chunks
   size_t dataLen = data.length();
   size_t offset = 0;
 
@@ -215,14 +211,27 @@ void NimBLEInterface::sendResponse(std::string &data) {
     size_t chunkLen = std::min(maxLen, dataLen - offset);
     std::string chunk(data.substr(offset, chunkLen));
 
+    // set characteristic value
     pCharOutput->setValue(chunk);
-    delay(10);
+    delay(5);
+
+    // quit early if there are no subscribers
+    if (!hasSubscribers) break;
+
+    // notify subscribers
     pCharOutput->notify();
-    delay(250);
+    delay(150);
 
     offset += chunkLen;
   }
 
-  delay(50);
-  pCharOutput->setValue(BLE_DEFAULT_OUTPUT);
+  // don't reset characteristics if there are no subscribers (for manual review)
+  if (hasSubscribers) {
+    delay(50);
+
+    pCharInput->setValue(std::string(BLE_INPUT_DEFAULT_MSG));
+    pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
+  }
+
+  requestReady = false;
 }

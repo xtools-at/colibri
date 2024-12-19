@@ -5,12 +5,12 @@
         width="860" alt="Colibri - DIY crypto hardware wallet" />
 </p>
 <p align="center">
-    <img alt="version: 0.0.1 (pre-alpha)" src="https://img.shields.io/badge/version-0.0.1_(pre--alpha)-crimson" />
+    <img alt="version: 0.0.X (pre-alpha)" src="https://img.shields.io/badge/version-0.0.X_(pre--alpha)-crimson" />
     <a href="https://matrix.to/#/#colibriwallet:matrix.org">
       <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" />
     </a>
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
-      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_telegram-cornflowerblue?logo=telegram" />
+      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
     </a>
     <a href="https://bsky.app/profile/xtools.at">
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/%F0%9F%A6%8Bconnect-on_Bluesky-dodgerblue" />
@@ -25,19 +25,20 @@ The project aims to achieve this by
 - utilizing cheap and widely available ESP32 development boards: one can get them for as little as ~$3
 - building by the principle that "unhackable" hardware doesn't exist: any valuable data is encrypted to make it functionally impossible to extract instead
 
-_Version 0.1.X_ is targeted to release early 2025, and will focus on getting the Colibri core ready - creating a secure hardware keystore and communication interface, and adding support for most Ethereum-compatible networks.
+_Version `0.1.X`_ is targeted to release early 2025, and will focus on getting the Colibri core ready - creating a secure hardware keystore and communication interface, and adding support for most Ethereum-compatible networks.
 It's supposed to run on most common ESP32 development boards, with a intuitively designed UI and reasonable security despite the lack of a display.
 
-_Version 0.2.X_ will introduce support for a wide range of display types commonly used by makers and pre-built into dev kits. This will also improve security, allowing users to verify transaction parameters, typing passwords on the device directly and recover stored mnemonics.
+_Version `0.2.X`_ will introduce support for a wide range of display types commonly used by makers and pre-built into dev kits. This will also improve security, allowing users to verify transaction parameters, typing passwords on the device directly and recover stored mnemonics.
 
 ## Current version
 
-**0.0.1** - pre-alpha, public preview
+**0.0.2** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
 ### What you can do:
 
 - build and flash the firmware with Arduino IDE (ESP32-C3 & -S3)
-- communicate with wallet via (insecure) debug serial interface (JSON-RPC)
+- communicate with wallet via the BLE interface (JSON-RPC)
+- use the (insecure) debug serial interface
 - set a password to encrypt wallet storage
 - generate truly random mnemonics and add existing ones
 - store up to 30 encrypted mnemonics and switch between them
@@ -47,7 +48,6 @@ _Version 0.2.X_ will introduce support for a wide range of display types commonl
 
 ### What you _can't_ do yet:
 
-- use the BLE interface
 - sign Ethereum transactions
 
 ---
@@ -124,6 +124,19 @@ No matter which interface you're using to connect to your device, you can start 
 
 Every interface has slightly different requirements to establish a connection.
 
+#### Bluetooth Low Energy (BLE) Interface
+
+To connect to your wallet via BLE, you need to pair your device first in your operating system's Bluetooth settings. When prompted for a pairing code, enter `200913`. You can change the default key in `config_custom.h`. On devices with displays it will be randomly generated.
+
+Now that your wallet is connected and paired, you can use an app like e.g. [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en) to send commands to it.
+
+The device exposes a GATT service with the UUID `31415926-5358-9793-2384-626433832795`, with two characteristics:
+
+- `C001`: _write_ your JSON-RPC command to this field
+- `C000`: you can _read_ the JSON-RPC response from this field (turn on notifications for best results)
+
+A more user-friendly way to use the BLE interface is coming soon.
+
 #### Debug Serial Interface
 
 If you've enabled **debugging** features for your build, the serial interface should automatically connect to your host PC, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
@@ -137,7 +150,7 @@ Additionally the following actions can be triggered on the device directly:
 - Hold down _Cancel_ to lock your idle wallet. If it's locked already, it will reboot the device instead.
 - Quickly press _Cancel_ ten times to trigger a complete wipe of the device.
 
-### Wallet setup
+### Wallet setup and JSON-RPC command examples
 
 First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information on the device, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
 
@@ -167,14 +180,16 @@ All done! Next time we want to use our wallet, we'll need to unlock it first:
 To select a specific wallet, you can use
 
 ```javascript
+// use your second stored mnemonic for signing, with default settings:
+{ "method": "selectWallet", "params": [2] }
+// this call also returns additional info for the wallet, like the address, pubkey and HD path.
+
+// ...or be more specific:
+{ "method": "selectWallet", "params": [1, "m/44'/60'/0'/0/2", "optionalPassphrase"] }
 // params:
-// - id of seed phrase to use
+// - id of seed phrase to use (here: 1)
 // - optional wallet HD path (here: Ethereum, wallet index 2)
 // - optional BIP32 passphrase
-{ "method": "selectWallet", "params": [1, "m/44'/60'/0'/0/2", "optionalPassphrase"] }
-
-// ... then get wallet info like address, pubkey, etc.
-{ "method": "getSelectedWallet" }
 ```
 
 To e.g. sign a personal message, try
@@ -183,7 +198,7 @@ To e.g. sign a personal message, try
 { "method": "eth_signMessage", "params": ["Hello world!"] }
 ```
 
-(Full JSON-RPC docs coming soon!)
+Full JSON-RPC docs coming soon.
 
 ---
 

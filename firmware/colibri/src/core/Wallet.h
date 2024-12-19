@@ -23,25 +23,25 @@ class Wallet {
 
   std::string hdPath;
   std::string xPub;
+  std::string fingerprint;
   uint16_t walletId;
   uint16_t storedMnemonics;
-  uint32_t fingerprint;
+  uint16_t chainType;
   uint32_t bipId;
   uint32_t slip44;
-  int chainType;
 
   bool isLocked();
   bool isPasswordSet();
   bool isKeySet();
 
-  void wipe();
+  void wipe(bool wipeStore = true, bool wipeIfaces = true);
   void lock();
 
   WalletResponse setPassword(std::string& password);
-  WalletResponse addMnemonic(std::string& mnemonic);
-  WalletResponse createMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS);
+  WalletResponse addMnemonic(std::string& mnemonic, uint16_t overwriteId = 0);
+  WalletResponse createMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS, uint16_t overwriteId = 0);
   WalletResponse unlock(std::string& password, bool requiresApproval = true);
-  WalletResponse wipeRemote();
+  WalletResponse wipeRemote(bool interfacesOnly = false);
   WalletResponse selectWallet(
       uint16_t id, const char* hdPath = DEFAULT_HD_PATH, const char* bip32Passphrase = "",
       ChainType inChainType = UNKNOWN
@@ -51,13 +51,21 @@ class Wallet {
   std::string getAddress();
 
   WalletResponse signMessage(std::string& message);
-  WalletResponse signTypedData(std::string& domainSeparatorHash, std::string& messageHash);
+  WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
 
  private:
+  void deleteHdNode();
+  bool setHdPath(const char* hdPath);
+
+ protected:
   bool locked;
   uint8_t pwHash[HASH_LENGTH];
   HDNode hdNode;
 
-  void deleteHdNode();
-  bool setHdPath(const char* hdPath);
+  void decryptStoredMnemonic(
+      uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH] = nullptr
+  );
+  void encryptAndStoreMnemonic(
+      uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH] = nullptr
+  );
 };

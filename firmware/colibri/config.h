@@ -44,7 +44,7 @@
 
 // ========== System ========== //
 #define HW_NAME "Colibri"
-#define HW_FIRMWARE_VERSION "0.0.1"
+#define HW_FIRMWARE_VERSION "0.0.2"
 #ifndef DISPLAY_TYPE_ID
   #ifndef DISPLAY_ENABLED
     #define DISPLAY_TYPE_ID 0  // No screen
@@ -56,8 +56,10 @@
 #endif
 
 // ========== Debug ========== //
-// Additional flag to log sensitive information (mnemonics, password, etc.)
-// #define DEBUG_LOG_SENSITIVE 1
+// Additional flag to log sensitive information (mnemonics, password, etc.).
+// Set `0` to disable, `1` to enable, `2` to log critically sensitive data - keep disabled unless
+// you REALLY know what you're doing!
+#define DEBUG_LOG_SENSITIVE 0
 
 // Arduino core serial debug log level (insecure) - should be set in Arduino IDE directly instead
 #ifndef CORE_DEBUG_LEVEL
@@ -83,13 +85,21 @@
     #if (defined(DEBUG_LOG_SENSITIVE) && DEBUG_LOG_SENSITIVE > 0)
       #warning "XXX Sensitive information logging enabled, data may leak XXX"
       #define log_s(...) log_d(__VA_ARGS__)
+
+      #if DEBUG_LOG_SENSITIVE >= 2
+        #define log_ss(...) log_d(__VA_ARGS__)
+      #else
+        #define log_ss(...)
+      #endif
     #else
       #define log_s(...)
+      #define log_ss(...)
     #endif
   #endif
 
 #else
   #define log_s(...)
+  #define log_ss(...)
   #define log_print(...)
   #define log_println(...)
   #define log_printf(...)
@@ -139,11 +149,28 @@
 
 // - storage
 #ifndef NVS_MAX_AVAILABLE_STORAGE
-  #define NVS_MAX_AVAILABLE_STORAGE 7000
+  #define NVS_MAX_AVAILABLE_STORAGE 7280
+#endif
+
+#ifndef NVS_PARTITION_NAME
+  #define NVS_PARTITION_NAME "nvs"
+#endif
+
+// - self-destruct
+#ifndef SELF_DESTRUCT_ENABLED
+  #define SELF_DESTRUCT_ENABLED false
+#endif
+
+#ifndef SELF_DESTRUCT_MAX_FAILED_ATTEMPTS
+  #define SELF_DESTRUCT_MAX_FAILED_ATTEMPTS 10
+#endif
+
+#if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
+  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be at least 3"
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity
-#if defined(INTERFACE_BLE_DISABLED)
+#if (defined(INTERFACE_BLE_DISABLED) || defined(INTERFACE_BLE_NIMBLE_DISABLED))
   #define RNG_ANTENNA_DISABLED
 #endif
 
@@ -211,7 +238,9 @@
 #define MIN_PASSPHRASE_LENGTH 12
 #define MAX_PASSPHRASE_LENGTH 256
 #define MAX_MNEMONIC_LENGTH 196
-#define SYSTEM_STORAGE (2 * HASH_LENGTH + AES_IV_SIZE + 32)
+#define SYSTEM_STORAGE \
+  (2 * HASH_LENGTH /* device key + checksum */ + AES_IV_SIZE /* device IV */ + \
+   16 /* login attempts */ + 64 /* storage keys & metadata */)
 #define MAX_STORED_KEYS \
   ((NVS_MAX_AVAILABLE_STORAGE - SYSTEM_STORAGE) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 
@@ -227,7 +256,7 @@
 // NimBLE
 // - lib config - MOVED TO LIB
 // #define CONFIG_BT_NIMBLE_MAX_CONNECTIONS 1
-// #define CONFIG_BT_NIMBLE_MAX_BONDS 5
+// #define CONFIG_BT_NIMBLE_MAX_BONDS 10
 // #define CONFIG_BT_NIMBLE_ROLE_CENTRAL_DISABLED
 // #define CONFIG_BT_NIMBLE_ROLE_OBSERVER_DISABLED
 
@@ -235,8 +264,6 @@
 #ifndef BLE_SERVER_NAME
   #define BLE_SERVER_NAME HW_NAME
 #endif
-#define BLE_SERVICE_UUID "183D"
-#define BLE_DEFAULT_INPUT "RPC Input"
-#define BLE_DEFAULT_OUTPUT "RPC Output"
-#define BLE_CHARACTERISTIC_INPUT "A001"
-#define BLE_CHARACTERISTIC_OUTPUT "A002"
+#define BLE_SERVICE_UUID "31415926-5358-9793-2384-626433832795"
+#define BLE_CHARACTERISTIC_INPUT "C001"
+#define BLE_CHARACTERISTIC_OUTPUT "C000"

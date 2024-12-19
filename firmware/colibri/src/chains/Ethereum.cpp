@@ -97,7 +97,7 @@ static void hashEthereumTypedData(
   keccak_Final(&ctx, hash);
 }
 
-std::string EthereumChain::signTypedData(
+std::string EthereumChain::signTypedDataHash(
     HDNode *node, std::string &domainSeparatorHash, std::string &messageHash
 ) {
   uint8_t digest[HASH_LENGTH];
