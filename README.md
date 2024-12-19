@@ -203,6 +203,28 @@ To e.g. sign a personal message, try
 
 Full JSON-RPC docs coming soon.
 
+## Developer quickstart
+
+If you want to contribute to the development of Colibri, first do _all of the above_, even if only to get the hang of it :) Then proceed to
+
+- Fork the repo and clone
+- Open the repo in VSCode, install _all_ recommended extensions
+
+For `firmware` development:
+
+- Tweak `.vscode/c_cpp_properties.json` to match your operating system's specifics
+  - Linux should work out of the box
+  - Windows and macOS configs exist, but are likely wrong or outdated. Activate the right config by clicking on "Linux" in the bottom right corner while having the file above opened
+- Trigger builds and uploads from Arduino IDE
+
+For any kind of `tools` (e.g. SDK, Webapp):
+
+- Install Node.js 20 (e.g. via [nvm](https://github.com/nvm-sh/nvm)), and install _pnpm_: `npm i -g pnpm`
+- Install dependencies: `pnpm i`
+- (more instructions are coming once there's something to build)
+
+Finally, open a PR with your changes. Don't forget to update `README` and `CHANGELOG`, and to put yourself on the `CONTRIBUTORS` list :)
+
 ---
 
 ## Development roadmap
@@ -246,6 +268,7 @@ Valuable extensions to the project, once the core product is functional:
 - 3rd party wallet integrations (e.g. MetaMask, Bitcoin HWI)
 - Libraries and SDKs for builders (e.g. Typescript, Python)
 - New hardware interfaces (e.g. USB support, airgap via camera/QR codes)
+- Support for more advanced build environments (e.g. Platform.io, ESP-IDF, Arduino-CLI)
 - Support channels for builders, users and the community
 - Learning materials, content of all kinds
 
