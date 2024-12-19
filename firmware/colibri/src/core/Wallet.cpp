@@ -115,7 +115,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
   return unlock(password, false);
 }
 
-bool Wallet::isLocked() { return store.isAllZero(pwHash, HASH_LENGTH) || locked; }
+bool Wallet::isLocked() { return isAllZero(pwHash, HASH_LENGTH) || locked; }
 
 bool Wallet::isPasswordSet() { return store.hasMnemonic(0) && store.hasIv(0); }
 
