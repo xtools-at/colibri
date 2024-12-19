@@ -7,26 +7,34 @@
 
 extern void stopInterfaces();
 extern void wipeInterfaces();
-extern void initInterfaces();
 
-WalletResponse Wallet::wipeRemote() {
+WalletResponse Wallet::wipeRemote(bool interfacesOnly) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
 
   // approve request on hardware
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
-  wipe();
+  if (interfacesOnly) {
+    wipe(false, true);
+  } else {
+    wipe();
+  }
   return WalletResponse();
 }
 
-void Wallet::wipe() {
-  log_i("Wiping device...");
-
-  wipeInterfaces();
-  stopInterfaces();
+void Wallet::wipe(bool wipeStore, bool wipeIfaces) {
+  if (wipeIfaces) {
+    log_i("Wiping interfaces...");
+    wipeInterfaces();
+    stopInterfaces();
+  }
 
   lock();
-  store.wipe();
+
+  if (wipeStore) {
+    log_i("Wiping store...");
+    store.wipe();
+  }
 
   delay(2000);
   esp_restart();
@@ -43,6 +51,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
     if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
 
     // re-encrypt mnemonics after setting new password
+    log_d("Password change detected, stored mnemonics will be re-encrypted");
     isPasswordChange = true;
   }
 
@@ -84,6 +93,8 @@ WalletResponse Wallet::setPassword(std::string& password) {
 
     // de- and re-encrypt all stored mnemonics
     for (uint16_t i = 1; i <= numWallets; i++) {
+      log_d("Re-encrypting wallet #%d with new password...", i);
+
       std::string mnemonic;
       decryptStoredMnemonic(i, mnemonic);
       encryptAndStoreMnemonic(i, mnemonic, passwordHash);
@@ -94,16 +105,14 @@ WalletResponse Wallet::setPassword(std::string& password) {
   }
 
   // clear memory
-  memzero(iv, sizeof(iv));
-  memzero(passwordHash, sizeof(passwordHash));
   memzero(key, sizeof(key));
+  memzero(passwordHash, sizeof(passwordHash));
+  memzero(iv, sizeof(iv));
   memzero(checksum, sizeof(checksum));
   memzero(encryptedKey, sizeof(encryptedKey));
 
   // unlock wallet (also zeroes out "password")
-  unlock(password, false);
-
-  return WalletResponse();
+  return unlock(password, false);
 }
 
 bool Wallet::isLocked() { return store.isAllZero(pwHash, HASH_LENGTH) || locked; }
@@ -126,6 +135,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   uint16_t logins = store.readLoginAttempts();
   logins++;
   store.writeLoginAttempts(logins);
+  log_i("Login attempt %d/%d", logins, SELF_DESTRUCT_MAX_FAILED_ATTEMPTS);
 #endif
 
   // read encrypted key and IV
@@ -148,7 +158,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   log_ss("decrypted key: %s", toHex(deviceKey, HASH_LENGTH).c_str());
   store.readIv(0, iv);
   doubleHash(deviceKey, HASH_LENGTH, checksum, iv);
-  log_s("decrypted checksum: %s", toHex(checksum, HASH_LENGTH).c_str());
+  log_s("checksum of decrypted key: %s", toHex(checksum, HASH_LENGTH).c_str());
 
   memzero(deviceKey, sizeof(deviceKey));
   memzero(encrDeviceKey, sizeof(encrDeviceKey));
@@ -159,7 +169,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   store.getBytes(STORAGE_SYS, STORAGE_SYS_CHECKSUM, storedChecksum, HASH_LENGTH);
   log_s("stored checksum: %s", toHex(storedChecksum, HASH_LENGTH).c_str());
   bool success = memcmp(checksum, storedChecksum, HASH_LENGTH) == 0;
-  log_i("password match: %s", success == 1 ? "true" : "false");
+  log_i("password match: %s", success ? "true" : "false");
   memzero(checksum, sizeof(checksum));
   memzero(storedChecksum, sizeof(storedChecksum));
 
@@ -169,8 +179,8 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
 
 #if SELF_DESTRUCT_ENABLED
     // self-destruct after n failed attempts
-    log_w("triggered self-destruct after %d failed login attempts", logins);
-    if (logins > SELF_DESTRUCT_MAX_FAILED_ATTEMPTS) {
+    if (logins >= SELF_DESTRUCT_MAX_FAILED_ATTEMPTS) {
+      log_e("Triggered self-destruct after %d failed login attempts", logins);
       wipe();
     }
 #endif
@@ -187,9 +197,9 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   // unlock wallet
   locked = false;
 
+  // select default wallet
   if (isKeySet()) {
-    // select default wallet
-    selectWallet(1);
+    return selectWallet(1);
   }
 
   return WalletResponse();
@@ -282,12 +292,13 @@ WalletResponse Wallet::selectWallet(
       chainType = inChainType;
     }
 
-    // store fingerprint
+    // store fingerprint after setting chain type
     uint8_t fpBytes[4];
     uint32ToBytes(fpNum, fpBytes);
     fingerprint = toHex(fpBytes, 4, chainType == ETH);
-    log_i("master fingerprint: %s", fingerprint);
+    log_i("master fingerprint: %s", fingerprint.c_str());
 
+    // logs
     log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
     log_i("wallet pubkey: %s", getPublicKey().c_str());
     log_i("wallet address: %s", getAddress().c_str());
@@ -307,7 +318,7 @@ WalletResponse Wallet::selectWallet(
     return WalletResponse((Status)status, RPC_ERROR_WALLET_INTERNAL);
   }
 
-  return WalletResponse(getAddress());
+  return WalletResponse();
 }
 
 WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) {
@@ -346,7 +357,7 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   // encrypt mnemonic with password
-  encryptAndStoreMnemonic(walletId, mnemonic);
+  encryptAndStoreMnemonic(walletId, mnemonic, pwHash);
 
   // update counters
   store.writeWalletCounter(newCounter);
@@ -435,8 +446,7 @@ std::string Wallet::getPublicKey() {
     return "";
   }
 
-  bool use0xPrefix = chainType == ETH;
-  return toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, use0xPrefix);
+  return toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, chainType == ETH);
 }
 
 std::string Wallet::getAddress() {
@@ -494,11 +504,15 @@ WalletResponse Wallet::signMessage(std::string& message) {
 
   if (chainType == ETH) {
     signature = ethereum.signMessage(&hdNode, message);
-    return !signature.empty() ? WalletResponse(signature)
-                              : WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+  } else {
+    return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }
 
-  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+  if (signature.empty()) {
+    return WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+  }
+
+  return WalletResponse(signature);
 }
 
 WalletResponse Wallet::signTypedDataHash(
@@ -515,11 +529,15 @@ WalletResponse Wallet::signTypedDataHash(
 
   if (chainType == ETH) {
     signature = ethereum.signTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
-    return !signature.empty() ? WalletResponse(signature)
-                              : WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+  } else {
+    return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }
 
-  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+  if (signature.empty()) {
+    return WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+  }
+
+  return WalletResponse(signature);
 }
 
 void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH]) {

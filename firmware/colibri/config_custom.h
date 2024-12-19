@@ -6,8 +6,9 @@
 // set your Bluetooth device name (defaults to "Colibri")
 #define BLE_SERVER_NAME "Colibri"
 
-// set your own BLE pairing key (6 digit number, "Minimal" devices only)
-#define BLE_PAIRING_KEY 314159
+// set your own BLE pairing key (6 digit number).
+// devices with a display will generate a random key each boot.
+#define BLE_PAIRING_KEY 200913
 
 // change the default wallet/chain
 // - Bitcoin SegWit:

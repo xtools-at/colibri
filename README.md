@@ -32,12 +32,13 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ## Current version
 
-**0.0.2** - `0.0.X` pre-alpha, public preview - find the full **changelog** [here](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
+**0.0.2** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
 ### What you can do:
 
 - build and flash the firmware with Arduino IDE (ESP32-C3 & -S3)
-- communicate with wallet via (insecure) debug serial interface (JSON-RPC)
+- communicate with wallet via the BLE interface (JSON-RPC)
+- use the (insecure) debug serial interface
 - set a password to encrypt wallet storage
 - generate truly random mnemonics and add existing ones
 - store up to 30 encrypted mnemonics and switch between them
@@ -47,7 +48,6 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ### What you _can't_ do yet:
 
-- use the BLE interface
 - sign Ethereum transactions
 
 ---
@@ -124,6 +124,19 @@ No matter which interface you're using to connect to your device, you can start 
 
 Every interface has slightly different requirements to establish a connection.
 
+#### Bluetooth Low Energy (BLE) Interface
+
+To connect to your wallet via BLE, you need to pair your device first in your operating system's Bluetooth settings. When prompted for a pairing code, enter `200913`. You can change the default key in `config_custom.h`. On devices with displays it will be randomly generated.
+
+Now that your wallet is connected and paired, you can use an app like e.g. [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en) to send commands to it.
+
+The device exposes a GATT service with the UUID `31415926-5358-9793-2384-626433832795`, with two characteristics:
+
+- `C001`: _write_ your JSON-RPC command to this field
+- `C000`: you can _read_ the JSON-RPC response from this field (turn on notifications for best results)
+
+A more user-friendly way to use the BLE interface is coming soon.
+
 #### Debug Serial Interface
 
 If you've enabled **debugging** features for your build, the serial interface should automatically connect to your host PC, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
@@ -137,7 +150,7 @@ Additionally the following actions can be triggered on the device directly:
 - Hold down _Cancel_ to lock your idle wallet. If it's locked already, it will reboot the device instead.
 - Quickly press _Cancel_ ten times to trigger a complete wipe of the device.
 
-### Wallet setup
+### Wallet setup and JSON-RPC command examples
 
 First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information on the device, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
 
@@ -185,7 +198,7 @@ To e.g. sign a personal message, try
 { "method": "eth_signMessage", "params": ["Hello world!"] }
 ```
 
-(Full JSON-RPC docs coming soon!)
+Full JSON-RPC docs coming soon.
 
 ---
 

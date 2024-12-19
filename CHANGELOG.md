@@ -6,6 +6,7 @@
 
 (date tbd)
 
+- `*` Interfaces: finished communication via BLE
 - `*` Wallet: added optional self-destruct mode after n failed login attempts
 - `*` Wallet: added option to overwrite existing mnemonics
 - `*` Wallet: added possibility to change password and re-encrypt existing mnemonics

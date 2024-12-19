@@ -34,14 +34,14 @@ class Wallet {
   bool isPasswordSet();
   bool isKeySet();
 
-  void wipe();
+  void wipe(bool wipeStore = true, bool wipeIfaces = true);
   void lock();
 
   WalletResponse setPassword(std::string& password);
   WalletResponse addMnemonic(std::string& mnemonic, uint16_t overwriteId = 0);
   WalletResponse createMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS, uint16_t overwriteId = 0);
   WalletResponse unlock(std::string& password, bool requiresApproval = true);
-  WalletResponse wipeRemote();
+  WalletResponse wipeRemote(bool interfacesOnly = false);
   WalletResponse selectWallet(
       uint16_t id, const char* hdPath = DEFAULT_HD_PATH, const char* bip32Passphrase = "",
       ChainType inChainType = UNKNOWN

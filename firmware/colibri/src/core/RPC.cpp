@@ -5,7 +5,7 @@
 
 #include "../../constants.h"
 
-void rpcError(JsonDocument& response, const char* errorMsg, int errorCode) {
+static void rpcError(JsonDocument& response, const char* errorMsg, int errorCode) {
   log_v("rpcError called: %s\n", errorMsg);
 
   JsonObject jsonError = response[RPC_ERROR].to<JsonObject>();
@@ -85,7 +85,9 @@ void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
 }
 
 void wipe(const JsonDocument& request, JsonDocument& response) {
-  WalletResponse r = wallet.wipeRemote();
+  bool interfacesOnly = request[RPC_PARAMS][0];
+
+  WalletResponse r = wallet.wipeRemote(!!interfacesOnly);
 
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
@@ -183,6 +185,10 @@ void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
+void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
+  // TODO: implement
+}
+
 JsonRpcHandler::JsonRpcHandler() : initialised(false) {}
 
 void JsonRpcHandler::init() {
@@ -207,7 +213,7 @@ void JsonRpcHandler::init() {
   addMethod(RPC_METHOD_LOCK, lock, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterSetupPassword);
 
   // after unlock
-  addMethod(RPC_METHOD_WIPE, wipe, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
+  addMethod(RPC_METHOD_WIPE, wipe, RPC_PARAMS_WIPE, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
   addMethod(
       RPC_METHOD_CREATE_MNEMONIC, createMnemonic, RPC_PARAMS_CREATE_MNEMONIC,
       RPC_RESULT_CREATE_MNEMONIC, Permission::AfterUnlock
@@ -229,6 +235,10 @@ void JsonRpcHandler::init() {
   addMethod(
       RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH,
       RPC_RESULT_SIGNATURE
+  );
+  addMethod(
+      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX,
+      RPC_RESULT_SIGNATURE_TX
   );
 
   initialised = true;
@@ -296,7 +306,8 @@ bool JsonRpcHandler::validateRequest(const JsonDocument& request, JsonDocument& 
   // Methods with only one optional parameter are not supported, hardcode affected ones here.
   bool methodRequiresParams = strlen(methods[methodName].paramsDescription) != 0 &&
       methodName.compare(RPC_METHOD_LIST_METHODS) != 0 &&
-      methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0;
+      methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0 &&
+      methodName.compare(RPC_METHOD_WIPE) != 0;
   if (methodRequiresParams &&
       (request[RPC_PARAMS].isNull() || request[RPC_PARAMS].size() == 0 ||
        request[RPC_PARAMS][0].isNull())) {
