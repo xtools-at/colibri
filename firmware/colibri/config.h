@@ -106,9 +106,16 @@
 #endif
 
 // ========== Board defaults ========== //
+// fail build for unsupported ESP32 targets
+#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C6) || \
+     defined(CONFIG_IDF_TARGET_ESP32H2) || defined(CONFIG_IDF_TARGET_ESP32P2) || \
+     defined(CONFIG_IDF_TARGET_ESP32C61))
+  #error "You're using an unsupported ESP32 chip variant!"
+#endif
+
 // enable interfaces based on target chip and config
 #if (defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
-     defined(CONFIG_IDF_TARGET_ESP32C2))
+     defined(CONFIG_IDF_TARGET_ESP32C6))
   #ifndef INTERFACE_USB_DISABLED
     #define INTERFACE_USB_DISABLED
   #endif
@@ -116,6 +123,13 @@
   #ifndef INTERFACE_BLE_DISABLED
     #define INTERFACE_BLE_DISABLED
   #endif
+#endif
+
+// NimBLE only supports ESP32, S3 and C3
+#if (!defined(INTERFACE_BLE_NIMBLE_DISABLED) && \
+     (!defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3) && \
+      !defined(CONFIG_IDF_TARGET_ESP32S3)))
+  #define INTERFACE_BLE_NIMBLE_DISABLED
 #endif
 
 // - enable BLE interfaces
@@ -129,7 +143,7 @@
 
 /*
 // TODO: enable when interfaces are implemented
-// - no USB on V1 & C2/C3
+// - no USB on V1 & C3
 #if !defined(INTERFACE_USB_DISABLED)
   #if !defined(DEBUG_INTERFACE_SERIAL)
     #if !defined(INTERFACE_USB_WEBUSB_DISABLED)
@@ -166,7 +180,7 @@
 #endif
 
 #if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
-  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be at least 3"
+  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be >= 3"
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity

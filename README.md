@@ -6,16 +6,16 @@
 </p>
 <p align="center">
     <img alt="version: 0.0.X (pre-alpha)" src="https://img.shields.io/badge/version-0.0.X_(pre--alpha)-crimson" />
-    <a href="https://matrix.to/#/#colibriwallet:matrix.org">
+    <a href="https://matrix.to/#/#colibriwallet:matrix.org" target="_blank">
       <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" />
     </a>
-    <a href="https://t.me/+1vRfa1R5kUViYzM0">
+    <a href="https://t.me/+1vRfa1R5kUViYzM0" target="_blank">
       <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
     </a>
-    <a href="https://programming.dev/c/colibri">
+    <a href="https://programming.dev/c/colibri" target="_blank">
       <img alt="join Lemmy community" src="https://img.shields.io/badge/lemmy-!colibri%40programming.dev-purple?logo=lemmy" />
     </a>
-    <a href="https://bsky.app/profile/xtools.at">
+    <a href="https://bsky.app/profile/xtools.at" target="_blank">
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/connect-on_Bluesky-dodgerblue?logo=bluesky" />
     </a>
 </p>
@@ -35,7 +35,7 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ## Current version
 
-**0.0.2** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
+**0.0.3** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
 ### What you can do:
 
@@ -265,7 +265,7 @@ Valuable extensions to the project, once the core product is functional:
 ### Build setup
 
 - Arduino IDE 2.3.2 (w/ Arduino CLI 0.35.3)
-- Espressif ESP32 Arduino Core `esp32` 3.0.7 (w/ ESP-IDF 5.1)
+- Espressif ESP32 Arduino Core `esp32` 3.1.0 (w/ ESP-IDF 5.3)
 
 ## License
 

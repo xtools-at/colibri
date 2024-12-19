@@ -2,6 +2,13 @@
 
 (`*` = new feature; `+` = improvement; `#` = bugfix; `~` = chore)
 
+## v0.0.3
+
+(release tbd)
+
+- `*` Ethereum transaction signing
+- `~` Updated build setup to use latest ESP32 Arduino core `3.1.0`
+
 ## v0.0.2
 
 2024-12-19
