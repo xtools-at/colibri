@@ -15,7 +15,9 @@ extern AsyncButton buttonCancel;
 #else
   #define buttonCancel buttonOk
 #endif
+#ifdef LED_ENABLED
 extern AsyncLed led;
+#endif
 extern bool isHot;
 extern bool isBusy;
 extern bool isConnected;

@@ -129,6 +129,11 @@
     "config_board.h": "c",
     "config_custom.h": "c",
     "syscfg.h": "c",
-    "esp32-hal-rgb-led.h": "c"
+    "esp32-hal-rgb-led.h": "c",
+    "freertos.h": "c",
+    "freertosconfig.h": "c",
+    "freertosconfig_arch.h": "c",
+    "xtensa_config.h": "c",
+    "core.h": "c"
   }
 }

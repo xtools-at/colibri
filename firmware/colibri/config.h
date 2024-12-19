@@ -19,8 +19,7 @@
 #pragma once
 
 // VSCode shims to make IntelliSense work mostly
-// TODO: this may break platform.io-builds
-#if (!defined(ARDUINO) || ARDUINO < 100)
+#if (!defined(COLIBRI_PIO_BUILD) && (!defined(ARDUINO) || ARDUINO < 100))
   #undef ARDUINO
   #define ARDUINO 20320
   #define ARDUINO_ARCH_ESP32
@@ -116,10 +115,12 @@
 // enable interfaces based on target chip and config
 #if (defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
      defined(CONFIG_IDF_TARGET_ESP32C6))
+  // - no USB on ESP32 & C-variants
   #ifndef INTERFACE_USB_DISABLED
     #define INTERFACE_USB_DISABLED
   #endif
 #elif defined(CONFIG_IDF_TARGET_ESP32S2)
+  // - no BLE on S2
   #ifndef INTERFACE_BLE_DISABLED
     #define INTERFACE_BLE_DISABLED
   #endif
@@ -143,7 +144,7 @@
 
 /*
 // TODO: enable when interfaces are implemented
-// - no USB on V1 & C3
+// - enable USB interfaces
 #if !defined(INTERFACE_USB_DISABLED)
   #if !defined(DEBUG_INTERFACE_SERIAL)
     #if !defined(INTERFACE_USB_WEBUSB_DISABLED)
@@ -155,7 +156,7 @@
 #endif
 */
 
-// Defaults
+// Device defaults
 // - system
 #ifndef BOARD_SERIAL_BAUD_RATE
   #define BOARD_SERIAL_BAUD_RATE 115200
@@ -184,7 +185,8 @@
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity
-#if (defined(INTERFACE_BLE_DISABLED) || defined(INTERFACE_BLE_NIMBLE_DISABLED))
+#if (defined(INTERFACE_BLE_DISABLED))
+  #warning "BLE disabled, bundling `Wifi` library as a fallback for true RNG instead"
   #define RNG_ANTENNA_DISABLED
 #endif
 
@@ -195,16 +197,23 @@
 #if (!defined(LED_GPIO) && !defined(LED_GPIO_NEOPIXEL) && !defined(DISPLAY_ENABLED))
   #error "LED pin is required"
 #endif
+#if (defined(LED_GPIO) || defined(LED_GPIO_NEOPIXEL))
+  #define LED_ENABLED
+#else
+  #define led_update(...)
+  #define led_turnOn(...)
+  #define led_turnOff(...)
+  #define led_blink(...)
+  #define led_indicate(...)
+#endif
 
 #ifndef LED_ON
   #define LED_ON HIGH
   #define LED_OFF LOW
+#elif (LED_ON == HIGH)
+  #define LED_OFF LOW
 #else
-  #if (LED_ON == HIGH)
-    #define LED_OFF LOW
-  #else
-    #define LED_OFF HIGH
-  #endif
+  #define LED_OFF HIGH
 #endif
 
 // - button defaults
@@ -252,11 +261,12 @@
 #define MIN_PASSPHRASE_LENGTH 12
 #define MAX_PASSPHRASE_LENGTH 256
 #define MAX_MNEMONIC_LENGTH 196
-#define SYSTEM_STORAGE \
+#define STORAGE_SIZE_LOGIN_ATTEMPTS (SELF_DESTRUCT_ENABLED ? 16 : 0)
+#define STORAGE_SIZE_SYSTEM \
   (2 * HASH_LENGTH /* device key + checksum */ + AES_IV_SIZE /* device IV */ + \
-   16 /* login attempts */ + 64 /* storage keys & metadata */)
+   STORAGE_SIZE_LOGIN_ATTEMPTS /* login attempts */ + 64 /* buffer for NCS ids & -metadata */)
 #define MAX_STORED_KEYS \
-  ((NVS_MAX_AVAILABLE_STORAGE - SYSTEM_STORAGE) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
+  ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 
 // TODO: move into network config, these values are for Bitcoin only
 // #define ADDRESS_TYPE_LEGACY 0  // P2PKH
@@ -265,7 +275,12 @@
 
 // ========== Interfaces config ========== //
 // General
-#define TIMEOUT_WAIT_FOR_APPROVAL 12000
+#ifndef TIMEOUT_WAIT_FOR_APPROVAL
+  #define TIMEOUT_WAIT_FOR_APPROVAL 12000
+#endif
+#if (TIMEOUT_WAIT_FOR_APPROVAL < 5000)
+  #error "TIMEOUT_WAIT_FOR_APPROVAL must be >= 5000"
+#endif
 
 // NimBLE
 // - lib config - MOVED TO LIB

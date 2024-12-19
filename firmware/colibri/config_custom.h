@@ -21,6 +21,9 @@
 // mnemonic lengths 12|18|24 are supported
 #define DEFAULT_MNEMONIC_WORDS 24
 
+// change wait time for user to approve actions (in ms)
+#define TIMEOUT_WAIT_FOR_APPROVAL 12000  // minimum value: 5000
+
 // self destruct wallet after n failed unlock attempts
 #define SELF_DESTRUCT_ENABLED false
 #define SELF_DESTRUCT_MAX_FAILED_ATTEMPTS 10  // minimum value: 3

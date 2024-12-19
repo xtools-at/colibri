@@ -41,10 +41,12 @@ AsyncButton buttonOk = AsyncButton(BUTTON_GPIO_OK);
 AsyncButton buttonCancel = AsyncButton(BUTTON_GPIO_CANCEL);
 #endif
 
-#ifdef LED_GPIO_NEOPIXEL
+#ifdef LED_ENABLED
+  #ifdef LED_GPIO_NEOPIXEL
 AsyncLed led = AsyncLed(LED_GPIO_NEOPIXEL, true);
-#else
+  #else
 AsyncLed led = AsyncLed(LED_GPIO);
+  #endif
 #endif
 
 // states
