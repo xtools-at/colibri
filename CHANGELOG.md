@@ -19,4 +19,13 @@
 
 2024-12-16
 
-- initial preview release
+Initial preview release, including the following features:
+
+- build and flash the firmware with Arduino IDE (tested with ESP32-C3 & -S3)
+- communicate with wallet via the (insecure) debug serial interface
+- set a password to encrypt wallet storage
+- generate truly random mnemonics and add existing ones
+- store up to 30 encrypted mnemonics and switch between them
+- use any HD path, and BIP32 passphrases
+- sign Ethereum messages
+- sign Ethereum typed data

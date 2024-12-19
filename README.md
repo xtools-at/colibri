@@ -12,8 +12,11 @@
     <a href="https://t.me/+1vRfa1R5kUViYzM0">
       <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
     </a>
+    <a href="https://programming.dev/c/colibri">
+      <img alt="join Lemmy community" src="https://img.shields.io/badge/lemmy-!colibri%40programming.dev-purple?logo=lemmy" />
+    </a>
     <a href="https://bsky.app/profile/xtools.at">
-      <img alt="connect on Bluesky" src="https://img.shields.io/badge/%F0%9F%A6%8Bconnect-on_Bluesky-dodgerblue" />
+      <img alt="connect on Bluesky" src="https://img.shields.io/badge/connect-on_Bluesky-dodgerblue?logo=bluesky" />
     </a>
 </p>
 
@@ -36,7 +39,7 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ### What you can do:
 
-- build and flash the firmware with Arduino IDE (ESP32-C3 & -S3)
+- build and flash the firmware with Arduino IDE (tested with ESP32-C3 & -S3)
 - communicate with wallet via the BLE interface (JSON-RPC)
 - use the (insecure) debug serial interface
 - set a password to encrypt wallet storage
@@ -126,7 +129,7 @@ Every interface has slightly different requirements to establish a connection.
 
 #### Bluetooth Low Energy (BLE) Interface
 
-To connect to your wallet via BLE, you need to pair your device first in your operating system's Bluetooth settings. When prompted for a pairing code, enter `200913`. You can change the default key in `config_custom.h`. On devices with displays it will be randomly generated.
+To connect to your wallet via BLE, you need to pair your device first in your operating system's Bluetooth settings. When prompted for a pairing code, enter `200913` (you can change the default key in `config_custom.h`). On devices with screens, it will be randomly generated and displayed.
 
 Now that your wallet is connected and paired, you can use an app like e.g. [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en) to send commands to it.
 
@@ -206,10 +209,10 @@ Full JSON-RPC docs coming soon.
 
 `0.1.x`:
 
-- Core firmware for a variety of boards
-- Secure keystore
-- JSON-RPC core interface
-- BLE interface
+- [x] Core firmware with minimal UI for a variety of boards
+- [x] Secure keystore
+- [x] JSON-RPC core interface
+- [x] BLE interface
 - Ethereum signing
 - Trusted companion webapp for wallet setup
 - Proof of concept 3rd-party wallet integration
