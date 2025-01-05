@@ -4,10 +4,17 @@
 
 ## v0.0.3
 
-(release tbd)
+(release TBD)
 
-- `*` Ethereum transaction signing
-- `~` Updated build setup to use latest ESP32 Arduino core `3.1.0`
+- `*` (TBD) Wallet: Ethereum transaction signing
+- `*` Wallet: base _Bitcoin_ implementation:
+  - Bitcoin message signing
+  - Setup for Bitcoin + testnet, Litecoin, Dogecoin
+  - Supported address types: BIP44 (legacy), BIP49 (nested P2SH), BIP84 (Segwit/bech32)
+- `+` Interfaces: added Arduino "stock" BLE interface for chips that aren't supported by the `NimBLE-Arduino` library
+- `+` Core: added basic build support for newly introduced chip types `ESP32-C6` and `ESP32-H2`
+- `+` Core: added new prebuilt board configurations
+- `~` Core: updated build setup to use latest ESP32 Arduino core `3.1.0`
 
 ## v0.0.2
 

@@ -8,7 +8,7 @@ void SerialDebugInterface::init() {
   Serial.println("> Serial debug RPC interface initialized\n");
   initialised = true;
   connected = true;
-  setStateConnected(connected);
+  setStateConnected(DebugSerialConnected);
 }
 
 void SerialDebugInterface::update() {
@@ -65,7 +65,7 @@ void SerialDebugInterface::stop() {
 
 void SerialDebugInterface::disconnect() {
   connected = false;
-  setStateConnected(connected);
+  setStateConnected(NotConnected);
 }
 
 void SerialDebugInterface::wipe() {

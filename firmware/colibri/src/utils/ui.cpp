@@ -10,7 +10,7 @@ void updateLed() {
   if (!isHot && !led.isBlinking) {
     if (isBusy) {
       led.turnOn(Busy);
-    } else if (isConnected) {
+    } else if (connection > NotConnected) {
       led.turnOn(Idle);
     } else {
       led.turnOn(Connecting);
@@ -23,7 +23,7 @@ void updateLed() {
 void updateUi() {
   // update buttons
   buttonOk.update();
-#ifdef BUTTON_LAYOUT_TWO
+#ifdef BUTTON_LAYOUT_MAIN_TWO
   buttonCancel.update();
 #endif
 
@@ -40,7 +40,7 @@ bool waitForApproval(RgbColor color) {
 
   // reset buttons
   buttonOk.reset();
-#ifdef BUTTON_LAYOUT_TWO
+#ifdef BUTTON_LAYOUT_MAIN_TWO
   buttonCancel.reset();
 #endif
 
@@ -50,7 +50,7 @@ bool waitForApproval(RgbColor color) {
   while ((millis() - startTime) < TIMEOUT_WAIT_FOR_APPROVAL) {
     updateUi();
 
-#ifdef BUTTON_LAYOUT_TWO
+#ifdef BUTTON_LAYOUT_MAIN_TWO
     if (buttonCancel.isShortPressed()) {
       isApproved = false;
       break;
@@ -59,7 +59,7 @@ bool waitForApproval(RgbColor color) {
       isApproved = true;
       break;
     }
-#else  // BUTTON_LAYOUT_ONE
+#else  // BUTTON_LAYOUT_MAIN_ONE
     if (buttonOk.isLongPressed()) {
       isApproved = false;
       break;
@@ -84,9 +84,9 @@ bool waitForApproval(RgbColor color) {
   return isApproved;
 }
 
-void setStateConnected(bool connected) {
-  log_d("Interface connected: %s", connected ? "true" : "false");
-  isConnected = connected;
+void setStateConnected(Connection conn) {
+  log_d("Interface connected: %s (%d)", conn > 0 ? "true" : "false", conn);
+  connection = conn;
   updateUi();
 }
 

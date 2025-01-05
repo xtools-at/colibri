@@ -258,7 +258,7 @@ AES_RETURN aes_ecb_decrypt(const unsigned char *ibuf, unsigned char *obuf,
     return EXIT_SUCCESS;
 }
 
-AES_RETURN aes_cbc_encrypt(const unsigned char *ibuf, unsigned char *obuf,
+AES_RETURN aes_cbc_encrypt_T(const unsigned char *ibuf, unsigned char *obuf,
                     int len, unsigned char *iv, const aes_encrypt_ctx ctx[1])
 {   int nb = len >> AES_BLOCK_SIZE_P2;
 
@@ -355,7 +355,7 @@ AES_RETURN aes_cbc_encrypt(const unsigned char *ibuf, unsigned char *obuf,
     return EXIT_SUCCESS;
 }
 
-AES_RETURN aes_cbc_decrypt(const unsigned char *ibuf, unsigned char *obuf,
+AES_RETURN aes_cbc_decrypt_T(const unsigned char *ibuf, unsigned char *obuf,
                     int len, unsigned char *iv, const aes_decrypt_ctx ctx[1])
 {   unsigned char tmp[AES_BLOCK_SIZE] = {0};
     int nb = len >> AES_BLOCK_SIZE_P2;

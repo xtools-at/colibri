@@ -4,3 +4,6 @@
 #include "../../config.h"
 
 ChainType getChainType(uint32_t slip44);
+const BitcoinNetwork* getBitcoinNetwork(uint32_t slip44);
+uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg);
+uint32_t getXpubMagicNumber(const char* hdPath);

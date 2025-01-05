@@ -51,7 +51,7 @@ class BLEServerCallback : public NimBLEServerCallbacks {
     wallet.lock();
 
     // set led indicator
-    setStateConnected(true);
+    setStateConnected(BleConnected);
 
     // stop advertising
     pServer->stopAdvertising();
@@ -66,7 +66,7 @@ class BLEServerCallback : public NimBLEServerCallbacks {
     }
 
     wallet.lock();
-    setStateConnected(false);
+    setStateConnected(NotConnected);
 
     // restart advertising
     pServer->startAdvertising();
@@ -102,7 +102,7 @@ void NimBLEInterface::init() {
   NimBLEDevice::setSecurityAuth(true, true, true);
   NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
   NimBLEDevice::setPower(ESP_PWR_LVL_P9);
-  NimBLEDevice::setMTU(BLE_ATT_MTU_MAX);
+  NimBLEDevice::setMTU(512);
 
   pServer = NimBLEDevice::createServer();
   pServer->setCallbacks(new BLEServerCallback());

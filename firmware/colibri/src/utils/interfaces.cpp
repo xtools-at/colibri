@@ -4,6 +4,8 @@
 #include "interfaces.h"
 #if defined(INTERFACE_BLE_NIMBLE)
 NimBLEInterface nimBleInterface = NimBLEInterface();
+#elif defined(INTERFACE_BLE_ARDUINO)
+ArduinoBLEInterface arduinoBleInterface = ArduinoBLEInterface();
 #endif
 
 #if defined(DEBUG_INTERFACE_SERIAL)
@@ -17,6 +19,8 @@ void initInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.init();
+#elif defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.init();
 #endif
 };
 
@@ -27,6 +31,8 @@ void updateInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.update();
+#elif defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.update();
 #endif
 };
 
@@ -38,6 +44,8 @@ void stopInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.stop();
+#elif defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.stop();
 #endif
 };
 
@@ -49,5 +57,7 @@ void wipeInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.wipe();
+#elif defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.wipe();
 #endif
 };

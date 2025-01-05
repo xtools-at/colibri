@@ -33,7 +33,7 @@ class JsonRpcHandler {
   void addMethod(
       const char* name, std::function<void(const JsonDocument&, JsonDocument&)> handle,
       const char* paramsDescription, const char* resultDescription,
-      Permission allowed = Permission::AfterUnlockAndKeys
+      Permission allowed = Permission::AfterKeysSetupAndUnlock
   );
   void listMethods(JsonDocument& response);
   bool validateRequest(const JsonDocument& request, JsonDocument& response);

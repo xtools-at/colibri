@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-// extern "C" {
-//  #include <segwit_addr.h>
-//  #include <zkp_bip340.h>
-// }
-
 #include "../../config.h"
-#include "../chains/Ethereum.h"
+#include "../signers/Bitcoin.h"
+#include "../signers/Ethereum.h"
 #include "../utils/chains.h"
 #include "../utils/crypto.h"
 #include "../utils/ui.h"
@@ -15,7 +11,6 @@
 #include "esp_system.h"
 
 extern Storage store;
-extern EthereumChain ethereum;
 
 class Wallet {
  public:
@@ -26,9 +21,10 @@ class Wallet {
   std::string fingerprint;
   uint16_t walletId;
   uint16_t storedMnemonics;
-  uint16_t chainType;
-  uint32_t bipId;
+  ChainType chainType;
+  uint32_t bipPurpose;
   uint32_t slip44;
+  uint32_t accountId;
 
   bool isLocked();
   bool isPasswordSet();
@@ -50,7 +46,8 @@ class Wallet {
   std::string getPublicKey();
   std::string getAddress();
 
-  WalletResponse signMessage(std::string& message);
+  WalletResponse signDigest(std::string& hexDigest);
+  WalletResponse signMessage(std::string& message, ChainType chainTypeOverride = UNKNOWN);
   WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
 
  private:
@@ -62,10 +59,6 @@ class Wallet {
   uint8_t pwHash[HASH_LENGTH];
   HDNode hdNode;
 
-  void decryptStoredMnemonic(
-      uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH] = nullptr
-  );
-  void encryptAndStoreMnemonic(
-      uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH] = nullptr
-  );
+  void decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH]);
+  void encryptAndStoreMnemonic(uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]);
 };
