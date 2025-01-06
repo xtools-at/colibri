@@ -5,7 +5,9 @@
 
 #if defined(INTERFACE_BLE_NIMBLE)
   #include "../interfaces/NimBLEInterface.h"
-#elif defined(INTERFACE_BLE_ARDUINO)
+#endif
+
+#if defined(INTERFACE_BLE_ARDUINO)
   #include "../interfaces/ArduinoBLEInterface.h"
 #endif
 

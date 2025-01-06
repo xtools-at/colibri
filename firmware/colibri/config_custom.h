@@ -11,12 +11,14 @@
 #define BLE_PAIRING_KEY 200913
 
 // change the default wallet/chain
-// - Bitcoin SegWit:
-// #define DEFAULT_HD_PATH "m/84'/0'/0'/0/0"
-// - Bitcoin Legacy (most compatible):
-// #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 // - Ethereum & Co:
 #define DEFAULT_HD_PATH "m/44'/60'/0'/0/0"
+// - Bitcoin SegWit:
+// #define DEFAULT_HD_PATH "m/84'/0'/0'/0/0"
+// - Bitcoin SegWit P2SH:
+// #define DEFAULT_HD_PATH "m/48'/0'/0'/0/0"
+// - Bitcoin Legacy (most compatible):
+// #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 
 // mnemonic lengths 12|18|24 are supported
 #define DEFAULT_MNEMONIC_WORDS 24

@@ -3,21 +3,23 @@
 
 #include "ArduinoBLEInterface.h"
 
+#if defined(INTERFACE_BLE_ARDUINO)
+
 String requestBuffer;
 bool reqReady = false;
-#ifndef DISPLAY_ENABLED
+  #ifndef DISPLAY_ENABLED
 const uint32_t securityPasskey = BLE_PAIRING_KEY;
-#else
+  #else
 uint32_t securityPasskey = 0;
-#endif
+  #endif
 const size_t maxCharValueLen = 251 - 3;
 
 // ========== BLE Callbacks ========== //
 class BLESecurityCallback : public BLESecurityCallbacks {
   uint32_t onPassKeyRequest() override {
-#ifdef DISPLAY_ENABLED
-    // TODO: show passkey on display
-#endif
+  #ifdef DISPLAY_ENABLED
+      // TODO: show passkey on display
+  #endif
 
     return securityPasskey;
   }
@@ -138,10 +140,10 @@ void ArduinoBLEInterface::init() {
   pAdvertising->start();
 
   // set/generate pairing key
-#ifdef DISPLAY_ENABLED
+  #ifdef DISPLAY_ENABLED
   delay(20);
   securityPasskey = randomNumber(111111, 999999);
-#endif
+  #endif
 }
 
 void ArduinoBLEInterface::stop() {
@@ -227,3 +229,4 @@ void ArduinoBLEInterface::sendResponse(String &data) {
 
   reqReady = false;
 }
+#endif

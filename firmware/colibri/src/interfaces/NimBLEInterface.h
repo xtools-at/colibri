@@ -2,12 +2,13 @@
 #pragma once
 
 #include "AbstractInterface.h"
-// Interface needs to be included first
 
-#include <NimBLEDevice.h>
-#include <NimBLEServer.h>
+#if defined(INTERFACE_BLE_NIMBLE)
 
-#include "../utils/trng.h"
+  #include <NimBLEDevice.h>
+  #include <NimBLEServer.h>
+
+  #include "../utils/trng.h"
 
 class NimBLEInterface : public Interface {
  public:
@@ -29,3 +30,4 @@ class NimBLEInterface : public Interface {
   void sendResponse(std::string &data);
   void disconnect();
 };
+#endif

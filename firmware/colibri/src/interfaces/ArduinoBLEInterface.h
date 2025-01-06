@@ -2,13 +2,14 @@
 #pragma once
 
 #include "AbstractInterface.h"
-// Interface needs to be included first
 
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
+#if defined(INTERFACE_BLE_ARDUINO)
 
-#include "../utils/trng.h"
+  #include <BLEDevice.h>
+  #include <BLEServer.h>
+  #include <BLEUtils.h>
+
+  #include "../utils/trng.h"
 
 class ArduinoBLEInterface : public Interface {
  public:
@@ -30,3 +31,4 @@ class ArduinoBLEInterface : public Interface {
   void sendResponse(String &data);
   void disconnect();
 };
+#endif

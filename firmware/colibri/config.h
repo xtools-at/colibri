@@ -123,7 +123,7 @@
   #endif
 #endif
 
-// - NimBLE only supports ESP32, S3 and C3, falls back to Arduino core BLE on other targets
+// - NimBLE only supports ESP32, S3 and C3, fall back to Arduino core BLE on other targets
 #if (!defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3) && \
      !defined(CONFIG_IDF_TARGET_ESP32S3))
   #ifndef INTERFACE_BLE_NIMBLE_DISABLED
@@ -186,7 +186,7 @@
 
 // - ESP32 hardware RNG depends on antenna activity
 #if (defined(INTERFACE_BLE_DISABLED))
-  #warning "BLE disabled, bundling `Wifi` library as a fallback for true RNG instead"
+  #warning "BLE disabled, bundling `WiFi` library as a fallback for true RNG instead"
   #define RNG_ANTENNA_DISABLED
 #endif
 

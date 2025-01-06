@@ -11,7 +11,7 @@
 // #include "src/boards/c3_supermini.h";
 // #include "src/boards/c3_luatos.h";
 // #include "src/boards/c6_supermini.h";
-#include "src/boards/s3_supermini.h";
+// #include "src/boards/s3_supermini.h";
 // #include "src/boards/s3_wroom_camera.h";
 
 // - Boards with displays: (TODO: displays not supported yet!)

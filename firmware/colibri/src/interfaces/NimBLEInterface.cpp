@@ -3,6 +3,8 @@
 
 #include "NimBLEInterface.h"
 
+#if defined(INTERFACE_BLE_NIMBLE)
+
 const uint32_t propRead =
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::READ_AUTHEN;
 const uint32_t propWrite =
@@ -73,9 +75,9 @@ class BLEServerCallback : public NimBLEServerCallbacks {
   }
 
   uint32_t onPassKeyRequest() {
-#ifdef DISPLAY_ENABLED
-    // TODO: show passkey on display
-#endif
+  #ifdef DISPLAY_ENABLED
+      // TODO: show passkey on display
+  #endif
 
     return NimBLEDevice::getSecurityPasskey();
   }
@@ -130,12 +132,12 @@ void NimBLEInterface::init() {
   pAdvertising->start();
 
   // set/generate pairing key
-#ifndef DISPLAY_ENABLED
+  #ifndef DISPLAY_ENABLED
   delay(20);
   NimBLEDevice::setSecurityPasskey(BLE_PAIRING_KEY);
-#else
+  #else
   NimBLEDevice::setSecurityPasskey(randomNumber(111111, 999999));
-#endif
+  #endif
 }
 
 void NimBLEInterface::stop() {
@@ -235,3 +237,4 @@ void NimBLEInterface::sendResponse(std::string &data) {
 
   requestReady = false;
 }
+#endif
