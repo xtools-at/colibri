@@ -94,10 +94,10 @@ std::string Bitcoin::getAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip
   */
   if (bipPurpose == 84) {
     // BIP-84: Segwit P2WPKH address
-    uint8_t rawAddress[HASH_LENGTH];
-    hdnode_get_address_raw(node, network->addressTypeSegwit, rawAddress);
+    uint8_t pubkeyHash[HASH_LENGTH];
+    ecdsa_get_pubkeyhash(node->public_key, node->curve->hasher_pubkey, pubkeyHash);
 
-    if (!segwit_addr_encode(address, network->bech32Prefix, 0, rawAddress, ADDRESS_LENGTH)) {
+    if (!segwit_addr_encode(address, network->bech32Prefix, 0, pubkeyHash, ADDRESS_LENGTH)) {
       log_e("Failed to encode Segwit address");
       return "";
     }

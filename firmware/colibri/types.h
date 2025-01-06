@@ -109,7 +109,6 @@ struct BitcoinNetwork {
   // address types > 0xFF represent a two-byte prefix in big-endian order
   uint32_t addressType;
   uint32_t addressTypeP2SH;
-  uint32_t addressTypeSegwit = 6;
 
   uint32_t xpubMagic;
   uint32_t xpubMagicP2SH;

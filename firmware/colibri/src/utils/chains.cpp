@@ -35,7 +35,6 @@ const BitcoinNetwork bitcoinNetworks[4] = {
 
         .addressType = 0,
         .addressTypeP2SH = 5,
-        .addressTypeSegwit = 6,
 
         .xpubMagic = 76067358,  // 0x0488b21e
         .xpubMagicP2SH = 77429938,  // 0x049d7cb2
@@ -56,7 +55,6 @@ const BitcoinNetwork bitcoinNetworks[4] = {
 
         .addressType = 111,
         .addressTypeP2SH = 196,
-        .addressTypeSegwit = 3,
 
         .xpubMagic = 70617039,
         .xpubMagicP2SH = 71979618,
