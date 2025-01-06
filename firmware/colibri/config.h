@@ -29,6 +29,8 @@
   #define CONFIG_IDF_TARGET "esp32s3"
   #define CORE_DEBUG_LEVEL 4
   #define __XTENSA__
+  #define INTERFACE_BLE_ARDUINO
+  #define INTERFACE_BLE_NIMBLE
   #warning "Please compile this project in a recent version of Arduino IDE"
 #endif
 

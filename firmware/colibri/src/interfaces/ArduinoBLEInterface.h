@@ -5,6 +5,7 @@
 
 #if defined(INTERFACE_BLE_ARDUINO)
 
+  #include <BLE2902.h>
   #include <BLEDevice.h>
   #include <BLEServer.h>
   #include <BLEUtils.h>

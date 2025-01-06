@@ -12,11 +12,11 @@ const uint32_t securityPasskey = BLE_PAIRING_KEY;
   #else
 uint32_t securityPasskey = 0;
   #endif
-const size_t maxCharValueLen = 251 - 3;
 
 // ========== BLE Callbacks ========== //
 class BLESecurityCallback : public BLESecurityCallbacks {
   uint32_t onPassKeyRequest() override {
+    log_d("onPassKeyRequest");
   #ifdef DISPLAY_ENABLED
       // TODO: show passkey on display
   #endif
@@ -25,6 +25,8 @@ class BLESecurityCallback : public BLESecurityCallbacks {
   }
 
   bool onConfirmPIN(uint32_t pin) override {
+    log_d("onConfirmPIN: %d (passkey=%d)", pin, securityPasskey);
+
     // approve pairing request on wallet
     if (!waitForApproval(Connecting)) {
       return false;
@@ -34,11 +36,16 @@ class BLESecurityCallback : public BLESecurityCallbacks {
     return securityPasskey == pin;
   }
 
-  bool onSecurityRequest() override { return true; }
+  bool onSecurityRequest() override {
+    log_d("onSecurityRequest");
+    return true;
+  }
 
-  void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) override {}
+  void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl) override {
+    log_d("onAuthenticationComplete: %d", cmpl.success);
+  }
 
-  void onPassKeyNotify(uint32_t pass_key) override {}
+  void onPassKeyNotify(uint32_t pass_key) override { log_d("onPassKeyNotify: %d", pass_key); }
 };
 
 class BLEWriteCallback : public BLECharacteristicCallbacks {
@@ -113,7 +120,7 @@ void ArduinoBLEInterface::init() {
   BLEDevice::setPower(ESP_PWR_LVL_P9);
   BLEDevice::setMTU(512);
 
-  BLEServer *pServer = BLEDevice::createServer();
+  pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLEServerCallback());
   BLEService *pService = pServer->createService(BLE_SERVICE_UUID);
 
@@ -126,9 +133,13 @@ void ArduinoBLEInterface::init() {
   pCharInput->setValue(String(BLE_INPUT_DEFAULT_MSG));
 
   // - output:
-  pCharOutput =
-      pService->createCharacteristic(BLE_CHARACTERISTIC_INPUT, BLECharacteristic::PROPERTY_NOTIFY);
+  pCharOutput = pService->createCharacteristic(
+      BLE_CHARACTERISTIC_OUTPUT,
+      BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+  );
   pCharOutput->setValue(String(BLE_OUTPUT_DEFAULT_MSG));
+  // Creates BLE Descriptor 0x2902: Client Characteristic Configuration Descriptor (CCCD)
+  pCharOutput->addDescriptor(new BLE2902());
 
   // start BLE advertising
   pService->start();
@@ -144,6 +155,12 @@ void ArduinoBLEInterface::init() {
   delay(20);
   securityPasskey = randomNumber(111111, 999999);
   #endif
+
+  // set security settings
+  BLESecurity *pSecurity = new BLESecurity();
+  pSecurity->setStaticPIN(securityPasskey);
+  pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
+  pSecurity->setCapability(ESP_IO_CAP_OUT);
 }
 
 void ArduinoBLEInterface::stop() {
@@ -186,6 +203,7 @@ void ArduinoBLEInterface::wipe() {
 
 void ArduinoBLEInterface::update() {
   if (reqReady) {
+    log_d("Handling request...");
     std::string output;
     rpc.handleRequest(std::string(requestBuffer.c_str()), output);
     requestBuffer.clear();
@@ -198,15 +216,20 @@ void ArduinoBLEInterface::update() {
 }
 
 void ArduinoBLEInterface::sendResponse(String &data) {
+  log_d("Sending response: %s", data.c_str());
   if (pServer->getConnectedCount() == 0) {
     reqReady = false;
+
     return;
   }
 
   // prevent messages from getting truncated, figure out "sweet spot" for chunk size
   uint16_t peerMtu = pServer->getPeerMTU(pServer->getConnId());
+
   size_t maxLen = peerMtu > 3 ? peerMtu - 3 : 20;
+  const size_t maxCharValueLen = 251 - 3;
   if (maxLen > maxCharValueLen) maxLen = maxCharValueLen;
+  log_d("Peer MTU: %d, maxLen: %d", peerMtu, maxLen);
 
   // send data in chunks
   size_t dataLen = data.length();
@@ -214,13 +237,15 @@ void ArduinoBLEInterface::sendResponse(String &data) {
 
   while (offset < dataLen) {
     size_t chunkLen = std::min(maxLen, dataLen - offset);
-    String chunk(data.substring(offset, chunkLen));
+    String chunk(data.substring(offset, offset + chunkLen));
+    log_d("Sending chunk: %s", chunk.c_str());
 
     // set characteristic value
     pCharOutput->setValue(chunk);
     delay(5);
 
     // notify subscribers
+    log_d("Notifying subscribers...");
     pCharOutput->notify();
     delay(150);
 
