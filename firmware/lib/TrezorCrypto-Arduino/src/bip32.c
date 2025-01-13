@@ -565,11 +565,11 @@ int hdnode_nem_encrypt(const HDNode *node, const ed25519_public_key public_key,
     return 0;
   }
 
-  if (aes_cbc_encrypt(payload, buffer, size, iv, &ctx) != EXIT_SUCCESS) {
+  if (aes_cbc_encrypt_T(payload, buffer, size, iv, &ctx) != EXIT_SUCCESS) {
     return 0;
   }
 
-  if (aes_cbc_encrypt(last_block, &buffer[size], sizeof(last_block), iv,
+  if (aes_cbc_encrypt_T(last_block, &buffer[size], sizeof(last_block), iv,
                       &ctx) != EXIT_SUCCESS) {
     return 0;
   }
@@ -595,7 +595,7 @@ int hdnode_nem_decrypt(const HDNode *node, const ed25519_public_key public_key,
     return 0;
   }
 
-  if (aes_cbc_decrypt(payload, buffer, size, iv, &ctx) != EXIT_SUCCESS) {
+  if (aes_cbc_decrypt_T(payload, buffer, size, iv, &ctx) != EXIT_SUCCESS) {
     return 0;
   }
 

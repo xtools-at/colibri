@@ -19,8 +19,7 @@
 #pragma once
 
 // VSCode shims to make IntelliSense work mostly
-// TODO: this may break platform.io-builds
-#if (!defined(ARDUINO) || ARDUINO < 100)
+#if (!defined(COLIBRI_PIO_BUILD) && (!defined(ARDUINO) || ARDUINO < 100))
   #undef ARDUINO
   #define ARDUINO 20320
   #define ARDUINO_ARCH_ESP32
@@ -30,6 +29,8 @@
   #define CONFIG_IDF_TARGET "esp32s3"
   #define CORE_DEBUG_LEVEL 4
   #define __XTENSA__
+  #define INTERFACE_BLE_ARDUINO
+  #define INTERFACE_BLE_NIMBLE
   #warning "Please compile this project in a recent version of Arduino IDE"
 #endif
 
@@ -44,16 +45,7 @@
 
 // ========== System ========== //
 #define HW_NAME "Colibri"
-#define HW_FIRMWARE_VERSION "0.0.2"
-#ifndef DISPLAY_TYPE_ID
-  #ifndef DISPLAY_ENABLED
-    #define DISPLAY_TYPE_ID 0  // No screen
-  #elif (DISPLAY_WIDTH < 80 || !defined(BUTTON_GPIO_CANCEL))
-    #define DISPLAY_TYPE_ID 1  // Small screen or limited input
-  #else
-    #define DISPLAY_TYPE_ID 2  // Full-featured screen
-  #endif
-#endif
+#define HW_FIRMWARE_VERSION "0.0.3"
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).
@@ -106,15 +98,38 @@
 #endif
 
 // ========== Board defaults ========== //
-// enable interfaces based on target chip and config
-#if (defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
-     defined(CONFIG_IDF_TARGET_ESP32C2))
+// fail build for unsupported ESP32 targets
+#if (defined(CONFIG_IDF_TARGET_ESP32C2))
+  #error "You're using an unsupported ESP32 chip variant!"
+#endif
+
+// warn if using experimental targets
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6) || \
+     defined(CONFIG_IDF_TARGET_ESP32P4) || defined(CONFIG_IDF_TARGET_ESP32H2))
+  #warning "You're using an experimental ESP32 chip variant, your mileage may vary!"
+#endif
+
+// disable unavailable interfaces based on target chip and config
+// - USB-OTG is only available on S2, S3 and P4
+#if (!defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3) && \
+     !defined(CONFIG_IDF_TARGET_ESP32P4))
   #ifndef INTERFACE_USB_DISABLED
     #define INTERFACE_USB_DISABLED
   #endif
-#elif defined(CONFIG_IDF_TARGET_ESP32S2)
+#endif
+
+// - no BLE on S2 & P4
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32P4))
   #ifndef INTERFACE_BLE_DISABLED
     #define INTERFACE_BLE_DISABLED
+  #endif
+#endif
+
+// - NimBLE only supports ESP32, S3 and C3, fall back to Arduino core BLE on other targets
+#if (!defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3) && \
+     !defined(CONFIG_IDF_TARGET_ESP32S3))
+  #ifndef INTERFACE_BLE_NIMBLE_DISABLED
+    #define INTERFACE_BLE_NIMBLE_DISABLED
   #endif
 #endif
 
@@ -122,6 +137,8 @@
 #if !defined(INTERFACE_BLE_DISABLED)
   #if !defined(INTERFACE_BLE_NIMBLE_DISABLED)
     #define INTERFACE_BLE_NIMBLE
+  #elif !defined(INTERFACE_BLE_ARDUINO_DISABLED)
+    #define INTERFACE_BLE_ARDUINO
   #else
     #define INTERFACE_BLE_DISABLED
   #endif
@@ -129,11 +146,11 @@
 
 /*
 // TODO: enable when interfaces are implemented
-// - no USB on V1 & C2/C3
+// - enable USB interfaces
 #if !defined(INTERFACE_USB_DISABLED)
   #if !defined(DEBUG_INTERFACE_SERIAL)
-    #if !defined(INTERFACE_USB_WEBUSB_DISABLED)
-      #define INTERFACE_USB_WEBUSB
+    #if !defined(INTERFACE_USB_HID_DISABLED)
+      #define INTERFACE_USB_HID
     #else
       #define INTERFACE_USB_DISABLED
     #endif
@@ -141,7 +158,7 @@
 #endif
 */
 
-// Defaults
+// Device defaults
 // - system
 #ifndef BOARD_SERIAL_BAUD_RATE
   #define BOARD_SERIAL_BAUD_RATE 115200
@@ -166,11 +183,12 @@
 #endif
 
 #if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
-  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be at least 3"
+  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be >= 3"
 #endif
 
 // - ESP32 hardware RNG depends on antenna activity
-#if (defined(INTERFACE_BLE_DISABLED) || defined(INTERFACE_BLE_NIMBLE_DISABLED))
+#if (defined(INTERFACE_BLE_DISABLED))
+  #warning "BLE disabled, bundling `WiFi` library as a fallback for true RNG instead"
   #define RNG_ANTENNA_DISABLED
 #endif
 
@@ -181,21 +199,41 @@
 #if (!defined(LED_GPIO) && !defined(LED_GPIO_NEOPIXEL) && !defined(DISPLAY_ENABLED))
   #error "LED pin is required"
 #endif
+#if (defined(LED_GPIO) || defined(LED_GPIO_NEOPIXEL))
+  #define LED_ENABLED
+#else
+  #define led_update(...)
+  #define led_turnOn(...)
+  #define led_turnOff(...)
+  #define led_blink(...)
+  #define led_indicate(...)
+#endif
 
 #ifndef LED_ON
   #define LED_ON HIGH
   #define LED_OFF LOW
+#elif (LED_ON == HIGH)
+  #define LED_OFF LOW
 #else
-  #if (LED_ON == HIGH)
-    #define LED_OFF LOW
-  #else
-    #define LED_OFF HIGH
-  #endif
+  #define LED_OFF HIGH
+#endif
+
+#ifndef LED_NEOPIXEL_BRIGHTNESS_PERCENT
+  #define LED_NEOPIXEL_BRIGHTNESS_PERCENT 25
+#elif (LED_NEOPIXEL_BRIGHTNESS_PERCENT > 100 || LED_NEOPIXEL_BRIGHTNESS_PERCENT < 10)
+  #error "LED_NEOPIXEL_BRIGHTNESS_PERCENT must be between 10 and 100"
 #endif
 
 // - button defaults
 #ifndef BUTTON_GPIO_OK
-  #define BUTTON_GPIO_OK 0
+  // C- and H-series chips use GPIO 9 for BOOT button
+  #if (defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6) || \
+       defined(CONFIG_IDF_TARGET_ESP32H2))
+    #define BUTTON_GPIO_OK 9
+  #else
+    // all others use GPIO 0
+    #define BUTTON_GPIO_OK 0
+  #endif
 #endif
 
 #ifndef BUTTON_MODE
@@ -208,19 +246,39 @@
 
 // - button layouts
 #ifdef BUTTON_GPIO_CANCEL
-  #define BUTTON_LAYOUT_TWO
+  #define BUTTON_LAYOUT_MAIN_TWO
 #else
-  #define BUTTON_LAYOUT_ONE
+  #define BUTTON_LAYOUT_MAIN_ONE
+#endif
+
+#if (defined(BUTTON_GPIO_LEFT) && defined(BUTTON_GPIO_RIGHT))
+  #define BUTTON_LAYOUT_EXTRA_LEFT_RIGHT
+#endif
+
+#if (defined(BUTTON_GPIO_UP) && defined(BUTTON_GPIO_DOWN))
+  #define BUTTON_LAYOUT_EXTRA_UP_DOWN
+#endif
+
+// Display types
+#ifndef DISPLAY_TYPE_ID
+  #ifndef DISPLAY_ENABLED
+    #define DISPLAY_TYPE_ID 0  // No screen
+  #elif (DISPLAY_WIDTH < 80)
+    #define DISPLAY_TYPE_ID 1  // Small screen
+  #else
+    #define DISPLAY_TYPE_ID 2  // Full-featured screen
+  #endif
+#endif
+
+#if (DISPLAY_TYPE_ID >= 2)
+  #define DISPLAY_TYPE "Full display support"
+#elif (DISPLAY_TYPE_ID >= 1)
+  #define DISPLAY_TYPE "Small display"
+#else
+  #define DISPLAY_TYPE "No display"
 #endif
 
 // ========== Crypto ========== //
-// Trezor lib config  - MOVED TO LIB
-// #define USE_BIP39_CACHE 0
-// #define USE_BIP32_CACHE 0
-// #define USE_ETHEREUM 1
-// #define USE_KECCAK 1
-// #define USE_PRECOMPUTED_CP 0
-
 // Constants
 #define PRIVATEKEY_LENGTH 32
 #define PUBLICKEY_LENGTH 33
@@ -231,35 +289,38 @@
 #define BIP39_SEED_SIZE 64
 #define ADDRESS_LENGTH 20
 #define XPUB_LENGTH 111
-#define MAX_HDPATH_LENGTH 44  // (5 * 7) + 9
-#define MAX_ADDRESS_LENGTH 100
+#define MAX_HDPATH_LENGTH 59  // (5 * 10) + 9
+#define MAX_ADDRESS_LENGTH 93  // in chars
 
 // Keystore
 #define MIN_PASSPHRASE_LENGTH 12
 #define MAX_PASSPHRASE_LENGTH 256
 #define MAX_MNEMONIC_LENGTH 196
-#define SYSTEM_STORAGE \
+#define STORAGE_SIZE_LOGIN_ATTEMPTS (SELF_DESTRUCT_ENABLED ? 16 : 0)
+#define STORAGE_SIZE_SYSTEM \
   (2 * HASH_LENGTH /* device key + checksum */ + AES_IV_SIZE /* device IV */ + \
-   16 /* login attempts */ + 64 /* storage keys & metadata */)
+   STORAGE_SIZE_LOGIN_ATTEMPTS /* login attempts */ + 64 /* buffer for NVS ids & -metadata */)
 #define MAX_STORED_KEYS \
-  ((NVS_MAX_AVAILABLE_STORAGE - SYSTEM_STORAGE) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
+  ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 
-// TODO: move into network config, these values are for Bitcoin only
-// #define ADDRESS_TYPE_LEGACY 0  // P2PKH
-// #define ADDRESS_TYPE_P2SH 5  // P2WPKH-P2SH
-// #define ADDRESS_TYPE_SEGWIT 6  // P2WPKH
+// Timeouts
+// - approvals
+#ifndef TIMEOUT_WAIT_FOR_APPROVAL
+  #define TIMEOUT_WAIT_FOR_APPROVAL 12000
+#endif
+#if (TIMEOUT_WAIT_FOR_APPROVAL < 5000)
+  #error "TIMEOUT_WAIT_FOR_APPROVAL must be >= 5000ms"
+#endif
+
+// - inactivity auto-lock
+#ifndef TIMEOUT_INACTIVITY_LOCK
+  #define TIMEOUT_INACTIVITY_LOCK (10 * 60 * 1000)  // 10min
+#endif
+#if (TIMEOUT_INACTIVITY_LOCK < (20 * 1000))
+  #error "TIMEOUT_INACTIVITY_LOCK must be >= 20.000ms (20s)"
+#endif
 
 // ========== Interfaces config ========== //
-// General
-#define TIMEOUT_WAIT_FOR_APPROVAL 12000
-
-// NimBLE
-// - lib config - MOVED TO LIB
-// #define CONFIG_BT_NIMBLE_MAX_CONNECTIONS 1
-// #define CONFIG_BT_NIMBLE_MAX_BONDS 10
-// #define CONFIG_BT_NIMBLE_ROLE_CENTRAL_DISABLED
-// #define CONFIG_BT_NIMBLE_ROLE_OBSERVER_DISABLED
-
 // - BLE service config
 #ifndef BLE_SERVER_NAME
   #define BLE_SERVER_NAME HW_NAME

@@ -6,13 +6,11 @@
 // Display hat
 
 // Button setup
-#undef BUTTON_GPIO_OK
 #define BUTTON_GPIO_OK 4
-#define BUTTON_GPIO_CANCEL 9  // down
-#define BUTTON_GPIO_PREV 13
-#define BUTTON_GPIO_NEXT 8
-// #define BUTTON_GPIO_UP 5
-// #define BUTTON_GPIO_DOWN 9
+#define BUTTON_GPIO_LEFT 13
+#define BUTTON_GPIO_RIGHT 8
+#define BUTTON_GPIO_UP 5
+#define BUTTON_GPIO_DOWN 9
 
 // Display config
 #define DISPLAY_ENABLED
@@ -21,8 +19,6 @@
 
 #define DISPLAY_WIDTH 80
 #define DISPLAY_HEIGHT 160
-// #define DISPLAY_ROTATION 1
-// INVERT?
 
 #define DISPLAY_SPI
 #define DISPLAY_GPIO_SPI_SDA 3  // MOSI

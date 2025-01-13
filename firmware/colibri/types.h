@@ -3,13 +3,17 @@
 
 #include <string>
 
-enum ChainType : uint16_t { UNKNOWN = 0, ETH = 1, BTC = 2 };
+enum ChainType : uint16_t {
+  UNKNOWN = 0,
+  BTC = 1,
+  ETH = 2,
+};
 
 enum Permission {
   Always = 0,
-  AfterSetupPassword = 1,
+  AfterPasswordSetup = 1,
   AfterUnlock = 2,
-  AfterUnlockAndKeys = 3,
+  AfterKeysSetupAndUnlock = 3,
 };
 
 enum Status {
@@ -39,13 +43,48 @@ enum RgbColor {
   Success = 0x00FF00,  // Green
 };
 
+enum Connection : uint8_t {
+  NotConnected = 0,
+  DebugSerialConnected = 1,
+  BleConnected = 2,
+};
+
 struct WalletResponse {
   Status status;
   const char* error;
   std::string result;
 
   WalletResponse(Status errorCode, const char* errorMsg) : status(errorCode), error(errorMsg) {}
-  WalletResponse(Status code, std::string result) : status(code), result(result) {}
+  WalletResponse(Status okCode, std::string result) : status(okCode), result(result) {}
   WalletResponse(std::string result) : status(Ok), result(result) {}
   WalletResponse() : status(Ok) {}
 };
+
+/*
+ * START ported and/or adapted code from Trezor firmware (originally licensed under GPL 3.0, see
+ * `misc/GPL-3.0.txt`):
+ * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/coins.h
+ */
+struct BitcoinNetwork {
+  const char* name;
+  const char* messageHeader;
+  const char* bech32Prefix;
+
+  bool hasSegwit;
+  bool hasTaproot;
+  uint64_t maxfeeKb;
+
+  // address types > 0xFF represent a two-byte prefix in big-endian order
+  uint32_t addressType;
+  uint32_t addressTypeP2SH;
+
+  uint32_t xpubMagic;
+  uint32_t xpubMagicP2SH;
+  uint32_t xpubMagicSegwit;
+
+  uint32_t slip44;
+  // uint32_t coinType;  // TODO: remove if unused
+};
+/*
+ * END ported code from Trezor firmware
+ */

@@ -67,9 +67,9 @@ WalletResponse Wallet::setPassword(std::string& password) {
   log_s("generated IV: %s", toHex(iv, AES_IV_SIZE).c_str());
 
   // hash password
-  uint8_t passwordHash[HASH_LENGTH];
-  doubleHash((const uint8_t*)password.c_str(), password.length(), passwordHash, iv);
-  log_ss("password hash: %s", toHex(passwordHash, HASH_LENGTH).c_str());
+  uint8_t newPwHash[HASH_LENGTH];
+  doubleHash((const uint8_t*)password.c_str(), password.length(), newPwHash, iv);
+  log_ss("password hash: %s", toHex(newPwHash, HASH_LENGTH).c_str());
 
   // generate device key and checksum
   uint8_t key[HASH_LENGTH];
@@ -82,7 +82,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
 
   // encrypt key with password hash and IV
   uint8_t encryptedKey[HASH_LENGTH];
-  aesEncrypt(key, HASH_LENGTH, encryptedKey, passwordHash, iv);
+  aesEncrypt(key, HASH_LENGTH, encryptedKey, newPwHash, iv);
   log_s("encrypted key: %s", toHex(encryptedKey, HASH_LENGTH).c_str());
   store.writeMnemonic(0, encryptedKey, HASH_LENGTH);
 
@@ -96,8 +96,8 @@ WalletResponse Wallet::setPassword(std::string& password) {
       log_d("Re-encrypting wallet #%d with new password...", i);
 
       std::string mnemonic;
-      decryptStoredMnemonic(i, mnemonic);
-      encryptAndStoreMnemonic(i, mnemonic, passwordHash);
+      decryptStoredMnemonic(i, mnemonic, pwHash);
+      encryptAndStoreMnemonic(i, mnemonic, newPwHash);
 
       mnemonic.clear();
       updateUi();
@@ -106,7 +106,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
 
   // clear memory
   memzero(key, sizeof(key));
-  memzero(passwordHash, sizeof(passwordHash));
+  memzero(newPwHash, sizeof(newPwHash));
   memzero(iv, sizeof(iv));
   memzero(checksum, sizeof(checksum));
   memzero(encryptedKey, sizeof(encryptedKey));
@@ -115,7 +115,7 @@ WalletResponse Wallet::setPassword(std::string& password) {
   return unlock(password, false);
 }
 
-bool Wallet::isLocked() { return store.isAllZero(pwHash, HASH_LENGTH) || locked; }
+bool Wallet::isLocked() { return isAllZero(pwHash, HASH_LENGTH) || locked; }
 
 bool Wallet::isPasswordSet() { return store.hasMnemonic(0) && store.hasIv(0); }
 
@@ -214,9 +214,12 @@ void Wallet::lock() {
   hdPath.clear();
   xPub.clear();
   fingerprint.clear();
-  memzero(&bipId, sizeof(bipId));
+  memzero(&bipPurpose, sizeof(bipPurpose));
   memzero(&slip44, sizeof(slip44));
+  memzero(&accountId, sizeof(accountId));
   memzero(&chainType, sizeof(chainType));
+
+  timeLastActivity = 0;
 
   locked = true;
 }
@@ -247,7 +250,7 @@ WalletResponse Wallet::selectWallet(
 
   // decrypt mnemonic with password
   std::string mnemonic;
-  decryptStoredMnemonic(id, mnemonic);
+  decryptStoredMnemonic(id, mnemonic, pwHash);
 
   // create seed from mnemonic and (optional) passphrase
   uint8_t seed[BIP39_SEED_SIZE];
@@ -266,18 +269,17 @@ WalletResponse Wallet::selectWallet(
   if (status) {
     // fill public key without a path set
     hdnode_fill_public_key(&hdNode);
-    log_i("master public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
-
-    // derive the extended public key (xpub)
-    // using "version" for mainnet xpub - TODO: check if this is sufficient
-    uint32_t version = 0x0488B21E;
-    char xPubArray[XPUB_LENGTH + 1];
-    hdnode_serialize_public(&hdNode, 0, version, xPubArray, sizeof(xPubArray));
-    xPub = std::string(xPubArray);
-    log_i("master xpub: %s", xPub.c_str());
+    log_s("master public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
 
     // derive the fingerprint before setting the hd path
     uint32_t fpNum = hdnode_fingerprint(&hdNode);
+
+    // derive the extended public key (xpub)
+    char xPubChars[XPUB_LENGTH + 1];
+    uint32_t magicNum = getXpubMagicNumber(inHdPath);
+    hdnode_serialize_public(&hdNode, fpNum, magicNum, xPubChars, sizeof(xPubChars));
+    xPub = std::string(xPubChars);
+    log_s("master xpub: %s", xPub.c_str());
 
     // store id and count
     walletId = id;
@@ -295,8 +297,8 @@ WalletResponse Wallet::selectWallet(
     // store fingerprint after setting chain type
     uint8_t fpBytes[4];
     uint32ToBytes(fpNum, fpBytes);
-    fingerprint = toHex(fpBytes, 4, chainType == ETH);
-    log_i("master fingerprint: %s", fingerprint.c_str());
+    fingerprint = toHex(fpBytes, 4, true);
+    log_s("master fingerprint: %s", fingerprint.c_str());
 
     // logs
     log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
@@ -317,6 +319,9 @@ WalletResponse Wallet::selectWallet(
     }
     return WalletResponse((Status)status, RPC_ERROR_WALLET_INTERNAL);
   }
+
+  // get unlock time
+  timeLastActivity = millis();
 
   return WalletResponse();
 }
@@ -412,10 +417,12 @@ bool Wallet::setHdPath(const char* inPath) {
 
     // fetch info about chain and coin from path
     if (i == 0) {
-      bipId = index;
+      bipPurpose = index;
     } else if (i == 1) {
       slip44 = index;
       chainType = getChainType(slip44);
+    } else if (i == 4) {
+      accountId = index;
     }
 
     // set the path
@@ -454,62 +461,76 @@ std::string Wallet::getAddress() {
     return "";
   }
 
-  // Ethereum
+  // determine address based on chain type
   if (chainType == ETH) {
-    return ethereum.getAddress(&hdNode);
-  } else {
-    /*
+    // Ethereum
+    return ethGetAddress(&hdNode);
+  } else if (chainType == BTC) {
     // Bitcoin
-  char address[MAX_ADDRESS_LENGTH];
-    if (bipId == 86) {
-      // Taproot address (P2TR/BIP86)
-      uint8_t tweakedPubkey[HASH_LENGTH];
-      zkp_bip340_tweak_public_key(hdNode->public_key + 1, NULL, tweakedPubkey);
-      if (!segwit_addr_encode(address, "bc", 1, tweakedPubkey, HASH_LENGTH)) {
-        return "";
-      }
-    } else if (bipId == 84) {
-      // Segwit P2WPKH address
-      uint8_t rawAddress[HASH_LENGTH];
-      hdnode_get_address_raw(hdNode, ADDRESS_TYPE_SEGWIT, rawAddress);
-
-      if (!segwit_addr_encode(address, "bc", 0, rawAddress, ADDRESS_LENGTH)) {
-        return "";
-      }
-    } else if (bipId == 49) {
-      // BIP49 P2WPKH-nested-in-P2SH address
-      ecdsa_get_address_segwit_p2sh(
-          hdNode->public_key, ADDRESS_TYPE_P2SH, hdNode->curve->hasher_pubkey,
-          hdNode->curve->hasher_base58, address, MAX_ADDRESS_LENGTH
-      );
-    } else {
-      // legacy P2PKH address
-      ecdsa_get_address(
-          hdNode->public_key, ADDRESS_TYPE_LEGACY, hdNode->curve->hasher_pubkey,
-          hdNode->curve->hasher_base58, address, MAX_ADDRESS_LENGTH
-      );
-    }
-    return std::string(address);
-    */
+    return btcGetAddress(&hdNode, bipPurpose, slip44);
   }
   return "";
 }
 
-WalletResponse Wallet::signMessage(std::string& message) {
-  log_i("Signing message: %s", message.c_str());
-  std::string signature;
-
+WalletResponse Wallet::signDigest(std::string& hexDigest) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
-  if (chainType == ETH) {
-    signature = ethereum.signMessage(&hdNode, message);
+  std::string signature;
+
+  // Sign hash generically
+  uint8_t sigBytes[RECOVERABLE_SIGNATURE_LENGTH];
+  uint8_t digest[HASH_LENGTH];
+  fromHex(hexDigest.c_str(), digest, HASH_LENGTH);
+
+  bool success = signHash(&hdNode, digest, sigBytes);
+  if (success) signature = toHex(sigBytes, RECOVERABLE_SIGNATURE_LENGTH, true);
+
+  memzero(sigBytes, sizeof(sigBytes));
+  memzero(&digest, sizeof(digest));
+
+  if (signature.empty()) {
+    return WalletResponse(InternalError, RPC_ERROR_SIGNATURE_FAILED);
+  }
+
+  return WalletResponse(signature);
+}
+
+WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainTypeOverride) {
+  if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
+  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
+  log_i("Signing tx (chain type %d)", useChainType);
+
+  if (useChainType == ETH) {
+    // Ethereum
+    return ethSignTransaction(&hdNode, input);
+  }
+
+  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+}
+
+WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOverride) {
+  if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
+  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+  std::string signature;
+  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
+  log_i("Signing message (type %d): %s", useChainType, message.c_str());
+
+  if (useChainType == ETH) {
+    // Ethereum
+    signature = ethSignMessage(&hdNode, message);
+  } else if (useChainType == BTC) {
+    // Bitcoin
+    signature = btcSignMessage(&hdNode, message, slip44, bipPurpose);
   } else {
     return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }
 
   if (signature.empty()) {
-    return WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+    return WalletResponse(InternalError, RPC_ERROR_SIGNATURE_FAILED);
   }
 
   return WalletResponse(signature);
@@ -528,24 +549,19 @@ WalletResponse Wallet::signTypedDataHash(
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (chainType == ETH) {
-    signature = ethereum.signTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
+    signature = ethSignTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
   } else {
     return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }
 
   if (signature.empty()) {
-    return WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+    return WalletResponse(InternalError, RPC_ERROR_SIGNATURE_FAILED);
   }
 
   return WalletResponse(signature);
 }
 
 void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH]) {
-  // optional input key
-  if (encKey == nullptr) {
-    encKey = pwHash;
-  }
-
   // read encrypted mnemonic and IV
   uint8_t encrMnemonic[MAX_MNEMONIC_LENGTH];
   size_t mnemonicLen = store.readMnemonic(id, encrMnemonic);
@@ -573,11 +589,6 @@ void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t enc
 void Wallet::encryptAndStoreMnemonic(
     uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]
 ) {
-  // optional input key
-  if (encKey == nullptr) {
-    encKey = pwHash;
-  }
-
   // create and store iv
   uint8_t iv[AES_IV_SIZE];
   generateEntropy(iv, AES_IV_SIZE);

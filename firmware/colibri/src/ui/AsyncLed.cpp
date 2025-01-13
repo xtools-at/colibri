@@ -91,13 +91,15 @@ void AsyncLed::indicate(bool success) {
 
 #ifdef LED_GPIO_NEOPIXEL
 uint8_t AsyncLed::getColorComponent(RgbColor color, uint8_t component) {
+  uint8_t divisor = 100 / LED_NEOPIXEL_BRIGHTNESS_PERCENT;
+
   switch (component) {
     case 0:  // Red
-      return (color >> 16) & 0xFF;
+      return ((color >> 16) & 0xFF) / divisor;
     case 1:  // Green
-      return (color >> 8) & 0xFF;
+      return ((color >> 8) & 0xFF) / divisor;
     case 2:  // Blue
-      return color & 0xFF;
+      return (color & 0xFF) / divisor;
     default:
       return 0;  // Invalid component
   }

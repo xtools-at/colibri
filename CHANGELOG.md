@@ -1,6 +1,20 @@
 # Colibri Changelog
 
-(`*` = new feature; `+` = improvement; `#` = bugfix; `~` = chore)
+(`*` = new feature; `+` = improvement; `#` = bugfix; `~` = chore; `!` = experimental)
+
+## v0.0.3
+
+2025-01-13
+
+- `*` Wallet: Ethereum transaction signing
+- `*` Wallet: base _Bitcoin_ implementation:
+  - Bitcoin message signing
+  - Setup for Bitcoin + testnet, Litecoin, Dogecoin
+  - Supported address types: BIP44 (legacy), BIP49 (nested P2SH), BIP84 (SegWit/bech32)
+- `!` Interfaces: added experimental Arduino "stock" BLE interface for chips that aren't supported by the `NimBLE-Arduino` library
+- `!` Core: added experimental build support for new chip type `ESP32-C6`
+- `!` Core: added new prebuilt board configurations
+- `~` Core: updated build setup to use latest ESP32 Arduino core `3.1.0`
 
 ## v0.0.2
 

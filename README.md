@@ -6,16 +6,16 @@
 </p>
 <p align="center">
     <img alt="version: 0.0.X (pre-alpha)" src="https://img.shields.io/badge/version-0.0.X_(pre--alpha)-crimson" />
-    <a href="https://matrix.to/#/#colibriwallet:matrix.org">
+    <a href="https://matrix.to/#/#colibriwallet:matrix.org" target="_blank">
       <img alt="chat on Matrix.org" src="https://img.shields.io/badge/matrix-%23colibriwallet%3Amatrix.org-lightgreen?logo=element" />
     </a>
-    <a href="https://t.me/+1vRfa1R5kUViYzM0">
-      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
-    </a>
-    <a href="https://programming.dev/c/colibri">
+    <a href="https://programming.dev/c/colibri" target="_blank">
       <img alt="join Lemmy community" src="https://img.shields.io/badge/lemmy-!colibri%40programming.dev-purple?logo=lemmy" />
     </a>
-    <a href="https://bsky.app/profile/xtools.at">
+    <a href="https://t.me/+1vRfa1R5kUViYzM0" target="_blank">
+      <img alt="chat on Telegram" src="https://img.shields.io/badge/chat-on_Telegram-cornflowerblue?logo=telegram" />
+    </a>
+    <a href="https://bsky.app/profile/xtools.at" target="_blank">
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/connect-on_Bluesky-dodgerblue?logo=bluesky" />
     </a>
 </p>
@@ -35,9 +35,9 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ## Current version
 
-**0.0.2** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
+**0.0.3** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
-### What you can do:
+### Features:
 
 - build and flash the firmware with Arduino IDE (tested with ESP32-C3 & -S3)
 - communicate with wallet via the BLE interface (JSON-RPC)
@@ -48,10 +48,12 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 - use any HD path, and BIP32 passphrases
 - sign Ethereum messages
 - sign Ethereum typed data
+- sign Ethereum transactions
 
 ### What you _can't_ do yet:
 
-- sign Ethereum transactions
+- wallet setup and unlock via companion webapp
+- use Colibri with 3rd party wallets
 
 ---
 
@@ -73,25 +75,37 @@ The minimum requirements for your development board are:
 
 - at least one _programmable_ button (RST/EN is not enough)
 - one _programmable_ LED (simple, or Neopixel RGB)
-- Bluetooth Low Energy support (no `ESP32-S2` support yet)
+- Bluetooth Low Energy support
+
+#### Experimental hardware support
+
+```bash
+$ echo "Developers only!"
+```
+
+- _ESP32-C6_ and _ESP32-H2_ may work in theory, but haven't been tested yet.
+- _ESP32-S2_ and _ESP32-P4_ don't support BLE, but have USB-OTG. They could be used for development purposes with the _Serial Debug Interface_.
 
 ### One-time setup of Arduino IDE
 
-- [Download Arduino IDE](https://www.arduino.cc/en/software) and [enable support for ESP32 boards](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions)
+- [Download Arduino IDE](https://www.arduino.cc/en/software) and [enable support for ESP32 boards](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions). Internally we're using these versions to build:
+  - Arduino IDE 2.3.2 (w/ Arduino CLI 0.35.3)
+  - `esp32` Arduino Core 3.1.0 (w/ ESP-IDF 5.3)
 - Go to `File > Preferences` and enable _"Show files inside sketches"_ and _"Show verbose output during compile"_
 - Connect your ESP32 dev board via USB
-- Change the target board in Arduino IDE (`Tools > Board > esp32 > ESP32XX Dev Module`, where "XX" is your ESP32 chip type; or select whatever fits your hardware better) and set the port (`Tools > Port`)
+- Change the target board in Arduino IDE (`Tools > Board > esp32 > ESP32XX Dev Module`, where "XX" is your ESP32 chip type; or select whatever fits your hardware better)
+- Set the USB port your board is connected to in `Tools > Port`
 - Try uploading the default `Blink` sketch to your board to verify everything is working as it should (`File > Examples > 01. Basic > Blink`)
 - [Try these](https://randomnerdtutorials.com/esp32-troubleshooting-guide) and [these tips](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/) in case you're running into any connection issues. Most common issues:
 
-  - Wrong port selected in `Tools > Port`
-  - Some boards require you to put them in flash mode manually (hold _BOOT_ button, then press _RST/EN_ button)
-  - Missing drivers on Windows/macOS
-  - Required user group permission on Linux
+  - Some boards require you to put them in flash mode manually (hold down _BOOT_ button, then press _RST/EN_ button)
+  - [Wrong port selected](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/#board--port) in `Tools > Port`
+  - [Missing drivers on Windows/macOS](https://randomnerdtutorials.com/esp32-troubleshooting-guide/#COM-port-not-found)
+  - [Required user group permission on Linux](https://support.arduino.cc/hc/en-us/articles/360016495679-Fix-port-access-on-Linux)
 
 ### Build firmware and flash Colibri
 
-- Clone or download this repository
+- Clone or download the [repository](https://github.com/xtools-at/colibri)
 - Copy or symlink the contents of `firmware/lib` to `<user>/Documents/Arduino/libraries` (Windows, macOS) or `<user>/Arduino/libraries` (Linux)
 
   - In case you have some of the libraries installed already, please delete them and use the exact version from the repo
@@ -103,13 +117,17 @@ The minimum requirements for your development board are:
   - Either pick one of the preset board-configuration by uncommenting it (more boards coming soon!)
   - Or set your own board configuration below (configure at least the pins for `LED_GPIO` and `BUTTON_GPIO_OK`)
 
-- _Only_ if you want to use the (insecure) **debugging** features (logs, serial interface), set the following in Arduino IDE. Make sure they're **not** set for your production builds:
+- Make sure your board is connected and the right _board type_ and _port_ are selected in Arduino IDE
+- Click on "Upload" to build and flash Colibri
+
+In case the compiled sketch exceeds your board's memory, try setting `Tools > Partition Scheme > Huge App`or `> Minimal SPIFFS` and recompile.
+
+#### Debug builds
+
+- _Developers only:_ if you want to use the (insecure) **debugging** features (logs, serial interface), set the following in Arduino IDE. Make sure they're **not** set for your production builds:
 
   - `Tools > USB CDC On Boot: Enabled`
   - `Tools > Core Debug Level: Debug`
-
-- Make sure your board is connected and the right board type and port are selected in Arduino IDE
-- Click on "Upload" to build and flash Colibri
 
 ---
 
@@ -155,7 +173,7 @@ Additionally the following actions can be triggered on the device directly:
 
 ### Wallet setup and JSON-RPC command examples
 
-First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information on the device, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
+First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
 
 ```json
 { "method": "setPassword", "params": ["CorrectHorseBatteryStaple"] }
@@ -165,13 +183,13 @@ Next we need to generate or add a mnemonic seed phrase to our wallet. Use a **me
 
 ```javascript
 // generate a 24-word mnemonic
-{ "method": "createMnemonic" }
+{ "method": "createSeedPhrase" }
 
 // generate a 12-word mnemonic
-{ "method": "createMnemonic", "params": [12] }
+{ "method": "createSeedPhrase", "params": [12] }
 
 // add a 12/18/24 word mnemonic:
-{ "method": "addMnemonic", "params": ["your seed phrase goes here"] }
+{ "method": "addSeedPhrase", "params": ["your seed phrase goes here"] }
 ```
 
 All done! Next time we want to use our wallet, we'll need to unlock it first:
@@ -198,10 +216,36 @@ To select a specific wallet, you can use
 To e.g. sign a personal message, try
 
 ```json
-{ "method": "eth_signMessage", "params": ["Hello world!"] }
+{ "method": "signMessage", "params": ["Hello world!"] }
 ```
 
 Full JSON-RPC docs coming soon.
+
+---
+
+## Developer quickstart
+
+If you want to contribute to the development of Colibri, first do _all of the above_, even if only to get the hang of it :) If you don't know where to start, see the [roadmap](#development-roadmap) and ["Help wanted"](#help-wanted) section below to find ideas for some valuable extensions.
+
+Then proceed to:
+
+- Fork the repo and clone
+- Open the repo in VSCode, install _all_ recommended extensions
+
+For `firmware` development:
+
+- Tweak `.vscode/c_cpp_properties.json` to match your operating system's specifics
+  - Linux should work out of the box
+  - Windows and macOS configs exist, but are likely wrong or outdated. Activate the right config by clicking on "Linux" in the bottom right corner while having the file above opened
+- Trigger builds and uploads from Arduino IDE
+
+For any kind of JS/TS `packages` or `apps` (e.g. SDK, Webapp):
+
+- Install Node.js 20 (e.g. via [nvm](https://github.com/nvm-sh/nvm)), and install _pnpm_: `npm i -g pnpm`
+- Install dependencies: `pnpm i`
+- (more instructions are coming once there's something to build)
+
+Finally, open a PR with your changes. Don't forget to update `README` and `CHANGELOG`, and to put yourself on the `CONTRIBUTORS` list :)
 
 ---
 
@@ -213,7 +257,7 @@ Full JSON-RPC docs coming soon.
 - [x] Secure keystore
 - [x] JSON-RPC core interface
 - [x] BLE interface
-- Ethereum signing
+- [x] Ethereum signing
 - Trusted companion webapp for wallet setup
 - Proof of concept 3rd-party wallet integration
 
@@ -229,23 +273,24 @@ Full JSON-RPC docs coming soon.
 
 `to be prioritized`:
 
-- Encrypted USB interface (WebUSB and/or HID)
+- USB interface (HID)
 - Bitcoin signing
-- Python SDK
 - Airgapped interface (camera + QR codes)
+- Python SDK
+- Arduino CLI build setup
 - Platform.io build setup
-- Secure Boot
+- ESP32 Secure Boot
 
 ## Help wanted!
 
 We're looking for contributors and sponsors to help bootstrap Colibri and make it a viable option for everyday crypto usage.
 Valuable extensions to the project, once the core product is functional:
 
-- App to setup/manage/update your wallet
-- Support for more coins and chains (e.g. Bitcoin, Solana, Monero)
+- Support for more coins and chains (e.g. Monero, Solana)
 - 3rd party wallet integrations (e.g. MetaMask, Bitcoin HWI)
 - Libraries and SDKs for builders (e.g. Typescript, Python)
 - New hardware interfaces (e.g. USB support, airgap via camera/QR codes)
+- Support for more advanced build environments (e.g. Platform.io, ESP-IDF, Arduino-CLI)
 - Support channels for builders, users and the community
 - Learning materials, content of all kinds
 
@@ -258,14 +303,9 @@ Valuable extensions to the project, once the core product is functional:
 ### Open-source libraries & Co.
 
 - [Trezor crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/src/LICENSE))
-- [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/src/chains/GPL-3.0.txt))
+- [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/misc/GPL-3.0.txt))
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
 - [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
-
-### Build setup
-
-- Arduino IDE 2.3.2 (w/ Arduino CLI 0.35.3)
-- Espressif ESP32 Arduino Core `esp32` 3.0.7 (w/ ESP-IDF 5.1)
 
 ## License
 

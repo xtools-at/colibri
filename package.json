@@ -1,10 +1,10 @@
 {
   "name": "@colibriwallet/monorepo",
   "description": "DIY hardware wallet based on ESP32 boards",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "author": "xtools-at <https://github.com/xtools-at>",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0",
   "keywords": [
     "hardware wallet",
     "blockchain",

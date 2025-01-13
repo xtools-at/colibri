@@ -186,10 +186,10 @@ AES_RETURN aes_ecb_encrypt(const unsigned char *ibuf, unsigned char *obuf,
 AES_RETURN aes_ecb_decrypt(const unsigned char *ibuf, unsigned char *obuf,
                     int len, const aes_decrypt_ctx cx[1]);
 
-AES_RETURN aes_cbc_encrypt(const unsigned char *ibuf, unsigned char *obuf,
+AES_RETURN aes_cbc_encrypt_T(const unsigned char *ibuf, unsigned char *obuf,
                     int len, unsigned char *iv, const aes_encrypt_ctx cx[1]);
 
-AES_RETURN aes_cbc_decrypt(const unsigned char *ibuf, unsigned char *obuf,
+AES_RETURN aes_cbc_decrypt_T(const unsigned char *ibuf, unsigned char *obuf,
                     int len, unsigned char *iv, const aes_decrypt_ctx cx[1]);
 
 AES_RETURN aes_mode_reset(aes_encrypt_ctx cx[1]);

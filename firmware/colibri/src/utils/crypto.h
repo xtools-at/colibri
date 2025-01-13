@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../../config.h"
+#include "helpers.h"
 #include "mbedtls/aes.h"
 #include "mbedtls/platform.h"
 #include "trng.h"
@@ -11,6 +12,7 @@ extern "C" {
 #include <bip39.h>
 #include <curves.h>
 #include <memzero.h>
+#include <secp256k1.h>
 #include <sha3.h>
 }
 
@@ -24,6 +26,4 @@ void aesDecrypt(uint8_t *in, size_t len, uint8_t *out, uint8_t *key, uint8_t *iv
 
 std::string generateMnemonic(uint8_t words = DEFAULT_MNEMONIC_WORDS);
 
-std::string toHex(const uint8_t *data, size_t len, bool add0xPrefix = false);
-size_t fromHex(const char *hex, uint8_t *bytes, size_t maxBytesLen = 0);
-void uint32ToBytes(uint32_t value, uint8_t output[4]);
+bool signHash(HDNode *node, const uint8_t *hash, uint8_t signature[RECOVERABLE_SIGNATURE_LENGTH]);

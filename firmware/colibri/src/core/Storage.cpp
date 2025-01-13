@@ -113,18 +113,6 @@ uint16_t Storage::getUShort(const char* category) {
   return counter;
 }
 
-bool Storage::isAllZero(const uint8_t* value, size_t len) {
-  if (len == 0) return true;
-
-  for (size_t i = 0; i < len; i++) {
-    if (value[i] != 0) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 bool Storage::isOutOfBounds(uint16_t index) { return index > uint16_t(MAX_STORED_KEYS); }
 
 bool Storage::hasBytes(const char* category, uint16_t index, size_t len) {

@@ -6,6 +6,10 @@
 NimBLEInterface nimBleInterface = NimBLEInterface();
 #endif
 
+#if defined(INTERFACE_BLE_ARDUINO)
+ArduinoBLEInterface arduinoBleInterface = ArduinoBLEInterface();
+#endif
+
 #if defined(DEBUG_INTERFACE_SERIAL)
 SerialDebugInterface serialDebugInterface = SerialDebugInterface();
 #endif
@@ -18,6 +22,10 @@ void initInterfaces() {
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.init();
 #endif
+
+#if defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.init();
+#endif
 };
 
 void updateInterfaces() {
@@ -27,6 +35,10 @@ void updateInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.update();
+#endif
+
+#if defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.update();
 #endif
 };
 
@@ -39,6 +51,10 @@ void stopInterfaces() {
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.stop();
 #endif
+
+#if defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.stop();
+#endif
 };
 
 void wipeInterfaces() {
@@ -49,5 +65,9 @@ void wipeInterfaces() {
 
 #if defined(INTERFACE_BLE_NIMBLE)
   nimBleInterface.wipe();
+#endif
+
+#if defined(INTERFACE_BLE_ARDUINO)
+  arduinoBleInterface.wipe();
 #endif
 };

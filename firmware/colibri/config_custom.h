@@ -11,15 +11,20 @@
 #define BLE_PAIRING_KEY 200913
 
 // change the default wallet/chain
-// - Bitcoin SegWit:
-// #define DEFAULT_HD_PATH "m/84'/0'/0'/0/0"
-// - Bitcoin Legacy (most compatible):
-// #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 // - Ethereum & Co:
 #define DEFAULT_HD_PATH "m/44'/60'/0'/0/0"
+// - Bitcoin SegWit:
+// #define DEFAULT_HD_PATH "m/84'/0'/0'/0/0"
+// - Bitcoin SegWit P2SH:
+// #define DEFAULT_HD_PATH "m/49'/0'/0'/0/0"
+// - Bitcoin Legacy (most compatible):
+// #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 
 // mnemonic lengths 12|18|24 are supported
 #define DEFAULT_MNEMONIC_WORDS 24
+
+// change wait time for user to approve actions (in ms)
+#define TIMEOUT_WAIT_FOR_APPROVAL 12000  // minimum value: 5000
 
 // self destruct wallet after n failed unlock attempts
 #define SELF_DESTRUCT_ENABLED false
@@ -28,8 +33,9 @@
 // custom disable interfaces
 // #define INTERFACE_BLE_DISABLED
 // #define INTERFACE_BLE_NIMBLE_DISABLED
+// #define INTERFACE_BLE_ARDUINO_DISABLED
 // #define INTERFACE_USB_DISABLED
-// #define INTERFACE_USB_WEBUSB_DISABLED
+// #define INTERFACE_USB_HID_DISABLED
 
 // ========== EXPERT/DEVELOPER SETTINGS ========== //
 

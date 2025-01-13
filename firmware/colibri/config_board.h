@@ -4,20 +4,26 @@
 #include <Arduino.h>
 
 // ========== PRE-CONFIGURED BOARDS ========== //
-// Either UNCOMMENT to select board:
+// >>>> Either UNCOMMENT to select a prebuilt board configuration:
 
-// -- Actively supported boards (more coming soon!):
-// #include "src/boards/c3_supermini.h";
-// #include "src/boards/s3_supermini.h";
-
-// -- TODO: Not yet tested:
+// - Simple boards without displays:
 // #include "src/boards/32_devkit.h";
+// #include "src/boards/c3_supermini.h";
 // #include "src/boards/c3_luatos.h";
+// #include "src/boards/c6_supermini.h";
+// #include "src/boards/s3_supermini.h";
+// #include "src/boards/s3_wroom_camera.h";
+
+// - Boards with displays: (TODO: displays not supported yet!)
+// #include "src/boards/32_t3display_114in_lcd.h";
 // #include "src/boards/c3_luatos_air101lcd.h";
 // #include "src/boards/c3_mini_042in_oled.h";
+
+// - Experimental/developers only:
+// #include "src/boards/h2_supermini.h";
 // #include "src/boards/s2_wemos_d1mini.h";
 
-// ...OR set up custom board below:
+// >>>> ...OR set up custom board below:
 
 // ========== CUSTOM BOARD CONFIG ========== //
 // All available configuration options are listed here with their default values.
@@ -25,12 +31,15 @@
 // Choose LED indicator
 // #define LED_GPIO 7 // default: LED_BUILTIN
 // #define LED_GPIO_NEOPIXEL 8 // default: not defined
+// #define LED_NEOPIXEL_BRIGHTNESS_PERCENT 25
 
 // Setup the buttons your board has
-// #define BUTTON_GPIO_OK 0
+// #define BUTTON_GPIO_OK 0 // default: BOOT button (0 or 9 depending on chip)
 // #define BUTTON_GPIO_CANCEL 1 // default: not defined
-// #define BUTTON_GPIO_PREV 2 // default: not defined // UNUSED
-// #define BUTTON_GPIO_NEXT 3  // default: not defined // UNUSED
+// #define BUTTON_GPIO_LEFT 2 // default: not defined // UNUSED
+// #define BUTTON_GPIO_RIGHT 3  // default: not defined // UNUSED
+// #define BUTTON_GPIO_UP 4 // default: not defined // UNUSED
+// #define BUTTON_GPIO_DOWN 5  // default: not defined // UNUSED
 
 // Alternative input/UI modes
 // #define BUTTON_MODE INPUT_PULLUP

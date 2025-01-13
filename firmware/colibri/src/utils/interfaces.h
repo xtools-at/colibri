@@ -7,6 +7,10 @@
   #include "../interfaces/NimBLEInterface.h"
 #endif
 
+#if defined(INTERFACE_BLE_ARDUINO)
+  #include "../interfaces/ArduinoBLEInterface.h"
+#endif
+
 #if defined(DEBUG_INTERFACE_SERIAL)
   #include "../interfaces/SerialDebugInterface.h"
 #endif

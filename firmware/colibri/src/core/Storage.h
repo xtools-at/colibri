@@ -11,6 +11,7 @@ extern "C" {
 }
 
 #include "../../constants.h"
+#include "../utils/helpers.h"
 
 class Storage {
  public:
@@ -30,7 +31,6 @@ class Storage {
   bool putBytes(const char* category, const char* key, const uint8_t* value, size_t len);
   size_t getBytes(const char* category, const char* key, uint8_t* value, size_t maxLen);
   bool isOutOfBounds(uint16_t index);
-  bool isAllZero(const uint8_t* value, size_t len);
 
  private:
   bool putBytes(const char* category, uint16_t index, const uint8_t* value, size_t len);

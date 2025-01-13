@@ -18,7 +18,6 @@
  */
 
 #include "config.h"
-#include "src/chains/Ethereum.h"
 #include "src/core/RPC.h"
 #include "src/core/Storage.h"
 #include "src/core/Wallet.h"
@@ -32,25 +31,24 @@ Storage store = Storage();
 Wallet wallet = Wallet();
 JsonRpcHandler rpc = JsonRpcHandler();
 
-// chains
-EthereumChain ethereum = EthereumChain();
-
 // ui
 AsyncButton buttonOk = AsyncButton(BUTTON_GPIO_OK);
-#ifdef BUTTON_LAYOUT_TWO
+#ifdef BUTTON_LAYOUT_MAIN_TWO
 AsyncButton buttonCancel = AsyncButton(BUTTON_GPIO_CANCEL);
 #endif
 
-#ifdef LED_GPIO_NEOPIXEL
+#ifdef LED_ENABLED
+  #ifdef LED_GPIO_NEOPIXEL
 AsyncLed led = AsyncLed(LED_GPIO_NEOPIXEL, true);
-#else
+  #else
 AsyncLed led = AsyncLed(LED_GPIO);
+  #endif
 #endif
 
-// states
+// state tracking
 bool isHot = false;
 bool isBusy = false;
-bool isConnected = false;
+Connection connection = NotConnected;
 
 void setup() {
   led.turnOn(RgbColor::Busy);

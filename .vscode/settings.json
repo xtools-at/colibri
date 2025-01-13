@@ -21,20 +21,25 @@
   },
   "search.exclude": {
     "**/node_modules": true,
-    "firmware/libs": true
+    "firmware/lib": false
   },
   "editor.formatOnSave": true,
   "json.format.enable": true,
   "cSpell.words": [
     "Adafruit",
+    "bech32",
     "Colibri",
     "colibriwallet",
+    "Dogecoin",
     "EEPROM",
     "Espressif",
     "gpio",
     "hdnode",
     "keccak",
+    "Litecoin",
     "memzero",
+    "microcontroller",
+    "microcontrollers",
     "Neopixel",
     "OLED",
     "PROGMEM",
@@ -43,6 +48,7 @@
     "utoa",
     "utxo",
     "webusb",
+    "xpub",
     "xtools"
   ],
   "files.associations": {
@@ -129,6 +135,13 @@
     "config_board.h": "c",
     "config_custom.h": "c",
     "syscfg.h": "c",
-    "esp32-hal-rgb-led.h": "c"
+    "esp32-hal-rgb-led.h": "c",
+    "freertos.h": "c",
+    "freertosconfig.h": "c",
+    "freertosconfig_arch.h": "c",
+    "xtensa_config.h": "c",
+    "core.h": "c",
+    "s3_supermini.h": "c",
+    "secp256k1.h": "c"
   }
 }

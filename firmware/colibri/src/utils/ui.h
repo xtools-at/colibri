@@ -10,24 +10,22 @@
 #endif
 
 extern AsyncButton buttonOk;
-#ifdef BUTTON_LAYOUT_TWO
+#ifdef BUTTON_LAYOUT_MAIN_TWO
 extern AsyncButton buttonCancel;
 #else
   #define buttonCancel buttonOk
 #endif
+#ifdef LED_ENABLED
 extern AsyncLed led;
+#endif
 extern bool isHot;
 extern bool isBusy;
-extern bool isConnected;
-
-void updateLed();
+extern Connection connection;
 
 void updateUi();
 
 bool waitForApproval(RgbColor color = Hot);
 
-void setStateConnected(bool connected);
+void setStateConnected(Connection conn);
 
 void setStateBusy(bool busy);
-
-void checkForGesture();
