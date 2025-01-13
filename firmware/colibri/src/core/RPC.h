@@ -7,7 +7,7 @@
 #include <map>
 
 #include "../../config.h"
-#include "../utils/ui.h"
+#include "../ui/ui.h"
 #include "Wallet.h"
 
 extern Wallet wallet;

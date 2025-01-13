@@ -4,7 +4,7 @@
 #include "../../config.h"
 #include "../core/RPC.h"
 #include "../core/Wallet.h"
-#include "../utils/ui.h"
+#include "../ui/ui.h"
 
 extern JsonRpcHandler rpc;
 extern Wallet wallet;

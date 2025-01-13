@@ -6,9 +6,9 @@
 #include "../../config.h"
 #include "../signers/bitcoin.h"
 #include "../signers/ethereum.h"
+#include "../ui/ui.h"
 #include "../utils/chains.h"
 #include "../utils/crypto.h"
-#include "../utils/ui.h"
 #include "Storage.h"
 #include "esp_system.h"
 

@@ -21,10 +21,10 @@
 #include "src/core/RPC.h"
 #include "src/core/Storage.h"
 #include "src/core/Wallet.h"
+#include "src/interfaces/interfaces.h"
 #include "src/ui/AsyncButton.h"
 #include "src/ui/AsyncLed.h"
-#include "src/utils/interfaces.h"
-#include "src/utils/ui.h"
+#include "src/ui/ui.h"
 
 // core
 Storage store = Storage();

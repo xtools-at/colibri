@@ -4,15 +4,15 @@
 #include "../../config.h"
 
 #if defined(INTERFACE_BLE_NIMBLE)
-  #include "../interfaces/NimBLEInterface.h"
+  #include "NimBLEInterface.h"
 #endif
 
 #if defined(INTERFACE_BLE_ARDUINO)
-  #include "../interfaces/ArduinoBLEInterface.h"
+  #include "ArduinoBLEInterface.h"
 #endif
 
 #if defined(DEBUG_INTERFACE_SERIAL)
-  #include "../interfaces/SerialDebugInterface.h"
+  #include "SerialDebugInterface.h"
 #endif
 
 void initInterfaces();

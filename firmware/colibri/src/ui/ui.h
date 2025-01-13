@@ -2,8 +2,8 @@
 #pragma once
 
 #include "../../config.h"
-#include "../ui/AsyncButton.h"
-#include "../ui/AsyncLed.h"
+#include "AsyncButton.h"
+#include "AsyncLed.h"
 #include "esp_system.h"
 #ifdef DISPLAY_ENABLED
 // #include "Display.h"
