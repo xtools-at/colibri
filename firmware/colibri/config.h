@@ -45,7 +45,7 @@
 
 // ========== System ========== //
 #define HW_NAME "Colibri"
-#define HW_FIRMWARE_VERSION "0.0.3"
+#define HW_FIRMWARE_VERSION "0.0.4"
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).

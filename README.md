@@ -35,7 +35,7 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 ## Current version
 
-**0.0.3** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
+**0.0.4** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
 ### Features:
 

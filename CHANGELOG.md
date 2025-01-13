@@ -2,6 +2,10 @@
 
 (`*` = new feature; `+` = improvement; `#` = bugfix; `~` = chore; `!` = experimental)
 
+## v0.0.4
+
+(tbd)
+
 ## v0.0.3
 
 2025-01-13
