@@ -1,4 +1,4 @@
-Copyright © 2024 xtools-at <https://github.com/xtools-at>
+Copyright © 2024-2025 xtools-at <https://github.com/xtools-at>
 
 # GNU Affero General Public License
 

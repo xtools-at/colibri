@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /*
  * Colibri Wallet - Libre DIY Hardware Wallet <https://colibri.diy>
- * Copyright (C) 2024  xtools-at <https://github.com/xtools-at>
+ * Copyright (C) 2024-2025  xtools-at <https://github.com/xtools-at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by

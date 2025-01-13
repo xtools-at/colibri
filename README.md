@@ -296,7 +296,7 @@ Valuable extensions to the project, once the core product is functional:
 
 ## Credits
 
-- created by [xtools-at](https://github.com/xtools-at) (© 2024)
+- created by [xtools-at](https://github.com/xtools-at) (© 2024-2025)
 - inspired by [ricmoo](https://github.com/ricmoo)'s [Firefly](https://github.com/firefly/wallet) Arduino Wallet
 - preliminary work: [ESP-5791](https://github.com/xtools-at/esp5791) - Physical backed tokens with ESP32
 
