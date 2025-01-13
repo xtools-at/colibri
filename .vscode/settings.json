@@ -38,6 +38,8 @@
     "keccak",
     "Litecoin",
     "memzero",
+    "microcontroller",
+    "microcontrollers",
     "Neopixel",
     "OLED",
     "PROGMEM",
@@ -139,6 +141,7 @@
     "freertosconfig_arch.h": "c",
     "xtensa_config.h": "c",
     "core.h": "c",
-    "s3_supermini.h": "c"
+    "s3_supermini.h": "c",
+    "secp256k1.h": "c"
   }
 }

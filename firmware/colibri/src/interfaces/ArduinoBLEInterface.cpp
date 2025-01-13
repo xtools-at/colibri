@@ -28,6 +28,7 @@ class BLESecurityCallback : public BLESecurityCallbacks {
     log_d("onConfirmPIN: %d (passkey=%d)", pin, securityPasskey);
 
     // approve pairing request on wallet
+    // TODO: this isn't triggered
     if (!waitForApproval(Connecting)) {
       return false;
     }
@@ -96,7 +97,8 @@ class BLEServerCallback : public BLEServerCallbacks {
     pServer->updatePeerMTU(pServer->getConnId(), 512);
   }
 
-  void onDisconnect(BLEServer *pServer) {
+  void onDisconnect(BLEServer *pServer) override {
+    // TODO: interface hangs after disconnect
     if (pServer->getConnectedCount() > 0) {
       return;
     }
@@ -106,6 +108,7 @@ class BLEServerCallback : public BLEServerCallbacks {
 
     // restart advertising
     pServer->startAdvertising();
+    log_d("Restarted advertising");
   }
 };
 

@@ -60,38 +60,6 @@ struct WalletResponse {
   WalletResponse() : status(Ok) {}
 };
 
-struct TxResponse {
-  Status status;
-  const char* error;
-  std::string signature;
-  std::string r;
-  std::string s;
-  std::string v;
-
-  TxResponse(Status errorCode, const char* errorMsg) : status(errorCode), error(errorMsg) {}
-  TxResponse(std::string _signature, std::string _r, std::string _s, std::string _v)
-      : status(Ok), signature(_signature), r(r), s(s), v(v) {}
-};
-
-struct EthereumTxInput {
-  bool hasTo;
-  uint8_t* value;
-  size_t valueLength;
-  uint8_t* data;
-  size_t dataLength;
-  uint64_t chainId;
-  uint8_t* pubkeyHash;
-  uint8_t* nonce;
-  size_t nonceLength;
-  uint8_t* gasLimit;
-  size_t gasLimitLength;
-  uint8_t* maxFeePerGas;
-  size_t maxFeePerGasLength;
-  uint8_t* maxPriorityFeePerGas;
-  size_t maxPriorityFeePerGasLength;
-  bool isEIP1559;
-};
-
 /*
  * START ported and/or adapted code from Trezor firmware (originally licensed under GPL 3.0, see
  * `misc/GPL-3.0.txt`):

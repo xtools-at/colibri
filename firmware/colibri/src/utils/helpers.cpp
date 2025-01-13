@@ -31,7 +31,7 @@ std::string toHex(const uint8_t *data, size_t len, bool add0xPrefix) {
   return hex;
 }
 
-uint8_t hexDigitToValue(char hexDigit) {
+static uint8_t hexDigitToValue(char hexDigit) {
   if (hexDigit >= '0' && hexDigit <= '9') {
     return hexDigit - '0';
   } else if (hexDigit >= 'a' && hexDigit <= 'f') {
@@ -53,23 +53,27 @@ size_t fromHex(const char *hex, uint8_t *bytes, size_t maxBytesLen) {
     len -= 2;
   }
 
-  // Ensure the length is even
-  if (len % 2 != 0) {
+  // Check for odd length
+  if (len == 0 || len % 2 != 0) {
     return 0;
   }
 
-  size_t bytesLen = len / 2;
-  if (maxBytesLen > 0 && bytesLen > maxBytesLen) {
-    bytesLen = maxBytesLen;
+  // max bytes size - reuse `len`
+  len = len / 2;
+  if (maxBytesLen > 0 && len > maxBytesLen) {
+    len = maxBytesLen;
   }
 
-  for (size_t i = 0; i < bytesLen; ++i) {
-    uint8_t high = hexDigitToValue(hex[start + 2 * i]);
-    uint8_t low = hexDigitToValue(hex[start + 2 * i + 1]);
+  // convert to bytes
+  for (size_t i = 0; i < len; ++i) {
+    size_t index = start + 2 * i;
+
+    uint8_t high = hexDigitToValue(hex[index]);
+    uint8_t low = hexDigitToValue(hex[index + 1]);
     bytes[i] = (high << 4) | low;
   }
 
-  return bytesLen;
+  return len;
 }
 
 // Helper method to convert uint32_t to bytes
@@ -78,4 +82,15 @@ void uint32ToBytes(uint32_t value, uint8_t output[4]) {
   output[1] = (value >> 16) & 0xFF;
   output[2] = (value >> 8) & 0xFF;
   output[3] = value & 0xFF;
+}
+
+// Helper method to convert bytes to uint64_t
+uint64_t bytesToUint64(const uint8_t *bytes, size_t maxLen) {
+  size_t len = maxLen == 0 || maxLen > 8 ? 8 : maxLen;
+
+  uint64_t value = 0;
+  for (int i = 0; i < len; ++i) {
+    value = (value << 8) | bytes[i];
+  }
+  return value;
 }

@@ -37,7 +37,7 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 **0.0.3** - `0.0.X` pre-alpha, public preview - see also [changelog](https://github.com/xtools-at/colibri/blob/main/CHANGELOG.md).
 
-### What you can do:
+### Features:
 
 - build and flash the firmware with Arduino IDE (tested with ESP32-C3 & -S3)
 - communicate with wallet via the BLE interface (JSON-RPC)
@@ -48,10 +48,12 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 - use any HD path, and BIP32 passphrases
 - sign Ethereum messages
 - sign Ethereum typed data
+- sign Ethereum transactions
 
 ### What you _can't_ do yet:
 
-- sign Ethereum transactions
+- wallet setup and unlock via companion webapp
+- use Colibri with 3rd party wallets
 
 ---
 
@@ -73,7 +75,7 @@ The minimum requirements for your development board are:
 
 - at least one _programmable_ button (RST/EN is not enough)
 - one _programmable_ LED (simple, or Neopixel RGB)
-- Bluetooth Low Energy support (no `ESP32-S2` support yet)
+- Bluetooth Low Energy support
 
 #### Experimental hardware support
 
@@ -81,7 +83,7 @@ The minimum requirements for your development board are:
 $ echo "Developers only!"
 ```
 
-- _ESP32-C6_ and _ESP32-H2_ should work in theory, but haven't been tested yet.
+- _ESP32-C6_ and _ESP32-H2_ may work in theory, but haven't been tested yet.
 - _ESP32-S2_ and _ESP32-P4_ don't support BLE, but have USB-OTG. They could be used for development purposes with the _Serial Debug Interface_.
 
 ### One-time setup of Arduino IDE
@@ -96,14 +98,14 @@ $ echo "Developers only!"
 - Try uploading the default `Blink` sketch to your board to verify everything is working as it should (`File > Examples > 01. Basic > Blink`)
 - [Try these](https://randomnerdtutorials.com/esp32-troubleshooting-guide) and [these tips](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/) in case you're running into any connection issues. Most common issues:
 
-  - Wrong port selected in `Tools > Port`
-  - Some boards require you to put them in flash mode manually (hold _BOOT_ button, then press _RST/EN_ button)
-  - Missing drivers on Windows/macOS
-  - Required user group permission on Linux
+  - Some boards require you to put them in flash mode manually (hold down _BOOT_ button, then press _RST/EN_ button)
+  - [Wrong port selected](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/#board--port) in `Tools > Port`
+  - [Missing drivers on Windows/macOS](https://randomnerdtutorials.com/esp32-troubleshooting-guide/#COM-port-not-found)
+  - [Required user group permission on Linux](https://support.arduino.cc/hc/en-us/articles/360016495679-Fix-port-access-on-Linux)
 
 ### Build firmware and flash Colibri
 
-- Clone or download this repository
+- Clone or download the [repository](https://github.com/xtools-at/colibri)
 - Copy or symlink the contents of `firmware/lib` to `<user>/Documents/Arduino/libraries` (Windows, macOS) or `<user>/Arduino/libraries` (Linux)
 
   - In case you have some of the libraries installed already, please delete them and use the exact version from the repo
@@ -115,13 +117,17 @@ $ echo "Developers only!"
   - Either pick one of the preset board-configuration by uncommenting it (more boards coming soon!)
   - Or set your own board configuration below (configure at least the pins for `LED_GPIO` and `BUTTON_GPIO_OK`)
 
-- _Only_ if you want to use the (insecure) **debugging** features (logs, serial interface), set the following in Arduino IDE. Make sure they're **not** set for your production builds:
+- Make sure your board is connected and the right _board type_ and _port_ are selected in Arduino IDE
+- Click on "Upload" to build and flash Colibri
+
+In case the compiled sketch exceeds your board's memory, try setting `Tools > Partition Scheme > Huge App`or `> Minimal SPIFFS` and recompile.
+
+#### Debug builds
+
+- _Developers only:_ if you want to use the (insecure) **debugging** features (logs, serial interface), set the following in Arduino IDE. Make sure they're **not** set for your production builds:
 
   - `Tools > USB CDC On Boot: Enabled`
   - `Tools > Core Debug Level: Debug`
-
-- Make sure your board is connected and the right board type and port are selected in Arduino IDE
-- Click on "Upload" to build and flash Colibri
 
 ---
 
@@ -267,19 +273,19 @@ Finally, open a PR with your changes. Don't forget to update `README` and `CHANG
 
 `to be prioritized`:
 
-- Encrypted USB interface (WebUSB and/or HID)
+- USB interface (HID)
 - Bitcoin signing
-- Python SDK
 - Airgapped interface (camera + QR codes)
+- Python SDK
+- Arduino CLI build setup
 - Platform.io build setup
-- Secure Boot
+- ESP32 Secure Boot
 
 ## Help wanted!
 
 We're looking for contributors and sponsors to help bootstrap Colibri and make it a viable option for everyday crypto usage.
 Valuable extensions to the project, once the core product is functional:
 
-- App to setup/manage/update your wallet
 - Support for more coins and chains (e.g. Monero, Solana)
 - 3rd party wallet integrations (e.g. MetaMask, Bitcoin HWI)
 - Libraries and SDKs for builders (e.g. Typescript, Python)

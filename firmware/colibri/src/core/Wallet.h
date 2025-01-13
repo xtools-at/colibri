@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include <ArduinoJson.h>
+
 #include "../../config.h"
-#include "../signers/Bitcoin.h"
-#include "../signers/Ethereum.h"
+#include "../signers/bitcoin.h"
+#include "../signers/ethereum.h"
 #include "../utils/chains.h"
 #include "../utils/crypto.h"
 #include "../utils/ui.h"
@@ -25,6 +27,7 @@ class Wallet {
   uint32_t bipPurpose;
   uint32_t slip44;
   uint32_t accountId;
+  uint64_t timeLastActivity;
 
   bool isLocked();
   bool isPasswordSet();
@@ -49,6 +52,7 @@ class Wallet {
   WalletResponse signDigest(std::string& hexDigest);
   WalletResponse signMessage(std::string& message, ChainType chainTypeOverride = UNKNOWN);
   WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
+  WalletResponse signTransaction(JsonArrayConst input, ChainType chainTypeOverride = UNKNOWN);
 
  private:
   void deleteHdNode();

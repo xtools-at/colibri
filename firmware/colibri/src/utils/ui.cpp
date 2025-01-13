@@ -6,7 +6,50 @@
 #include "../core/Wallet.h"
 extern Wallet wallet;
 
-void updateLed() {
+static void checkForGesture() {
+  if (isHot) return;
+
+  // check for lock/reboot request
+  if (buttonCancel.isLongPressed()) {
+    bool isLocked = wallet.isLocked();
+
+    if (isLocked) {
+      log_i("Rebooting device\n");
+      esp_restart();
+    } else {
+      log_i("Locking device\n");
+      wallet.lock();
+    }
+  }
+
+  // check for wipe request
+  if (buttonCancel.isMultiPressed(10)) {
+    log_i("Device wipe initiated\n");
+    if (!waitForApproval(RgbColor::Warning)) {
+      return;
+    }
+
+    wallet.wipe();
+  }
+}
+
+static void checkForTimeout() {
+  if (wallet.timeLastActivity > 0 &&
+      (millis() - wallet.timeLastActivity) > TIMEOUT_INACTIVITY_LOCK) {
+    log_i("Auto-locking device after inactivity");
+    wallet.lock();
+  }
+}
+
+static void updateButtons() {
+  // update buttons
+  buttonOk.update();
+#ifdef BUTTON_LAYOUT_MAIN_TWO
+  buttonCancel.update();
+#endif
+}
+
+static void updateLed() {
   if (!isHot && !led.isBlinking) {
     if (isBusy) {
       led.turnOn(Busy);
@@ -21,18 +64,17 @@ void updateLed() {
 }
 
 void updateUi() {
-  // update buttons
-  buttonOk.update();
-#ifdef BUTTON_LAYOUT_MAIN_TWO
-  buttonCancel.update();
-#endif
-
+  updateButtons();
   updateLed();
   checkForGesture();
+  checkForTimeout();
 }
 
 bool waitForApproval(RgbColor color) {
   log_i("Waiting for user approval...");
+  // reset auto-lock timeout
+  if (!wallet.isLocked()) wallet.timeLastActivity = millis();
+
   // set led hot
   isHot = true;
   led.blink(100, 100, color);
@@ -93,31 +135,4 @@ void setStateConnected(Connection conn) {
 void setStateBusy(bool busy) {
   isBusy = busy;
   updateUi();
-}
-
-void checkForGesture() {
-  if (isHot) return;
-
-  // check for lock/reboot request
-  if (buttonCancel.isLongPressed()) {
-    bool isLocked = wallet.isLocked();
-
-    if (isLocked) {
-      log_i("Rebooting device\n");
-      esp_restart();
-    } else {
-      log_i("Locking device\n");
-      wallet.lock();
-    }
-  }
-
-  // check for wipe request
-  if (buttonCancel.isMultiPressed(10)) {
-    log_i("Device wipe initiated\n");
-    if (!waitForApproval(RgbColor::Warning)) {
-      return;
-    }
-
-    wallet.wipe();
-  }
 }

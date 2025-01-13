@@ -220,40 +220,16 @@ void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
 }
 
 void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
-  // TODO: implement
-  EthereumTxInput input;
-  input.valueLength = fromHex(request[RPC_PARAMS][0], input.value, 64);
-  log_d("value: %s", request[RPC_PARAMS][0]);
-  log_d("stored value Length: %d", input.valueLength);
-  log_d("stored value: %s", toHex(input.value, input.valueLength).c_str(), true);
+  JsonArrayConst params = request[RPC_PARAMS];
 
-  /*
-  std::string to = request[RPC_PARAMS][0];
-  std::string value = request[RPC_PARAMS][1];
-  std::string gasLimit = request[RPC_PARAMS][2];
-  std::string maxFeePerGas = request[RPC_PARAMS][3];
-  std::string maxPriorityFeePerGas = request[RPC_PARAMS][4];
-  std::string data = request[RPC_PARAMS][5];
-  std::string chainId = request[RPC_PARAMS][6];
-  std::string nonce = request[RPC_PARAMS][7];
-  bool eip1559 = request[RPC_PARAMS][8];
-  */
-
-  /*
-  std::string domainSeparatorHash = request[RPC_PARAMS][0];
-  std::string msgHash = request[RPC_PARAMS][1];
-
-  WalletResponse r = wallet.signTypedDataHash(domainSeparatorHash, msgHash);
+  WalletResponse r = wallet.signTransaction(params);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
     response[RPC_RESULT] = r.result;
   }
 
-  domainSeparatorHash.clear();
-  msgHash.clear();
   memzero(&r, sizeof(r));
-  */
 }
 
 JsonRpcHandler::JsonRpcHandler() : initialised(false) {}
@@ -310,8 +286,7 @@ void JsonRpcHandler::init() {
       RPC_RESULT_SIGNATURE
   );
   addMethod(
-      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX,
-      RPC_RESULT_SIGNATURE_TX
+      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX, RPC_RESULT_SIGNATURE
   );
 
   initialised = true;

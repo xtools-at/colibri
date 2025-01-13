@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#include "Ethereum.h"
+#include "ethereum.h"
 
-std::string Ethereum::getAddress(HDNode *node) {
+std::string ethGetAddress(HDNode *node) {
   uint8_t ethereumAddress[ADDRESS_LENGTH];
   hdnode_get_ethereum_pubkeyhash(node, ethereumAddress);
 
   return toHex(ethereumAddress, ADDRESS_LENGTH, true);
 };
 
-std::string Ethereum::signRecoverableDigest(HDNode *node, uint8_t digest[HASH_LENGTH]) {
+static std::string ethSignRecoverableDigest(HDNode *node, uint8_t digest[HASH_LENGTH]) {
   // sign digest
   uint8_t sig[RECOVERABLE_SIGNATURE_LENGTH];
   uint8_t v = 0;
@@ -75,13 +75,13 @@ static void hashEthereumMessage(const uint8_t *message, size_t message_len, uint
   keccak_Final(&ctx, hash);
 }
 
-std::string Ethereum::signMessage(HDNode *node, std::string &message) {
+std::string ethSignMessage(HDNode *node, std::string &message) {
   uint8_t digest[HASH_LENGTH];
   const char *msg = message.c_str();
 
   hashEthereumMessage((uint8_t *)msg, message.length(), digest);
 
-  return signRecoverableDigest(node, digest);
+  return ethSignRecoverableDigest(node, digest);
 }
 
 static void hashEthereumTypedData(
@@ -98,7 +98,7 @@ static void hashEthereumTypedData(
   keccak_Final(&ctx, hash);
 }
 
-std::string Ethereum::signTypedDataHash(
+std::string ethSignTypedDataHash(
     HDNode *node, std::string &domainSeparatorHash, std::string &messageHash
 ) {
   uint8_t digest[HASH_LENGTH];
@@ -114,7 +114,7 @@ std::string Ethereum::signTypedDataHash(
 
   hashEthereumTypedData(dshBytes, mhBytes, hasMessageHash, digest);
 
-  return signRecoverableDigest(node, digest);
+  return ethSignRecoverableDigest(node, digest);
 }
 
 // ===== Ethereum transaction signing =====
@@ -265,3 +265,68 @@ static void sign_eip1559_transaction(
 /*
  * END ported code from Trezor firmware
  */
+
+WalletResponse ethSignTransaction(HDNode *node, JsonArrayConst input) {
+  uint8_t signature[RECOVERABLE_SIGNATURE_LENGTH];
+
+  if (input && input.size() >= 7) {
+    // parse hex input
+    uint8_t chainIdBytes[8];
+    size_t chainIdLen = fromHex(input[0].as<const char *>(), chainIdBytes, 8);
+    uint64_t chainId = bytesToUint64(chainIdBytes, chainIdLen);
+
+    uint8_t to[ADDRESS_LENGTH] = {0};
+    size_t toSize = fromHex(input[1].as<const char *>(), to, ADDRESS_LENGTH);
+
+    uint8_t value[32];
+    size_t valueSize = fromHex(input[2].as<const char *>(), value, 32);
+
+    const char *dataStr = input[3];
+    size_t dataLen = (strlen(dataStr) - 2) / 2;
+    uint8_t data[dataLen];
+    size_t dataSize = fromHex(dataStr, data, dataLen);
+
+    uint8_t nonce[32];
+    size_t nonceSize = fromHex(input[4].as<const char *>(), nonce, 32);
+
+    uint8_t gasLimit[32];
+    size_t gasLimitSize = fromHex(input[5].as<const char *>(), gasLimit, 32);
+
+    log_d("Params (chainId: %lu)", chainId);
+    log_d("Param sizes (to: %d, data: %d, chainId: %d)", toSize, dataSize, chainIdLen);
+
+    if (input.size() == 7) {
+      // EIP-155
+      uint8_t gasPrice[32];
+      size_t gasPriceSize = fromHex(input[6].as<const char *>(), gasPrice, 32);
+
+      sign_transaction(
+          node->private_key, chainId, nonce, nonceSize, gasPrice, gasPriceSize, gasLimit,
+          gasLimitSize, to, toSize, value, valueSize, data, dataSize, signature
+      );
+    } else if (input.size() == 8) {
+      // EIP-1559
+      uint8_t maxFeePerGas[32];
+      size_t maxFeePerGasSize = fromHex(input[6].as<const char *>(), maxFeePerGas, 32);
+
+      uint8_t maxPriorityFeePerGas[32];
+      size_t maxPriorityFeePerGasSize =
+          fromHex(input[7].as<const char *>(), maxPriorityFeePerGas, 32);
+
+      sign_eip1559_transaction(
+          node->private_key, chainId, nonce, nonceSize, maxFeePerGas, maxFeePerGasSize,
+          maxPriorityFeePerGas, maxPriorityFeePerGasSize, gasLimit, gasLimitSize, to, toSize, value,
+          valueSize, data, dataSize, signature
+      );
+    }
+  } else {
+    return WalletResponse(InvalidParams, RPC_ERROR_INVALID_PARAMS);
+  }
+
+  std::string sig = toHex(signature, RECOVERABLE_SIGNATURE_LENGTH, true);
+  if (sig.empty()) {
+    return WalletResponse(InternalError, RPC_ERROR_SIGNATURE_FAILED);
+  }
+
+  return WalletResponse(sig);
+}

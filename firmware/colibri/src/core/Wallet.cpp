@@ -8,9 +8,6 @@
 extern void stopInterfaces();
 extern void wipeInterfaces();
 
-Ethereum ethereum = Ethereum();
-Bitcoin bitcoin = Bitcoin();
-
 WalletResponse Wallet::wipeRemote(bool interfacesOnly) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
 
@@ -222,6 +219,8 @@ void Wallet::lock() {
   memzero(&accountId, sizeof(accountId));
   memzero(&chainType, sizeof(chainType));
 
+  timeLastActivity = 0;
+
   locked = true;
 }
 
@@ -270,7 +269,7 @@ WalletResponse Wallet::selectWallet(
   if (status) {
     // fill public key without a path set
     hdnode_fill_public_key(&hdNode);
-    log_i("master public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
+    log_s("master public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
 
     // derive the fingerprint before setting the hd path
     uint32_t fpNum = hdnode_fingerprint(&hdNode);
@@ -280,7 +279,7 @@ WalletResponse Wallet::selectWallet(
     uint32_t magicNum = getXpubMagicNumber(inHdPath);
     hdnode_serialize_public(&hdNode, fpNum, magicNum, xPubChars, sizeof(xPubChars));
     xPub = std::string(xPubChars);
-    log_i("master xpub: %s", xPub.c_str());
+    log_s("master xpub: %s", xPub.c_str());
 
     // store id and count
     walletId = id;
@@ -299,7 +298,7 @@ WalletResponse Wallet::selectWallet(
     uint8_t fpBytes[4];
     uint32ToBytes(fpNum, fpBytes);
     fingerprint = toHex(fpBytes, 4, true);
-    log_i("master fingerprint: %s", fingerprint.c_str());
+    log_s("master fingerprint: %s", fingerprint.c_str());
 
     // logs
     log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
@@ -320,6 +319,9 @@ WalletResponse Wallet::selectWallet(
     }
     return WalletResponse((Status)status, RPC_ERROR_WALLET_INTERNAL);
   }
+
+  // get unlock time
+  timeLastActivity = millis();
 
   return WalletResponse();
 }
@@ -462,10 +464,10 @@ std::string Wallet::getAddress() {
   // determine address based on chain type
   if (chainType == ETH) {
     // Ethereum
-    return ethereum.getAddress(&hdNode);
+    return ethGetAddress(&hdNode);
   } else if (chainType == BTC) {
     // Bitcoin
-    return bitcoin.getAddress(&hdNode, bipPurpose, slip44);
+    return btcGetAddress(&hdNode, bipPurpose, slip44);
   }
   return "";
 }
@@ -494,6 +496,21 @@ WalletResponse Wallet::signDigest(std::string& hexDigest) {
   return WalletResponse(signature);
 }
 
+WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainTypeOverride) {
+  if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
+  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
+  log_i("Signing tx (chain type %d)", useChainType);
+
+  if (useChainType == ETH) {
+    // Ethereum
+    return ethSignTransaction(&hdNode, input);
+  }
+
+  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+}
+
 WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOverride) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
@@ -504,10 +521,10 @@ WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOver
 
   if (useChainType == ETH) {
     // Ethereum
-    signature = ethereum.signMessage(&hdNode, message);
+    signature = ethSignMessage(&hdNode, message);
   } else if (useChainType == BTC) {
     // Bitcoin
-    signature = bitcoin.signMessage(&hdNode, message, slip44, bipPurpose);
+    signature = btcSignMessage(&hdNode, message, slip44, bipPurpose);
   } else {
     return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }
@@ -532,7 +549,7 @@ WalletResponse Wallet::signTypedDataHash(
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (chainType == ETH) {
-    signature = ethereum.signTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
+    signature = ethSignTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
   } else {
     return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
   }

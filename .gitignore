@@ -32,3 +32,4 @@ firmware/lib/**/extras/**
 firmware/lib/**/tests/**
 firmware/lib/**/docs/**
 firmware/**/*.xx
+firmware/vendor/**

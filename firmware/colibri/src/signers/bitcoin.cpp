@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#include "Bitcoin.h"
+#include "bitcoin.h"
 
 #include "../utils/chains.h"
 
@@ -11,7 +11,7 @@
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/crypto.c
  */
 
-uint32_t ser_length(uint32_t len, uint8_t *out) {
+static uint32_t ser_length(uint32_t len, uint8_t *out) {
   if (len < 253) {
     out[0] = len & 0xFF;
     return 1;
@@ -46,7 +46,7 @@ static void cryptoMessageHash(
   hasher_Final(&hasher, hash);
 }
 
-int cryptoMessageSign(
+static int cryptoMessageSign(
     HDNode *node, uint32_t bipPurpose, uint32_t slip44, const uint8_t *message, size_t message_len,
     uint8_t *signature
 ) {
@@ -77,17 +77,18 @@ int cryptoMessageSign(
   return result;
 }
 
-std::string Bitcoin::getAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip44) {
+std::string btcGetAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip44) {
   char address[MAX_ADDRESS_LENGTH];
 
   const BitcoinNetwork *network = getBitcoinNetwork(slip44);
-
   /*
+  // TODO: vendor lib for Taproot doesn't compile in Arduino's C++ environment
   if (bipPurpose == 86) {
-    // Taproot address (P2TR/BIP86)
+    // BIP-86: Taproot P2TR address
     uint8_t tweakedPubkey[HASH_LENGTH];
     zkp_bip340_tweak_public_key(node->public_key + 1, NULL, tweakedPubkey);
-    if (!segwit_addr_encode(address, "bc", 1, tweakedPubkey, HASH_LENGTH)) {
+    if (!segwit_addr_encode(address, network->bech32Prefix, 1, tweakedPubkey, HASH_LENGTH)) {
+      log_e("Failed to encode Taproot address");
       return "";
     }
   } else
@@ -120,7 +121,7 @@ std::string Bitcoin::getAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip
  * END ported code from Trezor firmware
  */
 
-std::string Bitcoin::signMessage(
+std::string btcSignMessage(
     HDNode *node, std::string &message, uint32_t bipPurpose, uint32_t slip44
 ) {
   uint8_t signature[RECOVERABLE_SIGNATURE_LENGTH];

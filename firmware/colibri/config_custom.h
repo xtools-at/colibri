@@ -16,7 +16,7 @@
 // - Bitcoin SegWit:
 // #define DEFAULT_HD_PATH "m/84'/0'/0'/0/0"
 // - Bitcoin SegWit P2SH:
-// #define DEFAULT_HD_PATH "m/48'/0'/0'/0/0"
+// #define DEFAULT_HD_PATH "m/49'/0'/0'/0/0"
 // - Bitcoin Legacy (most compatible):
 // #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 
@@ -35,7 +35,7 @@
 // #define INTERFACE_BLE_NIMBLE_DISABLED
 // #define INTERFACE_BLE_ARDUINO_DISABLED
 // #define INTERFACE_USB_DISABLED
-// #define INTERFACE_USB_WEBUSB_DISABLED
+// #define INTERFACE_USB_HID_DISABLED
 
 // ========== EXPERT/DEVELOPER SETTINGS ========== //
 

@@ -149,8 +149,8 @@
 // - enable USB interfaces
 #if !defined(INTERFACE_USB_DISABLED)
   #if !defined(DEBUG_INTERFACE_SERIAL)
-    #if !defined(INTERFACE_USB_WEBUSB_DISABLED)
-      #define INTERFACE_USB_WEBUSB
+    #if !defined(INTERFACE_USB_HID_DISABLED)
+      #define INTERFACE_USB_HID
     #else
       #define INTERFACE_USB_DISABLED
     #endif
@@ -279,13 +279,6 @@
 #endif
 
 // ========== Crypto ========== //
-// Trezor lib config  - MOVED TO LIB
-// #define USE_BIP39_CACHE 0
-// #define USE_BIP32_CACHE 0
-// #define USE_ETHEREUM 1
-// #define USE_KECCAK 1
-// #define USE_PRECOMPUTED_CP 0
-
 // Constants
 #define PRIVATEKEY_LENGTH 32
 #define PUBLICKEY_LENGTH 33
@@ -310,22 +303,24 @@
 #define MAX_STORED_KEYS \
   ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 
-// ========== Interfaces config ========== //
-// General
+// Timeouts
+// - approvals
 #ifndef TIMEOUT_WAIT_FOR_APPROVAL
   #define TIMEOUT_WAIT_FOR_APPROVAL 12000
 #endif
 #if (TIMEOUT_WAIT_FOR_APPROVAL < 5000)
-  #error "TIMEOUT_WAIT_FOR_APPROVAL must be >= 5000"
+  #error "TIMEOUT_WAIT_FOR_APPROVAL must be >= 5000ms"
 #endif
 
-// NimBLE
-// - lib config - MOVED TO LIB
-// #define CONFIG_BT_NIMBLE_MAX_CONNECTIONS 1
-// #define CONFIG_BT_NIMBLE_MAX_BONDS 10
-// #define CONFIG_BT_NIMBLE_ROLE_CENTRAL_DISABLED
-// #define CONFIG_BT_NIMBLE_ROLE_OBSERVER_DISABLED
+// - inactivity auto-lock
+#ifndef TIMEOUT_INACTIVITY_LOCK
+  #define TIMEOUT_INACTIVITY_LOCK (10 * 60 * 1000)  // 10min
+#endif
+#if (TIMEOUT_INACTIVITY_LOCK < (20 * 1000))
+  #error "TIMEOUT_INACTIVITY_LOCK must be >= 20.000ms (20s)"
+#endif
 
+// ========== Interfaces config ========== //
 // - BLE service config
 #ifndef BLE_SERVER_NAME
   #define BLE_SERVER_NAME HW_NAME

@@ -22,8 +22,6 @@ extern bool isHot;
 extern bool isBusy;
 extern Connection connection;
 
-void updateLed();
-
 void updateUi();
 
 bool waitForApproval(RgbColor color = Hot);
@@ -31,5 +29,3 @@ bool waitForApproval(RgbColor color = Hot);
 void setStateConnected(Connection conn);
 
 void setStateBusy(bool busy);
-
-void checkForGesture();

@@ -51,12 +51,13 @@ const char RPC_PARAMS_MSG[] =
     "[string: plaintext message to sign, number: (opt.) chain type override]";
 const char RPC_PARAMS_TYPED_DATA_HASH[] =
     "[string: hex domain separator hash, string: hex message hash]";
-const char RPC_PARAMS_ETH_SIGN_TX[] = "[coming soon]";
+const char RPC_PARAMS_ETH_SIGN_TX[] =
+    "[string: chainId, string: to, string: value, string: data, string: nonce, string: gasLimit, "
+    "string: gasPrice/maxFeePerGas, string: (opt.) maxPriorityFeePerGas (EIP-1559)]";
 
 const char RPC_RESULT_SUCCESS[] = "bool: success";
 const char RPC_RESULT_STRING[] = "string: result";
 const char RPC_RESULT_SIGNATURE[] = "string: signature";
-const char RPC_RESULT_SIGNATURE_TX[] = "[string: signature, string: r, string: s, string: v]";
 const char RPC_RESULT_LIST_METHODS[] =
     "[...object: {string: method, string: params, string: result}]";
 const char RPC_RESULT_CREATE_MNEMONIC[] = "[number: wallet id, string: mnemonic phrase]";
