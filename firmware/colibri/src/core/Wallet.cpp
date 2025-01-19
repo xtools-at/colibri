@@ -259,8 +259,7 @@ WalletResponse Wallet::selectWallet(
 
   // create hd node from seed
   deleteHdNode();
-  // SECP256K1 is hardcoded here, works for BTC & ETH
-  const char* curveType = SECP256K1_NAME;
+  const char* curveType = getChainCurveType(inHdPath);
   int status = hdnode_from_seed(seed, BIP39_SEED_SIZE, curveType, &hdNode);
   log_d("hdnode creation: %s", status == 1 ? "success" : "error");
   memzero(seed, sizeof(seed));
@@ -468,6 +467,9 @@ std::string Wallet::getAddress() {
   } else if (chainType == BTC) {
     // Bitcoin
     return btcGetAddress(&hdNode, bipPurpose, slip44);
+  } else if (chainType == SOL) {
+    // Solana
+    return solGetAddress(&hdNode);
   }
   return "";
 }

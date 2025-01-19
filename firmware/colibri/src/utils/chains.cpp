@@ -105,6 +105,13 @@ const BitcoinNetwork bitcoinNetworks[4] = {
  */
 
 ChainType getChainType(uint32_t slip44) {
+  switch (slip44) {
+    case 501:
+      return ChainType::SOL;
+    default:
+      break;
+  }
+
   size_t len = sizeof(slip44Ethereum) / sizeof(slip44Ethereum[0]);
 
   for (uint16_t i = 0; i < len; i++) {
@@ -114,6 +121,21 @@ ChainType getChainType(uint32_t slip44) {
   }
 
   return ChainType::BTC;
+}
+
+ChainType getChainType(const char* hdPath) {
+  uint32_t slip44 = getSlip44(hdPath);
+  return getChainType(slip44);
+}
+
+const char* getChainCurveType(const char* hdPath) {
+  ChainType type = getChainType(hdPath);
+  switch (type) {
+    case ChainType::SOL:
+      return CURVE25519_NAME;
+    default:
+      return SECP256K1_NAME;
+  }
 }
 
 const BitcoinNetwork* getBitcoinNetwork(uint32_t slip44) {
@@ -160,9 +182,11 @@ uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg) {
   return segment;
 }
 
+uint32_t getSlip44(const char* hdPath) { return extractHdPathSegment(hdPath, 2); }
+
 uint32_t getXpubMagicNumber(const char* hdPath) {
   uint32_t bipPurpose = extractHdPathSegment(hdPath, 1);
-  uint32_t slip44 = extractHdPathSegment(hdPath, 2);
+  uint32_t slip44 = getSlip44(hdPath);
 
   // Ethereum uses the same magic numbers as BTC, this falls back to BTC:
   const BitcoinNetwork* network = getBitcoinNetwork(slip44);
