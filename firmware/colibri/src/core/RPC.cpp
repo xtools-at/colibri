@@ -64,7 +64,7 @@ void getStatus(const JsonDocument& request, JsonDocument& response) {
 void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
-  resultsArray.add(HW_NAME);
+  resultsArray.add(HW_DEVICE_NAME);
   resultsArray.add(HW_FIRMWARE_VERSION);
   resultsArray.add(CONFIG_IDF_TARGET);
   resultsArray.add(DISPLAY_TYPE);

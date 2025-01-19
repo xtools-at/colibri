@@ -24,7 +24,7 @@ static std::string ethSignRecoverableDigest(HDNode *node, uint8_t digest[HASH_LE
 
 /*
  * START ported and/or adapted code from Trezor firmware (originally licensed under GPL 3.0, see
- * `misc/GPL-3.0.txt`):
+ * `licenses/GPL-3.0.txt`):
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/ethereum.c
  */
 

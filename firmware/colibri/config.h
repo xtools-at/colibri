@@ -24,6 +24,7 @@
   #define ARDUINO 20320
   #define ARDUINO_ARCH_ESP32
   #define ARDUINO_BOARD "esp32dev"
+  #define ARDUINO_USB_MODE 0
   #define ESP32
   #define ESP_PLATFORM
   #define CONFIG_IDF_TARGET "esp32s3"
@@ -31,6 +32,7 @@
   #define __XTENSA__
   #define INTERFACE_BLE_ARDUINO
   #define INTERFACE_BLE_NIMBLE
+  #define INTERFACE_USB_HID
   #warning "Please compile this project in a recent version of Arduino IDE"
 #endif
 
@@ -44,8 +46,10 @@
 #include "types.h"
 
 // ========== System ========== //
-#define HW_NAME "Colibri"
+#define HW_MANUFACTURER_NAME "Colibri"
+#define HW_DEVICE_NAME "Colibri DIY"
 #define HW_FIRMWARE_VERSION "0.0.4"
+#define HW_FIRMWARE_VERSION_NUM 4  // e.g. 30201 == "3.2.1"
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).
@@ -99,7 +103,8 @@
 
 // ========== Board defaults ========== //
 // fail build for unsupported ESP32 targets
-#if (defined(CONFIG_IDF_TARGET_ESP32C2))
+#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C5) || \
+     defined(CONFIG_IDF_TARGET_ESP32C61))
   #error "You're using an unsupported ESP32 chip variant!"
 #endif
 
@@ -144,19 +149,14 @@
   #endif
 #endif
 
-/*
-// TODO: enable when interfaces are implemented
 // - enable USB interfaces
 #if !defined(INTERFACE_USB_DISABLED)
-  #if !defined(DEBUG_INTERFACE_SERIAL)
-    #if !defined(INTERFACE_USB_HID_DISABLED)
-      #define INTERFACE_USB_HID
-    #else
-      #define INTERFACE_USB_DISABLED
-    #endif
+  #if !defined(INTERFACE_USB_HID_DISABLED)
+    #define INTERFACE_USB_HID
+  #else
+    #define INTERFACE_USB_DISABLED
   #endif
 #endif
-*/
 
 // Device defaults
 // - system
@@ -323,7 +323,7 @@
 // ========== Interfaces config ========== //
 // - BLE service config
 #ifndef BLE_SERVER_NAME
-  #define BLE_SERVER_NAME HW_NAME
+  #define BLE_SERVER_NAME HW_DEVICE_NAME
 #endif
 #define BLE_SERVICE_UUID "31415926-5358-9793-2384-626433832795"
 #define BLE_CHARACTERISTIC_INPUT "C001"
