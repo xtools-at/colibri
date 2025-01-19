@@ -29,6 +29,7 @@
 #define USE_ETHEREUM 1
 #define USE_KECCAK 1
 #define USE_PRECOMPUTED_CP 0
+#define USE_BIP32_25519_CURVES 1
 // end Colibri custom
 
 #ifndef OPTIMIZE_SIZE

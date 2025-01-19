@@ -108,6 +108,8 @@ ChainType getChainType(uint32_t slip44) {
   switch (slip44) {
     case 501:
       return ChainType::SOL;
+    case 354:
+      return ChainType::DOT;
     default:
       break;
   }
@@ -126,7 +128,8 @@ ChainType getChainType(uint32_t slip44) {
 const char* getChainCurveType(ChainType chainType) {
   switch (chainType) {
     case ChainType::SOL:
-      return CURVE25519_NAME;
+    case ChainType::DOT:
+      return ED25519_NAME;
     default:
       return SECP256K1_NAME;
   }

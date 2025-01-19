@@ -6,6 +6,7 @@
 #include "../../config.h"
 #include "../signers/bitcoin.h"
 #include "../signers/ethereum.h"
+#include "../signers/polkadot.h"
 #include "../signers/solana.h"
 #include "../ui/ui.h"
 #include "../utils/chains.h"

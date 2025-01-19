@@ -211,14 +211,6 @@ void Wallet::lock() {
   memzero(&storedMnemonics, sizeof(storedMnemonics));
   memzero(&walletId, sizeof(walletId));
 
-  hdPath.clear();
-  xPub.clear();
-  fingerprint.clear();
-  memzero(&bipPurpose, sizeof(bipPurpose));
-  memzero(&slip44, sizeof(slip44));
-  memzero(&accountId, sizeof(accountId));
-  memzero(&chainType, sizeof(chainType));
-
   timeLastActivity = 0;
 
   locked = true;
@@ -262,6 +254,7 @@ WalletResponse Wallet::selectWallet(
   // determine curve
   if (inChainType) {
     chainType = inChainType;
+    log_d("overriding chain type: %d to %d", chainType, inChainType);
   } else {
     chainType = getChainType(getSlip44(inHdPath));
   }
@@ -293,12 +286,9 @@ WalletResponse Wallet::selectWallet(
     storedMnemonics = numWallets;
 
     // set hd path (also fills public key)
-    status = setHdPath(inHdPath) ? Status::Ok : Status::InvalidParams;
-
-    // override chain type if passed in
-    if (inChainType) {
-      log_d("overriding chain type: %d to %d", chainType, inChainType);
-      chainType = inChainType;
+    if (!setHdPath(inHdPath)) {
+      log_e("Error setting HD path: %s (curve: %s)", inHdPath, curveType);
+      status = Status::InvalidParams;
     }
 
     // store fingerprint after setting chain type
@@ -396,6 +386,15 @@ WalletResponse Wallet::createMnemonic(uint8_t words, uint16_t overwriteId) {
 void Wallet::deleteHdNode() {
   memzero(&hdNode, sizeof(HDNode));
   hdNode = HDNode();
+
+  hdPath.clear();
+  xPub.clear();
+  fingerprint.clear();
+  memzero(&bipPurpose, sizeof(bipPurpose));
+  memzero(&slip44, sizeof(slip44));
+  memzero(&accountId, sizeof(accountId));
+  memzero(&chainType, sizeof(chainType));
+
   log_v("cleared hd node");
 }
 
@@ -427,7 +426,9 @@ bool Wallet::setHdPath(const char* inPath) {
       bipPurpose = index;
     } else if (i == 1) {
       slip44 = index;
-      chainType = getChainType(slip44);
+      if (!chainType) chainType = getChainType(slip44);
+
+      // TODO: save account xpub
     } else if (i == 4) {
       accountId = index;
     }
@@ -450,6 +451,7 @@ bool Wallet::setHdPath(const char* inPath) {
 
   // save path & public key
   hdnode_fill_public_key(&hdNode);
+  log_d("selected wallet pubkey: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
   hdPath = std::string(inPath);
 
   return true;
@@ -478,6 +480,9 @@ std::string Wallet::getAddress() {
   } else if (chainType == SOL) {
     // Solana
     return solGetAddress(&hdNode);
+  } else if (chainType == DOT) {
+    // Polkadot/Substrate
+    return dotGetAddress(&hdNode);
   }
   return "";
 }

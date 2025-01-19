@@ -8,6 +8,7 @@ enum ChainType : uint16_t {
   BTC = 1,
   ETH = 2,
   SOL = 3,
+  DOT = 4,
 };
 
 enum Permission {
