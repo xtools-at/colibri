@@ -109,6 +109,7 @@ ChainType getChainType(uint32_t slip44) {
     case 501:
       return ChainType::SOL;
     case 354:
+    case 434:  // Kusama
       return ChainType::DOT;
     default:
       break;

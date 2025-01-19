@@ -435,7 +435,7 @@ bool Wallet::setHdPath(const char* inPath) {
 
     // set the path
     if (strchr(token, '\'') != nullptr) {
-      // index |= 0x80000000;  // Hardened index
+      // Hardened index
       if (!hdnode_private_ckd_prime(&hdNode, index)) {
         return false;
       }
@@ -482,7 +482,7 @@ std::string Wallet::getAddress() {
     return solGetAddress(&hdNode);
   } else if (chainType == DOT) {
     // Polkadot/Substrate
-    return dotGetAddress(&hdNode);
+    return dotGetAddress(&hdNode, slip44);
   }
   return "";
 }

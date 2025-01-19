@@ -4,4 +4,4 @@
 #include "../../config.h"
 #include "../utils/crypto.h"
 
-std::string dotGetAddress(HDNode *node);
+std::string dotGetAddress(HDNode *node, uint32_t slip44, uint8_t prefixOverride = 0);
