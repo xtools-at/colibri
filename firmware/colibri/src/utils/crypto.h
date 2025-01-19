@@ -8,6 +8,7 @@
 #include "trng.h"
 
 extern "C" {
+#include <base58.h>
 #include <bip32.h>
 #include <bip39.h>
 #include <curves.h>
