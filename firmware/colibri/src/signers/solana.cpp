@@ -16,7 +16,9 @@ std::string solGetAddress(HDNode *node) {
   uint8_t hash[HASH_LENGTH];
   sha256_Raw(node->public_key, 33, hash);
 
-  b58enc(address, &addressLen, hash, HASH_LENGTH);
+  if (!b58enc(address, &addressLen, hash, HASH_LENGTH)) {
+    return "";
+  }
 
   return std::string(address);
 }
