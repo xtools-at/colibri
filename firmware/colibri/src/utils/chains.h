@@ -8,8 +8,7 @@ extern "C" {
 }
 
 ChainType getChainType(uint32_t slip44);
-ChainType getChainType(const char* hdPath);
-const char* getChainCurveType(const char* hdPath);
+const char* getChainCurveType(ChainType chainType);
 const BitcoinNetwork* getBitcoinNetwork(uint32_t slip44);
 uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg);
 uint32_t getSlip44(const char* hdPath);

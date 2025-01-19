@@ -123,14 +123,8 @@ ChainType getChainType(uint32_t slip44) {
   return ChainType::BTC;
 }
 
-ChainType getChainType(const char* hdPath) {
-  uint32_t slip44 = getSlip44(hdPath);
-  return getChainType(slip44);
-}
-
-const char* getChainCurveType(const char* hdPath) {
-  ChainType type = getChainType(hdPath);
-  switch (type) {
+const char* getChainCurveType(ChainType chainType) {
+  switch (chainType) {
     case ChainType::SOL:
       return CURVE25519_NAME;
     default:

@@ -257,9 +257,17 @@ WalletResponse Wallet::selectWallet(
   mnemonic_to_seed(mnemonic.c_str(), bip32Passphrase, seed, NULL);
   log_ss("seed: %s", toHex(seed, BIP39_SEED_SIZE).c_str());
 
-  // create hd node from seed
   deleteHdNode();
-  const char* curveType = getChainCurveType(inHdPath);
+
+  // determine curve
+  if (inChainType) {
+    chainType = inChainType;
+  } else {
+    chainType = getChainType(getSlip44(inHdPath));
+  }
+  const char* curveType = getChainCurveType(chainType);
+
+  // create hd node from seed
   int status = hdnode_from_seed(seed, BIP39_SEED_SIZE, curveType, &hdNode);
   log_d("hdnode creation: %s", status == 1 ? "success" : "error");
   memzero(seed, sizeof(seed));
@@ -300,7 +308,7 @@ WalletResponse Wallet::selectWallet(
     log_s("master fingerprint: %s", fingerprint.c_str());
 
     // logs
-    log_i("used chain type: %d (%s)", chainType, chainType == ETH ? "ETH" : "BTC");
+    log_i("used chain type: %d", chainType);
     log_i("wallet pubkey: %s", getPublicKey().c_str());
     log_i("wallet address: %s", getAddress().c_str());
   } else {
