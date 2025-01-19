@@ -303,7 +303,7 @@ Valuable extensions to the project, once the core product is functional:
 ### Open-source libraries & Co.
 
 - [Trezor crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/src/LICENSE))
-- [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/misc/GPL-3.0.txt))
+- [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/GPL-3.0.txt))
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
 - [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
 

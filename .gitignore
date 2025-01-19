@@ -25,11 +25,14 @@ launch.json
 # custom
 assets/
 tmp/
+**/*.xx
 
 # library files
 firmware/lib/**/examples/**
 firmware/lib/**/extras/**
 firmware/lib/**/tests/**
 firmware/lib/**/docs/**
-firmware/**/*.xx
-firmware/vendor/**
+
+# experimental files and folders
+firmware/vendor
+apps/web-v3
