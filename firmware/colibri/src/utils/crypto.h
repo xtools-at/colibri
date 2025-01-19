@@ -17,7 +17,8 @@ extern "C" {
 }
 
 void doubleHash(
-    const uint8_t *data, uint16_t length, uint8_t *result, const uint8_t salt[AES_IV_SIZE] = {0}
+    const uint8_t *data, uint16_t length, uint8_t result[HASH_LENGTH],
+    const uint8_t salt[AES_IV_SIZE] = {0}
 );
 
 void aesEncrypt(uint8_t *in, size_t len, uint8_t *out, uint8_t *key, uint8_t *iv);

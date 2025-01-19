@@ -4,21 +4,26 @@
 #include "crypto.h"
 
 void doubleHash(
-    const uint8_t *data, uint16_t length, uint8_t *result, const uint8_t salt[AES_IV_SIZE]
+    const uint8_t *data, uint16_t length, uint8_t result[HASH_LENGTH],
+    const uint8_t salt[AES_IV_SIZE]
 ) {
-  uint16_t bufLen = HASH_LENGTH + AES_IV_SIZE;
-  uint8_t hashBuffer[bufLen];
+  const uint16_t hashBufLen = HASH_LENGTH + AES_IV_SIZE;
+  uint16_t dataBufLen = length + AES_IV_SIZE;
+  uint16_t bufLen = hashBufLen > dataBufLen ? hashBufLen : dataBufLen;
 
-  // SHA 256
-  sha3_256(data, length, hashBuffer);
+  uint8_t buffer[bufLen];
 
-  // Add salt to the hashBuffer
-  memcpy(hashBuffer + HASH_LENGTH, salt, AES_IV_SIZE);
+  // salted SHA-256 from input data
+  memcpy(buffer, data, length);
+  memcpy(buffer + length, salt, AES_IV_SIZE);
+  sha3_256(buffer, dataBufLen, result);
 
-  // hash again
-  sha3_256(hashBuffer, bufLen, result);
+  // salt and hash again
+  memcpy(buffer, result, HASH_LENGTH);
+  memcpy(buffer + HASH_LENGTH, salt, AES_IV_SIZE);
+  sha3_256(buffer, hashBufLen, result);
 
-  memzero(hashBuffer, bufLen);
+  memzero(buffer, bufLen);
 }
 
 void aesEncrypt(uint8_t *in, size_t len, uint8_t *out, uint8_t *key, uint8_t *iv) {
