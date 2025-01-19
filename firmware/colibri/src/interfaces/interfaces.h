@@ -11,6 +11,10 @@
   #include "ArduinoBLEInterface.h"
 #endif
 
+#if defined(INTERFACE_USB_HID)
+  #include "UsbHIDInterface.h"
+#endif
+
 #if defined(DEBUG_INTERFACE_SERIAL)
   #include "SerialDebugInterface.h"
 #endif
