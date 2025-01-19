@@ -6,10 +6,10 @@
 #include "../utils/chains.h"
 
 std::string solGetAddress(HDNode *node) {
-  size_t addressLen = 44;
+  size_t addressLen = 45;
   char address[addressLen];
 
-  b58enc(address, &addressLen, node->public_key, 33);
+  b58enc(address, &addressLen, node->public_key + 1, 32);
   log_d("pubkey-base58: %s (len: %d)", address, addressLen);
 
   /*

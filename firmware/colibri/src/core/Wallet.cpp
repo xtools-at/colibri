@@ -435,7 +435,7 @@ bool Wallet::setHdPath(const char* inPath) {
 
     // set the path
     if (strchr(token, '\'') != nullptr) {
-      index |= 0x80000000;  // Hardened index
+      // index |= 0x80000000;  // Hardened index
       if (!hdnode_private_ckd_prime(&hdNode, index)) {
         return false;
       }
@@ -462,7 +462,7 @@ std::string Wallet::getPublicKey() {
     return "";
   }
 
-  return toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, chainType == ETH);
+  return toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, chainType != BTC);
 }
 
 std::string Wallet::getAddress() {
