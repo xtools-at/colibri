@@ -3,8 +3,6 @@
 
 #include "polkadot.h"
 
-#include "../utils/chains.h"
-
 extern "C" {
 #include <blake2b.h>
 }
@@ -26,7 +24,7 @@ static bool dotGetChecksum(
     return false;
   }
 
-  memcpy(checksum, hash, 2);
+  memcpy(checksum, hash, POLKADOT_CKS_LENGTH);
 
   return true;
 }
@@ -38,15 +36,15 @@ static uint8_t getNetworkPrefixLength(uint16_t network) {
 }
 
 // Function to derive Polkadot address from HDNode
-std::string dotGetAddress(HDNode* node, uint32_t slip44, uint16_t networkOverride) {
+std::string dotGetAddress(HDNode* node, uint32_t slip44, uint16_t networkPrefixOverride) {
   // determine network prefix
   uint16_t network = 0;  // default: Polkadot
   if (slip44 == 434) {
     // Kusama
     network = 2;
   }
-  if (&networkOverride != nullptr && networkOverride != POLKADOT_UNKNOWN_NETWORK) {
-    network = networkOverride;
+  if (&networkPrefixOverride != nullptr && networkPrefixOverride != POLKADOT_UNKNOWN_NETWORK) {
+    network = networkPrefixOverride;
   }
   log_v("Polkadot address prefix: %d", network);
 

@@ -5,5 +5,3 @@
 #include "../utils/crypto.h"
 
 std::string solGetAddress(HDNode *node);
-
-// std::string solSignMessage(HDNode *node, std::string &message);

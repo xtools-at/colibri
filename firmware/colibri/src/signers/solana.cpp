@@ -3,13 +3,13 @@
 
 #include "solana.h"
 
-#include "../utils/chains.h"
-
 std::string solGetAddress(HDNode *node) {
   size_t addressLen = 45;
   char address[addressLen];
 
-  if (!b58enc(address, &addressLen, node->public_key + 1, 32)) return "";
+  if (!b58enc(address, &addressLen, node->public_key + 1, ED25519_PUBLICKEY_LENGTH)) {
+    return "";
+  }
 
   return std::string(address);
 }
