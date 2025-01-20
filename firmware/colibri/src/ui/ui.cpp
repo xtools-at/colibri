@@ -34,11 +34,14 @@ static void checkForGesture() {
 }
 
 static void checkForTimeout() {
+  // TODO: fix
+  /*
   if (wallet.timeLastActivity > 0 &&
       (millis() - wallet.timeLastActivity) > TIMEOUT_INACTIVITY_LOCK) {
     log_i("Auto-locking device after inactivity");
     wallet.lock();
   }
+  */
 }
 
 static void updateButtons() {
