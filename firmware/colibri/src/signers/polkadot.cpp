@@ -9,43 +9,82 @@ extern "C" {
 #include <blake2b.h>
 }
 
-// Function to derive Polkadot address from HDNode
-std::string dotGetAddress(HDNode *node, uint32_t slip44, uint8_t prefixOverride) {
-  uint8_t addressWithChecksum[35];
+const char* ss58ContextPrefix = "SS58PRE";
+const uint8_t ss58PrefixLen = 7;
 
-  // set prefix
-  uint8_t prefix = 0x00;  // default: Polkadot
+static bool dotGetChecksum(
+    const uint8_t* addressWithNetwork, uint8_t addressLen, uint8_t checksum[POLKADOT_CKS_LENGTH]
+) {
+  uint8_t hash[64];
+  uint8_t cksInput[ss58PrefixLen + addressLen];
+  memcpy(cksInput, ss58ContextPrefix, ss58PrefixLen);
+  memcpy(cksInput + ss58PrefixLen, addressWithNetwork, addressLen);
+  log_v("Polkadot checksum input bytes: %s", toHex(cksInput, sizeof(cksInput)).c_str(), true);
+
+  if (blake2b(cksInput, sizeof(cksInput), hash, 64) < 0) {
+    log_e("Blake2b hash failed while computing Polkadot address checksum");
+    return false;
+  }
+
+  memcpy(checksum, hash, 2);
+
+  return true;
+}
+
+static uint8_t getNetworkPrefixLength(uint16_t network) {
+  if (network < 0x40) return 1;
+  if (network < 0x4000) return 2;
+  return 0;
+}
+
+// Function to derive Polkadot address from HDNode
+std::string dotGetAddress(HDNode* node, uint32_t slip44, uint16_t networkOverride) {
+  // determine network prefix
+  uint16_t network = 0;  // default: Polkadot
   if (slip44 == 434) {
     // Kusama
-    prefix = 0x02;
+    network = 2;
   }
-  if (prefixOverride) prefix = prefixOverride;
-  log_d("Polkadot address prefix: %d", prefix);
+  if (&networkOverride != nullptr && networkOverride != POLKADOT_UNKNOWN_NETWORK) {
+    network = networkOverride;
+  }
+  log_v("Polkadot address prefix: %d", network);
 
-  // Prepend the network identifier (0 for Polkadot mainnet)
-  addressWithChecksum[0] = prefix;
-  memcpy(addressWithChecksum + 1, node->public_key + 1, 32);
-
-  // Compute the checksum // TODO: this needs fixing
-  uint8_t checksum[2];
-  blake2b(addressWithChecksum, 33, checksum, 2);
-  memcpy(addressWithChecksum + 33, checksum, 2);
-
-  log_d(
-      "Polkadot full address bytes: %s",
-      toHex(addressWithChecksum, sizeof(addressWithChecksum)).c_str()
-  );
-
-  // Encode the address in base58
-  char address[49];
-  size_t addressLen = sizeof(address);
-
-  if (!b58enc(address, &addressLen, addressWithChecksum, sizeof(addressWithChecksum))) {
-    log_e("Failed to encode Polkadot address, addressLen = %d", addressLen);
+  uint8_t networkPrefixLen = getNetworkPrefixLength(network);
+  if (networkPrefixLen == 0) {
+    log_e("Polkadot network prefix out of bounds: %d", network);
     return "";
   }
 
-  log_d("Polkadot base58 address length: %d", addressLen);
+  uint8_t addressBytes[networkPrefixLen + ED25519_PUBLICKEY_LENGTH + POLKADOT_CKS_LENGTH];
+
+  // prepend the network identifier (0 for Polkadot mainnet)
+  if (networkPrefixLen == 1) {
+    uint8_t networkByte = network;
+    addressBytes[0] = networkByte;
+  } else {
+    memcpy(addressBytes, &network, networkPrefixLen);
+  }
+
+  // copy Ed25519 public key from HD node
+  memcpy(addressBytes + networkPrefixLen, node->public_key + 1, ED25519_PUBLICKEY_LENGTH);
+
+  // compute the checksum
+  uint8_t checksum[POLKADOT_CKS_LENGTH];
+  if (!dotGetChecksum(addressBytes, ED25519_PUBLICKEY_LENGTH + networkPrefixLen, checksum))
+    return "";
+  memcpy(addressBytes + ED25519_PUBLICKEY_LENGTH + networkPrefixLen, checksum, POLKADOT_CKS_LENGTH);
+
+  log_v("Polkadot full address bytes: %s", toHex(addressBytes, sizeof(addressBytes)).c_str(), true);
+
+  // encode the address in base58
+  char address[49];
+  size_t addressLen = sizeof(address);
+
+  if (!b58enc(address, &addressLen, addressBytes, sizeof(addressBytes))) {
+    log_e("Failed to encode Polkadot address, addressLen = %d", addressLen);
+    return "";
+  }
 
   return std::string(address);
 }

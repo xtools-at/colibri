@@ -4,4 +4,9 @@
 #include "../../config.h"
 #include "../utils/crypto.h"
 
-std::string dotGetAddress(HDNode *node, uint32_t slip44, uint8_t prefixOverride = 0);
+#define POLKADOT_CKS_LENGTH 2
+#define POLKADOT_UNKNOWN_NETWORK 0x4001
+
+std::string dotGetAddress(
+    HDNode *node, uint32_t slip44, uint16_t networkOverride = POLKADOT_UNKNOWN_NETWORK
+);

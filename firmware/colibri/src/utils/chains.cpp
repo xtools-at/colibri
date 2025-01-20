@@ -106,9 +106,9 @@ const BitcoinNetwork bitcoinNetworks[4] = {
 
 ChainType getChainType(uint32_t slip44) {
   switch (slip44) {
-    case 501:
+    case 501:  // Solana
       return ChainType::SOL;
-    case 354:
+    case 354:  // Polkadot
     case 434:  // Kusama
       return ChainType::DOT;
     default:
