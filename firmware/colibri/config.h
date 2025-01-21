@@ -269,17 +269,18 @@
 
 // Display types
 #ifndef DISPLAY_TYPE_ID
-  #ifndef DISPLAY_ENABLED
+  #if (!defined(DISPLAY_ENABLED) || !defined(DISPLAY_WIDTH))
     #define DISPLAY_TYPE_ID 0  // No screen
   #elif (DISPLAY_WIDTH < 80)
+    #define DISPLAY_SMALL
     #define DISPLAY_TYPE_ID 1  // Small screen
   #else
-    #define DISPLAY_TYPE_ID 2  // Full-featured screen
+    #define DISPLAY_TYPE_ID 2  // Normal-sized screen
   #endif
 #endif
 
 #if (DISPLAY_TYPE_ID >= 2)
-  #define DISPLAY_TYPE "Full display support"
+  #define DISPLAY_TYPE "Display support"
 #elif (DISPLAY_TYPE_ID >= 1)
   #define DISPLAY_TYPE "Small display"
 #else
