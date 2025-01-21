@@ -6,6 +6,11 @@
 
 (tbd)
 
+- `*` Wallet: Auto-lock after inactivity (TODO: buggy)
+- `*` Wallet: Dash, DigiByte, Zcash address derivation and message signing
+- `*` Wallet: Solana and Polkadot address derivation
+- `#` Wallet: improved password hashing (breaking change!)
+
 ## v0.0.3
 
 2025-01-13

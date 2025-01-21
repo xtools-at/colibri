@@ -291,6 +291,7 @@ Valuable extensions to the project, once the core product is functional:
 - Libraries and SDKs for builders (e.g. Typescript, Python)
 - New hardware interfaces (e.g. USB support, airgap via camera/QR codes)
 - Support for more advanced build environments (e.g. Platform.io, ESP-IDF, Arduino-CLI)
+- Testing & QA, bugfixing and automated tests
 - Support channels for builders, users and the community
 - Learning materials, content of all kinds
 
@@ -309,7 +310,7 @@ Valuable extensions to the project, once the core product is functional:
 
 ## License
 
-Colibri is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License
+The Colibri monorepo and firmware/apps are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License
 
 ### Disclaimer
 

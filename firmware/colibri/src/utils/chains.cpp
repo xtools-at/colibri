@@ -20,7 +20,7 @@ const int slip44Ethereum[] = {
 // SLIP-44 hardened coin type for Bitcoin
 #define SLIP44_HARDENED 0x80000000
 
-const BitcoinNetwork bitcoinNetworks[4] = {
+const BitcoinNetwork bitcoinNetworks[7] = {
     {
         .name = "BTC",
         // the "\x18" prefix is computed by taking the length of the header (here: 24) and
@@ -41,10 +41,9 @@ const BitcoinNetwork bitcoinNetworks[4] = {
         .xpubMagicSegwit = 78792518,  // 0x04b24746
 
         .slip44 = 0,
-        // .coinType = 0 | SLIP44_HARDENED,
     },
     {
-        .name = "TEST-BTC",
+        .name = "TEST BTC",
         .messageHeader = "\x18"
                          "Bitcoin Signed Message:\n",
         .bech32Prefix = "tb",
@@ -61,7 +60,6 @@ const BitcoinNetwork bitcoinNetworks[4] = {
         .xpubMagicSegwit = 73342198,
 
         .slip44 = 1,
-        // .coinType = 1 | SLIP44_HARDENED,
     },
     {
         .name = "LTC",
@@ -80,7 +78,6 @@ const BitcoinNetwork bitcoinNetworks[4] = {
         .xpubMagicSegwit = 78792518,
 
         .slip44 = 2,
-        // .coinType = 2 | SLIP44_HARDENED,
     },
     {
         .name = "DOGE",
@@ -97,7 +94,56 @@ const BitcoinNetwork bitcoinNetworks[4] = {
         .xpubMagic = 49990397,
 
         .slip44 = 3,
-        // .coinType = 3 | SLIP44_HARDENED,
+    },
+    {
+        .name = "DASH",
+        .messageHeader = "\x19"
+                         "DarkCoin Signed Message:\n",
+        .bech32Prefix = "dash",
+
+        .hasSegwit = false,
+        .hasTaproot = false,
+        .maxfeeKb = 45000000,
+
+        .addressType = 76,
+        .addressTypeP2SH = 16,
+        .xpubMagic = 50221772,
+
+        .slip44 = 5,
+    },
+    {
+        .name = "DGB",
+        .messageHeader = "\x19"
+                         "DigiByte Signed Message:\n",
+        .bech32Prefix = "dgb",
+
+        .hasSegwit = true,
+        .hasTaproot = false,
+        .maxfeeKb = 130000000000,
+
+        .addressType = 30,
+        .addressTypeP2SH = 63,
+        .xpubMagic = 76067358,
+        .xpubMagicP2SH = 77429938,
+        .xpubMagicSegwit = 78792518,
+
+        .slip44 = 20,
+    },
+    {
+        .name = "ZEC",
+        .messageHeader = "\x16"
+                         "Zcash Signed Message:\n",
+        .bech32Prefix = "zec",
+
+        .hasSegwit = false,
+        .hasTaproot = false,
+        .maxfeeKb = 51000000,
+
+        .addressType = 7352,
+        .addressTypeP2SH = 7357,
+        .xpubMagic = 76067358,
+
+        .slip44 = 133,
     }
 };
 /*
