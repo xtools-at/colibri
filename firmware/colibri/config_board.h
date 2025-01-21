@@ -9,19 +9,19 @@
 // - Simple boards without displays:
 // #include "src/boards/32_devkit.h";
 // #include "src/boards/c3_supermini.h";
-// #include "src/boards/c3_luatos.h";
-// #include "src/boards/c6_supermini.h";
+// #include "src/boards/c3_luatos.h"; // untested
 // #include "src/boards/s3_supermini.h";
 // #include "src/boards/s3_wroom_camera.h";
 
 // - Boards with displays: (TODO: displays not supported yet!)
 // #include "src/boards/32_t3display_114in_lcd.h";
-// #include "src/boards/c3_luatos_air101lcd.h";
+// #include "src/boards/c3_luatos_air101lcd.h"; // untested
 // #include "src/boards/c3_mini_042in_oled.h";
 
 // - Experimental/developers only:
+// #include "src/boards/c6_supermini.h";
 // #include "src/boards/h2_supermini.h";
-// #include "src/boards/s2_wemos_d1mini.h";
+// #include "src/boards/s2_wemos_d1mini.h"; // untested
 
 // >>>> ...OR set up custom board below:
 
