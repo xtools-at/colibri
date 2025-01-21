@@ -21,7 +21,7 @@
 // - Experimental/developers only:
 // #include "src/boards/c6_supermini.h";
 // #include "src/boards/h2_supermini.h";
-// #include "src/boards/s2_wemos_d1mini.h"; // untested
+// #include "src/boards/s2_wemos_d1mini.h";
 
 // >>>> ...OR set up custom board below:
 

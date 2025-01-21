@@ -7,7 +7,6 @@
 void hwRngBegin() {
   // make sure antenna is on for RNG
   WiFi.mode(WIFI_STA);
-  WiFi.disconnect();
   delay(50);
 }
 
