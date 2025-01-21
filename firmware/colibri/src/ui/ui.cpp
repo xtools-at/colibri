@@ -36,9 +36,15 @@ static void checkForGesture() {
 static void checkForTimeout() {
   // TODO: fix
   /*
-  if (wallet.timeLastActivity > 0 &&
-      (millis() - wallet.timeLastActivity) > TIMEOUT_INACTIVITY_LOCK) {
+  unsigned long now = millis();
+  if (wallet.timeLastActivity > 0 && (now - wallet.timeLastActivity) > TIMEOUT_INACTIVITY_LOCK) {
     log_i("Auto-locking device after inactivity");
+
+    log_d("- Now:   %d", now);
+    log_d("- Last:  %d", wallet.timeLastActivity);
+    log_d("- Delta: %d ms", now - wallet.timeLastActivity);
+    log_d("- Limit: %d ms", TIMEOUT_INACTIVITY_LOCK);
+
     wallet.lock();
   }
   */
@@ -53,17 +59,17 @@ static void updateButtons() {
 }
 
 static void updateLed() {
-  if (!isHot && !LED_IS_BLINKING) {
+  if (!isHot && !led_isBlinking) {
     if (isBusy) {
-      LED_TURN_ON(Busy);
+      led_turnOn(Busy);
     } else if (connection > NotConnected) {
-      LED_TURN_ON(Idle);
+      led_turnOn(Idle);
     } else {
-      LED_TURN_ON(Connecting);
+      led_turnOn(Connecting);
     }
   }
 
-  LED_UPDATE();
+  led_update();
 }
 
 void updateUi() {
@@ -80,7 +86,7 @@ bool waitForApproval(RgbColor color) {
 
   // set led hot
   isHot = true;
-  LED_BLINK(100, 100, color);
+  led_blink(100, 100, color);
   updateUi();
 
   // reset buttons
@@ -119,7 +125,7 @@ bool waitForApproval(RgbColor color) {
   }
 
   // blink led, reset hot state
-  LED_INDICATE(isApproved);
+  led_indicate(isApproved);
   isHot = false;
 
   buttonOk.reset();

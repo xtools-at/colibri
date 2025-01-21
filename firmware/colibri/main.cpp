@@ -51,7 +51,7 @@ bool isBusy = false;
 Connection connection = NotConnected;
 
 void setup() {
-  LED_TURN_ON(RgbColor::Busy);
+  led_turnOn(RgbColor::Busy);
 
   // enable Serial when debugging
 #if (CORE_DEBUG_LEVEL > 0)
