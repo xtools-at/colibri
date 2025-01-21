@@ -10,6 +10,27 @@ const int slip44Ethereum[] = {
     966,  // Polygon
 };
 
+const std::map<uint32_t, uint16_t> slip44ToPolkadotNetwork = {
+    {354, 0},  // Polkadot
+    {434, 2},  // Kusama
+    {810, 4},  // Astar
+    {788, 6},  // Bifrost
+    {686, 8},  // Karura
+    {787, 10},  // Acala
+    {2015, 13},  // Integritee
+    {747, 36},  // Centrifuge
+    {1003, 37},  // Nodle
+    {1284, 1284},  // Moonbeam
+    {1285, 1285},  // Moonriver
+    {3338, 1221},  // Peaq
+    {794, 2032},  // Interlay
+    // {?, 66},  // Crust
+    // {?, 77},  // Manta
+    // {?, 128},  // Clover
+    // {?, 172},  // Parallel Finance
+    // {?, 1328},  // Ajuna
+};
+
 /*
  * START ported and/or adapted code from Trezor firmware (originally licensed under GPL 3.0, see
  * `licenses/GPL-3.0.txt`):
@@ -17,8 +38,6 @@ const int slip44Ethereum[] = {
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/coin_info.c.mako
 
  */
-// SLIP-44 hardened coin type for Bitcoin
-#define SLIP44_HARDENED 0x80000000
 
 const BitcoinNetwork bitcoinNetworks[7] = {
     {
@@ -151,24 +170,28 @@ const BitcoinNetwork bitcoinNetworks[7] = {
  */
 
 ChainType getChainType(uint32_t slip44) {
+  // other chain types
   switch (slip44) {
     case 501:  // Solana
       return ChainType::SOL;
-    case 354:  // Polkadot
-    case 434:  // Kusama
-      return ChainType::DOT;
     default:
       break;
   }
 
-  size_t len = sizeof(slip44Ethereum) / sizeof(slip44Ethereum[0]);
+  // polkadot chain type
+  if (slip44ToPolkadotNetwork.find(slip44) != slip44ToPolkadotNetwork.end()) {
+    return ChainType::DOT;
+  }
 
+  // ethereum chain type
+  size_t len = sizeof(slip44Ethereum) / sizeof(slip44Ethereum[0]);
   for (uint16_t i = 0; i < len; i++) {
     if (slip44 == slip44Ethereum[i]) {
       return ChainType::ETH;
     }
   }
 
+  // fallback: bitcoin chain type
   return ChainType::BTC;
 }
 
@@ -192,6 +215,14 @@ const BitcoinNetwork* getBitcoinNetwork(uint32_t slip44) {
   }
 
   return &(bitcoinNetworks[0]);
+}
+
+const uint16_t getPolkadotNetwork(uint32_t slip44) {
+  if (slip44ToPolkadotNetwork.find(slip44) != slip44ToPolkadotNetwork.end()) {
+    return slip44ToPolkadotNetwork.at(slip44);
+  }
+
+  return 42;  // generic Substrate network prefix
 }
 
 // use seg=1 for BIP purpose, seg=2 for coin type, etc.

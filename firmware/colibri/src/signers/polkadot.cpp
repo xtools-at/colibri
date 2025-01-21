@@ -3,6 +3,8 @@
 
 #include "polkadot.h"
 
+#include "../utils/chains.h"
+
 extern "C" {
 #include <blake2b.h>
 }
@@ -38,11 +40,8 @@ static uint8_t getNetworkPrefixLength(uint16_t network) {
 // Function to derive Polkadot address from HDNode
 std::string dotGetAddress(HDNode* node, uint32_t slip44, uint16_t networkPrefixOverride) {
   // determine network prefix
-  uint16_t network = 0;  // default: Polkadot
-  if (slip44 == 434) {
-    // Kusama
-    network = 2;
-  }
+  uint16_t network = getPolkadotNetwork(slip44);
+
   if (&networkPrefixOverride != nullptr && networkPrefixOverride != POLKADOT_UNKNOWN_NETWORK) {
     network = networkPrefixOverride;
   }
