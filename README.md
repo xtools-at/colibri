@@ -310,7 +310,9 @@ Valuable extensions to the project, once the core product is functional:
 
 ## License
 
-The Colibri monorepo and firmware/apps are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License
+The Colibri monorepo and firmware/apps are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License.
+Packages (like SDKs, etc.) are generally licensed under the MIT license.
+The names "Colibri" and "Colibri Wallet", and the Colibri logo are not to be used in commercial projects/products without the express consent of the project creator.
 
 ### Disclaimer
 

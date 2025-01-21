@@ -55,15 +55,15 @@ static void updateButtons() {
 static void updateLed() {
   if (!isHot && !led.isBlinking) {
     if (isBusy) {
-      led.turnOn(Busy);
+      LED_TURN_ON(Busy);
     } else if (connection > NotConnected) {
-      led.turnOn(Idle);
+      LED_TURN_ON(Idle);
     } else {
-      led.turnOn(Connecting);
+      LED_TURN_ON(Connecting);
     }
   }
 
-  led.update();
+  LED_UPDATE();
 }
 
 void updateUi() {
@@ -80,7 +80,7 @@ bool waitForApproval(RgbColor color) {
 
   // set led hot
   isHot = true;
-  led.blink(100, 100, color);
+  LED_BLINK(100, 100, color);
   updateUi();
 
   // reset buttons
@@ -119,7 +119,7 @@ bool waitForApproval(RgbColor color) {
   }
 
   // blink led, reset hot state
-  led.indicate(isApproved);
+  LED_INDICATE(isApproved);
   isHot = false;
 
   buttonOk.reset();

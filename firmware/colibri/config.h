@@ -201,12 +201,18 @@
 #endif
 #if (defined(LED_GPIO) || defined(LED_GPIO_NEOPIXEL))
   #define LED_ENABLED
+
+  #define LED_UPDATE(...) led.update(__VA_ARGS__)
+  #define LED_TURN_ON(...) led.turnOn(__VA_ARGS__)
+  #define LED_TURN_OFF(...) led.turnOff(__VA_ARGS__)
+  #define LED_BLINK(...) led.blink(__VA_ARGS__)
+  #define LED_INDICATE(...) led.indicate(__VA_ARGS__)
 #else
-  #define led_update(...)
-  #define led_turnOn(...)
-  #define led_turnOff(...)
-  #define led_blink(...)
-  #define led_indicate(...)
+  #define LED_UPDATE(...)
+  #define LED_TURN_ON(...)
+  #define LED_TURN_OFF(...)
+  #define LED_BLINK(...)
+  #define LED_INDICATE(...)
 #endif
 
 #ifndef LED_ON

@@ -4,12 +4,13 @@
 
 ## v0.0.4
 
-(tbd)
+(TODO: date)
 
+- `*` Wallet: Dash, DigiByte and Zcash address derivation and message signing
+- `*` Wallet: Solana and Polkadot/Kusama/Substrate address derivation
 - `*` Wallet: Auto-lock after inactivity (TODO: buggy)
-- `*` Wallet: Dash, DigiByte, Zcash address derivation and message signing
-- `*` Wallet: Solana and Polkadot address derivation
-- `#` Wallet: improved password hashing (breaking change!)
+- `+` Wallet: improved password hashing (breaking change!)
+- `#` Core: tested and fixed prebuilt board configs (TODO:)
 
 ## v0.0.3
 
