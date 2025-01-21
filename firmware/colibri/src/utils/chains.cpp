@@ -17,11 +17,10 @@ const std::map<uint32_t, uint16_t> slip44ToPolkadotNetwork = {
     {788, 6},  // Bifrost
     {686, 8},  // Karura
     {787, 10},  // Acala
+    {595, 12},  // Polymesh
     {2015, 13},  // Integritee
     {747, 36},  // Centrifuge
     {1003, 37},  // Nodle
-    {1284, 1284},  // Moonbeam
-    {1285, 1285},  // Moonriver
     {3338, 1221},  // Peaq
     {794, 2032},  // Interlay
     // {?, 66},  // Crust
