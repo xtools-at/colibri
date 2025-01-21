@@ -53,7 +53,7 @@ static void updateButtons() {
 }
 
 static void updateLed() {
-  if (!isHot && !led.isBlinking) {
+  if (!isHot && !LED_IS_BLINKING) {
     if (isBusy) {
       LED_TURN_ON(Busy);
     } else if (connection > NotConnected) {

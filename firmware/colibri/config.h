@@ -207,12 +207,14 @@
   #define LED_TURN_OFF(...) led.turnOff(__VA_ARGS__)
   #define LED_BLINK(...) led.blink(__VA_ARGS__)
   #define LED_INDICATE(...) led.indicate(__VA_ARGS__)
+  #define LED_IS_BLINKING led.isBlinking
 #else
   #define LED_UPDATE(...)
   #define LED_TURN_ON(...)
   #define LED_TURN_OFF(...)
   #define LED_BLINK(...)
   #define LED_INDICATE(...)
+  #define LED_IS_BLINKING false
 #endif
 
 #ifndef LED_ON
