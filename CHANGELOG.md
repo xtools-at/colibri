@@ -8,7 +8,7 @@
 
 - `*` Wallet: Dash, DigiByte and Zcash address derivation and message signing
 - `*` Wallet: Solana and Polkadot/Kusama/Substrate address derivation
-- `*` Wallet: Auto-lock after inactivity (TODO: buggy)
+- `*` Wallet: Auto-lock after inactivity
 - `+` Wallet: improved password hashing (breaking change!)
 - `#` Core: tested and fixed prebuilt board configs (TODO:)
 

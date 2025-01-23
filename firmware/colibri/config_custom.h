@@ -20,11 +20,14 @@
 // - Bitcoin Legacy (most compatible):
 // #define DEFAULT_HD_PATH "m/44'/0'/0'/0/0"
 
-// mnemonic lengths 12|18|24 are supported
+// seed phrase lengths 12|18|24 are supported
 #define DEFAULT_MNEMONIC_WORDS 24
 
 // change wait time for user to approve actions (in ms)
-#define TIMEOUT_WAIT_FOR_APPROVAL 12000  // minimum value: 5000
+#define TIMEOUT_WAIT_FOR_APPROVAL (12 * 1000)  // == 12sec; minimum value: 5000 (5sec)
+
+// change timeout for auto-locking the device after inactivity (in ms)
+#define TIMEOUT_INACTIVITY_LOCK (10 * 60 * 1000)  // == 10min; minimum value: 20000 (20sec)
 
 // self destruct wallet after n failed unlock attempts
 #define SELF_DESTRUCT_ENABLED false

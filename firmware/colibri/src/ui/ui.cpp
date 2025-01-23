@@ -34,20 +34,18 @@ static void checkForGesture() {
 }
 
 static void checkForTimeout() {
-  // TODO: fix
-  /*
-  unsigned long now = millis();
-  if (wallet.timeLastActivity > 0 && (now - wallet.timeLastActivity) > TIMEOUT_INACTIVITY_LOCK) {
-    log_i("Auto-locking device after inactivity");
+  uint64_t now = millis();
+  uint64_t delta = now > wallet.timeLastActivity ? now - wallet.timeLastActivity : 0;
 
+  if (wallet.timeLastActivity > 0 && delta > TIMEOUT_INACTIVITY_LOCK) {
+    log_i(
+        "Auto-locking device after inactivity of %d ms (limit=%d)", delta, TIMEOUT_INACTIVITY_LOCK
+    );
     log_d("- Now:   %d", now);
     log_d("- Last:  %d", wallet.timeLastActivity);
-    log_d("- Delta: %d ms", now - wallet.timeLastActivity);
-    log_d("- Limit: %d ms", TIMEOUT_INACTIVITY_LOCK);
 
     wallet.lock();
   }
-  */
 }
 
 static void updateButtons() {
@@ -82,7 +80,9 @@ void updateUi() {
 bool waitForApproval(RgbColor color) {
   log_i("Waiting for user approval...");
   // reset auto-lock timeout
-  if (!wallet.isLocked()) wallet.timeLastActivity = millis();
+  if (!wallet.isLocked() && wallet.isKeySet()) {
+    wallet.timeLastActivity = millis();
+  }
 
   // set led hot
   isHot = true;
