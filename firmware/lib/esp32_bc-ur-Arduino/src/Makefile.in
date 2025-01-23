@@ -1,0 +1,124 @@
+# @configure_input@
+
+#
+#  Makefile.in
+#
+#  Copyright © 2020 by Blockchain Commons, LLC
+#  Licensed under the "BSD-2-Clause Plus Patent License"
+#
+
+# Package-specific substitution variables
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname = @PACKAGE_TARNAME@
+libname = lib$(package).a
+
+# Prefix-specific substitution variables
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+
+# VPATH-specific substitution variables
+srcdir = @srcdir@
+VPATH = @srcdir@
+
+# Terminal colors
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+
+COMPILER = g++
+CFLAGS += --debug -O0
+CXXFLAGS += -std=c++17 -stdlib=libc++ --debug -O0
+
+ARFLAGS = rcs
+
+OBJS = \
+	crc32.o \
+	memzero.o \
+	sha2.o \
+	utils.o \
+	bytewords.o \
+	xoshiro256.o \
+	random-sampler.o \
+	fountain-encoder.o \
+	fountain-decoder.o \
+	fountain-utils.o \
+	ur.o \
+	ur-encoder.o \
+	ur-decoder.o
+
+.PHONY: all lib
+all lib: $(libname)
+
+$(libname): $(OBJS)
+	$(AR) $(ARFLAGS) $@ $^
+
+ur.o: ur.hpp utils.hpp
+crc32.o: crc32.h
+utils.o: utils.hpp
+bytewords.o: bytewords.hpp utils.hpp
+xoshiro256.o: xoshiro256.hpp
+sha2.o: sha2.h memzero.h
+memzero.o : memzero.h
+fountain-encoder.o : fountain-encoder.hpp utils.hpp fountain-utils.hpp
+fountain-decoder.o : fountain-decoder.hpp utils.hpp fountain-utils.hpp fountain-encoder.hpp
+random-sampler.o : random-sampler.hpp
+fountain-utils.o : fountain-utils.hpp xoshiro256.hpp random-sampler.hpp
+ur-encoder.o : ur-encoder.hpp ur.hpp utils.hpp fountain-encoder.hpp
+ur-decoder.o : ur-decoder.hpp ur.hpp bytewords.hpp fountain-decoder.hpp
+
+HEADERS = \
+	bc-ur.hpp \
+	ur.hpp \
+	utils.hpp \
+	bytewords.hpp \
+	xoshiro256.hpp \
+	fountain-encoder.hpp \
+	fountain-decoder.hpp \
+	random-sampler.hpp \
+	fountain-utils.hpp \
+	cbor-lite.hpp \
+	ur-encoder.hpp \
+	ur-decoder.hpp
+
+libdir = $(DESTDIR)$(prefix)/lib
+includedir = $(DESTDIR)$(prefix)/include/$(package)
+
+.PHONY: install
+install: $(libname)
+	install -d $(libdir)
+	install $(libname) $(libdir)
+	install -d $(includedir)
+	install $(HEADERS) $(includedir)
+
+.PHONY: uninstall
+uninstall:
+	rm -f $(libdir)/$(libname)
+	rm -f $(includedir)/bc-ur.hpp
+	rm -f $(includedir)/ur.hpp
+	rm -f $(includedir)/utils.hpp
+	rm -f $(includedir)/bytewords.hpp
+	rm -f $(includedir)/xoshiro256.hpp
+	rm -f $(includedir)/fountain-encoder.hpp
+	rm -f $(includedir)/fountain-decoder.hpp
+	rm -f $(includedir)/random-sampler.hpp
+	rm -f $(includedir)/fountain-utils.hpp
+	rm -f $(includedir)/cbor-lite.hpp
+	rm -f $(includedir)/ur-encoder.hpp
+	rm -f $(includedir)/ur-decoder.hpp
+	-rmdir $(libdir) >/dev/null 2>&1
+	-rmdir $(includedir) >/dev/null 2>&1
+
+.PHONY: clean
+clean:
+	rm -rf $(libname)
+	rm -f $(OBJS)
+
+.PHONY: distclean
+distclean: clean
+	rm -f Makefile
+
+.PHONY: lint
+lint:
+	cppcheck --enable=all --inline-suppr --suppress=unusedFunction --error-exitcode=1 --suppress=missingInclude .
