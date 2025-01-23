@@ -35,7 +35,7 @@ The minimum requirements for your development board are:
 $ echo "Developers only!"
 ```
 
-- _ESP32-C6_ and _ESP32-H2_ may work in theory, but haven't been tested yet.
+- _ESP32-C6_ and _ESP32-H2_ can be built and may work, but haven't been tested thoroughly yet.
 - _ESP32-S2_ and _ESP32-P4_ don't support BLE, but have USB-OTG. They could be used for development purposes with the _Serial Debug Interface_.
 
 ### One-time setup of Arduino IDE

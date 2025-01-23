@@ -109,7 +109,7 @@ Valuable extensions to the project, once the core product is functional:
 
 Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the contents of the Colibri monorepo are _copyright © 2024-2025 by Colibri contributors_, and are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License.
 
-The names "Colibri", "Colibri.diy" and "Colibri Wallet", as well as the Colibri logo are copyright © 2024 by [xtools-at](https://github.com/xtools-at), and are licensed under [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0).
+The names "Colibri", "Colibri.diy" and "Colibri Wallet", as well as the Colibri logo are copyright © 2024 by [xtools-at](https://github.com/xtools-at), and are licensed under [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0) - Creative Commons Attribution-NonCommercial 4.0.
 
 The Colibri firmware additionally includes the following open-source libraries:
 
