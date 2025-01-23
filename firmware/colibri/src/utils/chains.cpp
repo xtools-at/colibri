@@ -8,6 +8,8 @@ const int slip44Ethereum[] = {
     61,  // Ethereum Classic
     714,  // Binance Smart Chain
     966,  // Polygon
+    1284,  // Moonbeam
+    1285,  // Moonriver
 };
 
 const std::map<uint32_t, uint16_t> slip44ToPolkadotNetwork = {
