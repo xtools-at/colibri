@@ -6,11 +6,13 @@ Thumbs.db
 
 # env files
 .env
+.env*.local
 
-# Node.js
+# Node.js & React/Next.js
 node_modules
 .next
 dist
+out
 coverage
 *.tsbuildinfo
 
@@ -23,9 +25,8 @@ launch.json
 .vscode/.browse.c_cpp.db*
 
 # custom
-assets/
 tmp/
-**/*.xx
+*.xx
 
 # library files
 firmware/lib/**/examples/**
@@ -35,4 +36,5 @@ firmware/lib/**/docs/**
 
 # experimental files and folders
 firmware/vendor
-apps/web-v3
+apps/tmp
+apps/web

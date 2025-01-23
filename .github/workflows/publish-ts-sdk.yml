@@ -21,27 +21,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v2
         with:
-          version: 8.10.2
-      - name: Setup .npmrc file to publish to npm
+          version: 9.15.4
+
+      - name: Setup Node.js and .npmrc file to publish to npm
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
+
       - name: Install dependencies
         run: pnpm install
-      - name: Build
+
+      - name: Build SDK
         run: pnpm sdk build
+
       - name: Publish to npm
         run: pnpm sdk publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Setup .npmrc file to publish to github
         uses: actions/setup-node@v4
         with:
           registry-url: 'https://npm.pkg.github.com'
+
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

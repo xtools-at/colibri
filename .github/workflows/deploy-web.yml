@@ -1,0 +1,37 @@
+name: Build and Deploy Web App
+
+on:
+  push:
+    tags:
+      - 'web*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+
+      - name: Install dependencies
+        run: pnpm i
+        working-directory: apps/web
+
+      - name: Build static Nextra app
+        run: pnpm build
+        working-directory: apps/web
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: apps/web/out
