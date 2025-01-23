@@ -48,8 +48,8 @@
 // ========== System ========== //
 #define HW_MANUFACTURER_NAME "Colibri"
 #define HW_DEVICE_NAME "Colibri DIY"
-#define HW_FIRMWARE_VERSION "0.0.4"
-#define HW_FIRMWARE_VERSION_NUM 4  // e.g. 30201 == "3.2.1"
+#define HW_FIRMWARE_VERSION "0.0.5"
+#define HW_FIRMWARE_VERSION_NUM 5  // e.g. 30201 == "3.2.1"
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).

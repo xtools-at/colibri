@@ -2,6 +2,12 @@
 
 (`*` = new feature; `+` = improvement; `#` = bugfix; `~` = chore; `!` = experimental)
 
+## v0.0.5
+
+(TODO: date)
+
+- `*` App: Static webapp for [colibri.diy](https://colibri.diy) for device setup and docs
+
 ## v0.0.4
 
 2025-01-23
