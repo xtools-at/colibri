@@ -128,7 +128,7 @@ void createMnemonic(const JsonDocument& request, JsonDocument& response) {
     JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
     // return walletId, and mnemonic on devices without display
     resultsArray.add(r.status);
-#if (defined(DISPLAY_ENABLED) && !defined(DISPLAY_SMALL))
+#if (defined(DISPLAY_ENABLED) && !defined(DISPLAY_TYPE_SMALL))
     resultsArray.add(RPC_MSG_MNEMONIC_SCREEN);
 #else
     resultsArray.add(r.result);

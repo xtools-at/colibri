@@ -271,20 +271,15 @@
 #ifndef DISPLAY_TYPE_ID
   #if (!defined(DISPLAY_ENABLED) || !defined(DISPLAY_WIDTH))
     #define DISPLAY_TYPE_ID 0  // No screen
+    #define DISPLAY_TYPE "No display"
   #elif (DISPLAY_WIDTH < 80)
-    #define DISPLAY_SMALL
     #define DISPLAY_TYPE_ID 1  // Small screen
+    #define DISPLAY_TYPE_SMALL
+    #define DISPLAY_TYPE "Small display"
   #else
     #define DISPLAY_TYPE_ID 2  // Normal-sized screen
+    #define DISPLAY_TYPE "Display support"
   #endif
-#endif
-
-#if (DISPLAY_TYPE_ID >= 2)
-  #define DISPLAY_TYPE "Display support"
-#elif (DISPLAY_TYPE_ID >= 1)
-  #define DISPLAY_TYPE "Small display"
-#else
-  #define DISPLAY_TYPE "No display"
 #endif
 
 // ========== Crypto ========== //
@@ -316,7 +311,7 @@
 // Timeouts
 // - approvals
 #ifndef TIMEOUT_WAIT_FOR_APPROVAL
-  #define TIMEOUT_WAIT_FOR_APPROVAL 12000
+  #define TIMEOUT_WAIT_FOR_APPROVAL 12000  // 12sec
 #endif
 #if (TIMEOUT_WAIT_FOR_APPROVAL < 5000)
   #error "TIMEOUT_WAIT_FOR_APPROVAL must be >= 5000ms"
@@ -324,10 +319,10 @@
 
 // - inactivity auto-lock
 #ifndef TIMEOUT_INACTIVITY_LOCK
-  #define TIMEOUT_INACTIVITY_LOCK (10 * 60 * 1000)  // 10min
+  #define TIMEOUT_INACTIVITY_LOCK 600000  // 10min
 #endif
 #if (TIMEOUT_INACTIVITY_LOCK < (20 * 1000))
-  #error "TIMEOUT_INACTIVITY_LOCK must be >= 20.000ms (20s)"
+  #error "TIMEOUT_INACTIVITY_LOCK must be >= 20000ms (20s)"
 #endif
 
 // ========== Interfaces config ========== //
