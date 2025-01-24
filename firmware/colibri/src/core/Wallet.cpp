@@ -208,7 +208,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
 void Wallet::lock() {
   deleteHdNode();
   memzero(pwHash, sizeof(pwHash));
-  memzero(&storedMnemonics, sizeof(storedMnemonics));
+  memzero(&storedSeedPhrases, sizeof(storedSeedPhrases));
   memzero(&walletId, sizeof(walletId));
 
   timeLastActivity = 0;
@@ -265,37 +265,16 @@ WalletResponse Wallet::selectWallet(
   log_d("hdnode creation: %s", status == 1 ? "success" : "error");
   memzero(seed, sizeof(seed));
 
-  // grab master xpub and fingerprint before setting path
   if (status) {
-    // fill public key without a path set
-    hdnode_fill_public_key(&hdNode);
-    log_s("master public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
-
-    // derive the fingerprint before setting the hd path
-    uint32_t fpNum = hdnode_fingerprint(&hdNode);
-
-    // derive the extended public key (xpub)
-    char xPubChars[XPUB_LENGTH + 1];
-    uint32_t magicNum = getXpubMagicNumber(inHdPath);
-    hdnode_serialize_public(&hdNode, fpNum, magicNum, xPubChars, sizeof(xPubChars));
-    xPub = std::string(xPubChars);
-    log_s("master xpub: %s", xPub.c_str());
-
-    // store id and count
-    walletId = id;
-    storedMnemonics = numWallets;
-
-    // set hd path (also fills public key)
+    // set hd path (also fills public key and derives xpub)
     if (!setHdPath(inHdPath)) {
       log_e("Error setting HD path: %s (curve: %s)", inHdPath, curveType);
       status = Status::InvalidParams;
     }
 
-    // store fingerprint after setting chain type
-    uint8_t fpBytes[4];
-    uint32ToBytes(fpNum, fpBytes);
-    fingerprint = toHex(fpBytes, 4, true);
-    log_s("master fingerprint: %s", fingerprint.c_str());
+    // store id and count
+    walletId = id;
+    storedSeedPhrases = numWallets;
 
     // logs
     log_i("used chain type: %d", chainType);
@@ -363,7 +342,7 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
 
   // update counters
   store.writeWalletCounter(newCounter);
-  storedMnemonics = newCounter;
+  storedSeedPhrases = newCounter;
 
   // select wallet if it's the first one
   if (walletId == 1) {
@@ -388,28 +367,68 @@ void Wallet::deleteHdNode() {
   hdNode = HDNode();
 
   hdPath.clear();
-  xPub.clear();
-  fingerprint.clear();
+  xPubRoot.clear();
+  xPubAccount.clear();
+  fingerprintRoot.clear();
+  fingerprintAccount.clear();
+
   memzero(&bipPurpose, sizeof(bipPurpose));
   memzero(&slip44, sizeof(slip44));
   memzero(&accountId, sizeof(accountId));
   memzero(&chainType, sizeof(chainType));
+  memzero(&hdPathDepth, sizeof(hdPathDepth));
 
   log_v("cleared hd node");
 }
+
+std::string Wallet::getXPub(HDNode* node, const char* inPath) {
+  // derive the extended public key (xpub)
+  hdnode_fill_public_key(&hdNode);
+  log_s("public key: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
+
+  char xPubChars[XPUB_LENGTH + 1];
+  uint32_t magicNum = getXpubMagicNumber(inPath);
+  uint32_t fpNum = hdnode_fingerprint(&hdNode);
+
+  hdnode_serialize_public(&hdNode, fpNum, magicNum, xPubChars, sizeof(xPubChars));
+  std::string newXPub = std::string(xPubChars);
+  log_s("xpub: %s", newXPub.c_str());
+
+  return newXPub;
+};
+std::string Wallet::getFingerprint(HDNode* node) {
+  // get fingerprint of node
+  hdnode_fill_public_key(&hdNode);
+  uint32_t fpNum = hdnode_fingerprint(&hdNode);
+
+  // transform to hex
+  uint8_t fpBytes[4];
+  uint32ToBytes(fpNum, fpBytes);
+  std::string fp = toHex(fpBytes, 4, false);
+  log_s("fingerprint: %s", fp.c_str());
+
+  return fp;
+};
 
 bool Wallet::setHdPath(const char* inPath) {
   if (inPath == nullptr) {
     return false;
   }
+
+  log_d("deriving root xpub...");
+  std::string xpubRoot = getXPub(&hdNode, inPath);
+  std::string fpRoot = getFingerprint(&hdNode);
+  std::string xpubAcc;
+  std::string fpAcc;
+
+  // copy the HD path to a modifiable string
   log_i("setting hd path: %s", inPath);
 
-  // Copy the hdPath to a modifiable string
   char path[MAX_HDPATH_LENGTH];
   strncpy(path, inPath, sizeof(path));
   path[sizeof(path) - 1] = '\0';
 
-  // Check if the path starts with "m/"
+  // check if the path starts with "m/"
   if (strncmp(path, "m/", 2) != 0) {
     return false;
   }
@@ -427,14 +446,12 @@ bool Wallet::setHdPath(const char* inPath) {
     } else if (i == 1) {
       slip44 = index;
       if (!chainType) chainType = getChainType(slip44);
-
-      // TODO: save account xpub
     } else if (i == 4) {
       accountId = index;
     }
 
     // set the path
-    if (strchr(token, '\'') != nullptr) {
+    if (strchr(token, '\'') != nullptr || strchr(token, 'h') != nullptr) {
       // Hardened index
       if (!hdnode_private_ckd_prime(&hdNode, index)) {
         return false;
@@ -446,13 +463,27 @@ bool Wallet::setHdPath(const char* inPath) {
     }
     token = strtok(nullptr, "/");
 
+    if (i == 3) {
+      // save account xpub after setting path
+      log_d("deriving account xpub...");
+      xpubAcc = getXPub(&hdNode, inPath);
+      fpAcc = getFingerprint(&hdNode);
+    }
+
     i++;
   }
 
-  // save path & public key
+  // save path, xpub and public key
   hdnode_fill_public_key(&hdNode);
   log_d("selected wallet pubkey: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
   hdPath = std::string(inPath);
+  hdPathDepth = i + 1;
+  xPubRoot = xpubRoot;
+  fingerprintRoot = fpRoot;
+  if (hdPathDepth > 2) {
+    xPubAccount = xpubAcc;
+    fingerprintAccount = fpAcc;
+  }
 
   return true;
 }

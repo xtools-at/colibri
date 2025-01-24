@@ -68,7 +68,7 @@ void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(HW_FIRMWARE_VERSION);
   resultsArray.add(CONFIG_IDF_TARGET);
   resultsArray.add(DISPLAY_TYPE);
-  resultsArray.add(wallet.storedMnemonics);
+  resultsArray.add(wallet.storedSeedPhrases);
 }
 
 void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
@@ -82,7 +82,7 @@ void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.hdPath);
 }
 
-void exportXpub(const JsonDocument& request, JsonDocument& response) {
+void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
   if (!waitForApproval()) {
     return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
   }
@@ -90,8 +90,20 @@ void exportXpub(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
   // return xpub, fingerprint
-  resultsArray.add(wallet.xPub);
-  resultsArray.add(wallet.fingerprint);
+  resultsArray.add(wallet.xPubRoot);
+  resultsArray.add(wallet.fingerprintRoot);
+}
+
+void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
+  if (!waitForApproval()) {
+    return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
+  }
+
+  JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
+
+  // return xpub, fingerprint
+  resultsArray.add(wallet.xPubAccount);
+  resultsArray.add(wallet.fingerprintAccount);
 }
 
 void wipe(const JsonDocument& request, JsonDocument& response) {
@@ -273,7 +285,8 @@ void JsonRpcHandler::init() {
 
   // after unlock + keys set
   addMethod(RPC_METHOD_GET_WALLET, getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET);
-  addMethod(RPC_METHOD_EXPORT_XPUB, exportXpub, EMPTY, RPC_RESULT_EXPORT_XPUB);
+  addMethod(RPC_METHOD_EXPORT_XPUB_ROOT, exportXpubRoot, EMPTY, RPC_RESULT_EXPORT_XPUB);
+  addMethod(RPC_METHOD_EXPORT_XPUB_ACCOUNT, exportXpubAccount, EMPTY, RPC_RESULT_EXPORT_XPUB);
   addMethod(
       RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET
   );
