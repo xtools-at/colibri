@@ -21,15 +21,18 @@ class Wallet {
   Wallet() : locked(true) {}
 
   std::string hdPath;
-  std::string xPub;
-  std::string fingerprint;
+  std::string xPubRoot;
+  std::string fingerprintRoot;
+  std::string xPubAccount;
+  std::string fingerprintAccount;
   uint16_t walletId;
-  uint16_t storedMnemonics;
+  uint16_t storedSeedPhrases;
   ChainType chainType;
   uint32_t bipPurpose;
   uint32_t slip44;
   uint32_t accountId;
   uint64_t timeLastActivity;
+  uint8_t hdPathDepth;
 
   bool isLocked();
   bool isPasswordSet();
@@ -58,7 +61,9 @@ class Wallet {
 
  private:
   void deleteHdNode();
-  bool setHdPath(const char* hdPath);
+  bool setHdPath(const char* inPath);
+  std::string getXPub(HDNode* node, const char* inPath);
+  std::string getFingerprint(HDNode* node);
 
  protected:
   bool locked;

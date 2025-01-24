@@ -26,7 +26,8 @@ const char RPC_METHOD_WIPE[] = "wipe";
 const char RPC_METHOD_DELETE_PAIRED_DEVICES[] = "deletePairedDevices";
 const char RPC_METHOD_GET_STATUS[] = "getStatus";
 const char RPC_METHOD_GET_WALLET[] = "getSelectedWallet";
-const char RPC_METHOD_EXPORT_XPUB[] = "exportXpub";
+const char RPC_METHOD_EXPORT_XPUB_ROOT[] = "exportRootXPub";
+const char RPC_METHOD_EXPORT_XPUB_ACCOUNT[] = "exportAccountXPub";
 const char RPC_METHOD_GET_INFO[] = "getDeviceInfo";
 const char RPC_METHOD_CREATE_MNEMONIC[] = "createSeedPhrase";
 const char RPC_METHOD_ADD_MNEMONIC[] = "addSeedPhrase";
@@ -63,9 +64,9 @@ const char RPC_RESULT_LIST_METHODS[] =
 const char RPC_RESULT_CREATE_MNEMONIC[] = "[number: wallet id, string: mnemonic phrase]";
 const char RPC_RESULT_ADD_MNEMONIC[] = "number: wallet id";
 const char RPC_RESULT_SELECTED_WALLET[] =
-    "[number: wallet id, number: chain type (1=ETH|2=BTC), string: address, string: pubkey, "
+    "[number: wallet id, number: chain type (1=BTC|2=ETH), string: address, string: pubkey, "
     "string: hdPath]";
-const char RPC_RESULT_EXPORT_XPUB[] = "[string: xpub, string: master fingerprint]";
+const char RPC_RESULT_EXPORT_XPUB[] = "[string: xpub, string: fingerprint]";
 const char RPC_RESULT_STATUS[] = "[bool: unlocked, bool: key set, bool: password set]";
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, string: display type, number: "

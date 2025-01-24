@@ -39,18 +39,3 @@
 // #define INTERFACE_BLE_ARDUINO_DISABLED
 // #define INTERFACE_USB_DISABLED
 // #define INTERFACE_USB_HID_DISABLED
-
-// ========== EXPERT/DEVELOPER SETTINGS ========== //
-
-// Use custom serial baud rate
-// #define BOARD_SERIAL_BAUD_RATE 115200
-
-// Change the available board storage (NVS partition)
-// -- Arduino IDE reserves 20k for NVS storage by default, but that's shared with BLE & Co.
-// -- Using the config default of ~7k here is enough to store ~30 mnemonic phrases.
-// -- Increase only if you've created an additional custom NVS partition with more space.
-// #define NVS_MAX_AVAILABLE_STORAGE 7280
-
-// Use custom NVS partition
-// -- If you've added a custom NVS partition, update its name here
-// #define NVS_PARTITION_NAME "nvs"

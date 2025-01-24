@@ -77,7 +77,6 @@ struct BitcoinNetwork {
   bool hasTaproot;
   uint64_t maxfeeKb;
 
-  // address types > 0xFF represent a two-byte prefix in big-endian order
   uint32_t addressType;
   uint32_t addressTypeP2SH;
 
@@ -86,7 +85,6 @@ struct BitcoinNetwork {
   uint32_t xpubMagicSegwit;
 
   uint32_t slip44;
-  // uint32_t coinType;  // TODO: remove if unused
 };
 /*
  * END ported code from Trezor firmware

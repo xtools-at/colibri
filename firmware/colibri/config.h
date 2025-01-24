@@ -38,11 +38,17 @@
 
 #include <Arduino.h>
 
-// You can find the user configuration in the following files:
+/*
+ * You can find all available **customization options** in the following files:
+ */
 #include "config_board.h"
-#include "config_custom.h"
+#include "config_user.h"
 
-// !! DO NOT mess with the rest of this file unless you know what you're doing !!
+/*
+ * !! STOP HERE! You should not need to change anything below this line !!
+ *
+ * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ */
 #include "types.h"
 
 // ========== System ========== //
