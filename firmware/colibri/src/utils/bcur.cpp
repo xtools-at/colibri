@@ -10,16 +10,17 @@
 
 #include "bcur.h"
 
+#ifdef INTERFACE_QR
 /*
  * START ported and/or adapted code from Jade wallet firmware (licensed under MIT, see
  * `licenses/Blockstream.MIT.txt`):
  * https://github.com/Blockstream/Jade/blob/348f972c77314fd6e2fc170d43168fef3cf65cf1/main/bcur.c
  */
 
-#define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
-  (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
+  #define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
+    (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
 
-#define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
+  #define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
 
 static std::vector<std::string> createUr(const char *urType, uint8_t *cbor, size_t cborLen) {
   // create UR
@@ -336,3 +337,5 @@ void processUrFragment(const std::string &fragment) {
   }
 }
 */
+
+#endif

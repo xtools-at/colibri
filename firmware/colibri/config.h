@@ -33,6 +33,7 @@
   #define INTERFACE_BLE_ARDUINO
   #define INTERFACE_BLE_NIMBLE
   #define INTERFACE_USB_HID
+  #define INTERFACE_QR
   #warning "Please compile this project in a recent version of Arduino IDE"
 #endif
 

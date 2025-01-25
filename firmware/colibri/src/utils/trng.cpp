@@ -4,13 +4,26 @@
 #include "trng.h"
 
 #if defined(RNG_ANTENNA_DISABLED)
+// make sure antenna is on for RNG
+bool turnWifiOff = false;
+
 void hwRngBegin() {
-  // make sure antenna is on for RNG
+  // Wifi is already running:
+  if (WiFi.getMode() != WIFI_OFF) return;
+
+  // turn on temporarily if off:
   WiFi.mode(WIFI_STA);
+  turnWifiOff = true;
   delay(50);
 }
 
-void hwRngEnd() { WiFi.mode(WIFI_OFF); }
+void hwRngEnd() {
+  if (turnWifiOff) {
+    WiFi.mode(WIFI_OFF);
+    turnWifiOff = false;
+  }
+}
+
 #else
   #define hwRngBegin()
   #define hwRngEnd()
