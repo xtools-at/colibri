@@ -37,6 +37,7 @@
   "cSpell.words": [
     "Adafruit",
     "bech32",
+    "cbor",
     "Colibri",
     "colibriwallet",
     "Dogecoin",
@@ -154,6 +155,7 @@
     "xtensa_config.h": "c",
     "core.h": "c",
     "s3_supermini.h": "c",
-    "secp256k1.h": "c"
+    "secp256k1.h": "c",
+    "format": "cpp"
   }
 }

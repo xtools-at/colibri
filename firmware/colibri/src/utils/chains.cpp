@@ -33,8 +33,8 @@ const std::map<uint32_t, uint16_t> slip44ToPolkadotNetwork = {
 };
 
 /*
- * START ported and/or adapted code from Trezor firmware (originally licensed under GPL 3.0, see
- * `licenses/GPL-3.0.txt`):
+ * START ported and/or adapted code from Trezor firmware (licensed under GPL 3.0, see
+ * `licenses/Trezor.GPL-3.0.txt`):
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/crypto.c
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/coin_info.c.mako
 
@@ -227,7 +227,7 @@ const uint16_t getPolkadotNetwork(uint32_t slip44) {
 }
 
 // use seg=1 for BIP purpose, seg=2 for coin type, etc.
-uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg) {
+uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg, bool& isHardened) {
   std::string path = std::string(hdPath);
   size_t start = 0;
 
@@ -247,6 +247,10 @@ uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg) {
   std::string segmentStr = path.substr(start, end - start);
   uint32_t segment = strtoul(segmentStr.c_str(), nullptr, 10);
 
+  if (segmentStr.find('\'') != std::string::npos || segmentStr.find('h') != std::string::npos) {
+    isHardened = true;
+  }
+
   log_v(
       "extracted HD path segment #%d: %s -> %d / start: %d, end: %d", seg, segmentStr.c_str(),
       segment, start, end
@@ -256,6 +260,11 @@ uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg) {
   segmentStr.clear();
 
   return segment;
+}
+
+uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg) {
+  bool hardened = false;
+  return extractHdPathSegment(hdPath, seg, hardened);
 }
 
 uint32_t getSlip44(const char* hdPath) { return extractHdPathSegment(hdPath, 2); }

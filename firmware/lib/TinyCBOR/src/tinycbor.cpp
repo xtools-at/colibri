@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <cborjson.h>
 
-#ifdef ARDUINO
 static void tinycbor_initializer() {
   TinyCBOR.Encoder.set_encoders(TinyCBOR.encoders, (sizeof(TinyCBOR.encoders)/sizeof(TinyCBOR.encoders[0])) );
   TinyCBOR.Parser.set_values(TinyCBOR.values, (sizeof(TinyCBOR.values)/sizeof(TinyCBOR.values[0])) );
@@ -92,4 +91,3 @@ int TinyCBORParser::to_json(Print& print, int flags)
   return cbor_value_to_json_stream(print_printf, &print, &mValues[mNestLevel], flags);
 }
 
-#endif

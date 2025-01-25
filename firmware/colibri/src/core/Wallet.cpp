@@ -369,9 +369,9 @@ void Wallet::deleteHdNode() {
   hdPath.clear();
   xPubRoot.clear();
   xPubAccount.clear();
-  fingerprintRoot.clear();
-  fingerprintAccount.clear();
 
+  memzero(&pubkeyAccount, sizeof(pubkeyAccount));
+  memzero(&fingerprints, sizeof(fingerprints));
   memzero(&bipPurpose, sizeof(bipPurpose));
   memzero(&slip44, sizeof(slip44));
   memzero(&accountId, sizeof(accountId));
@@ -396,18 +396,14 @@ std::string Wallet::getXPub(HDNode* node, const char* inPath) {
 
   return newXPub;
 };
-std::string Wallet::getFingerprint(HDNode* node) {
+
+uint32_t Wallet::getFingerprint(HDNode* node) {
   // get fingerprint of node
   hdnode_fill_public_key(&hdNode);
   uint32_t fpNum = hdnode_fingerprint(&hdNode);
+  log_s("fingerprint: %d", fpNum);
 
-  // transform to hex
-  uint8_t fpBytes[4];
-  uint32ToBytes(fpNum, fpBytes);
-  std::string fp = toHex(fpBytes, 4, false);
-  log_s("fingerprint: %s", fp.c_str());
-
-  return fp;
+  return fpNum;
 };
 
 bool Wallet::setHdPath(const char* inPath) {
@@ -416,10 +412,9 @@ bool Wallet::setHdPath(const char* inPath) {
   }
 
   log_d("deriving root xpub...");
-  std::string xpubRoot = getXPub(&hdNode, inPath);
-  std::string fpRoot = getFingerprint(&hdNode);
-  std::string xpubAcc;
-  std::string fpAcc;
+  xPubRoot = getXPub(&hdNode, inPath);
+  fingerprints[0] = getFingerprint(&hdNode);
+  log_s("fingerprint #0: %d (root)", fingerprints[0]);
 
   // copy the HD path to a modifiable string
   log_i("setting hd path: %s", inPath);
@@ -463,27 +458,25 @@ bool Wallet::setHdPath(const char* inPath) {
     }
     token = strtok(nullptr, "/");
 
+    i++;
+
+    // save account pubkey and xpub after setting path
     if (i == 3) {
-      // save account xpub after setting path
       log_d("deriving account xpub...");
-      xpubAcc = getXPub(&hdNode, inPath);
-      fpAcc = getFingerprint(&hdNode);
+      xPubAccount = getXPub(&hdNode, inPath);
+      memcpy(pubkeyAccount, hdNode.public_key, PUBLICKEY_LENGTH);
     }
 
-    i++;
+    // save current fingerprint
+    if (i < 7) fingerprints[i] = getFingerprint(&hdNode);
+    log_s("fingerprint #%d: %d", i, fingerprints[i]);
   }
 
-  // save path, xpub and public key
+  // save path, fill final public key
   hdnode_fill_public_key(&hdNode);
   log_d("selected wallet pubkey: %s", toHex((&hdNode)->public_key, PUBLICKEY_LENGTH, true).c_str());
   hdPath = std::string(inPath);
   hdPathDepth = i + 1;
-  xPubRoot = xpubRoot;
-  fingerprintRoot = fpRoot;
-  if (hdPathDepth > 2) {
-    xPubAccount = xpubAcc;
-    fingerprintAccount = fpAcc;
-  }
 
   return true;
 }

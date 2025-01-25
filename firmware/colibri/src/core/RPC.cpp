@@ -91,7 +91,7 @@ void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
 
   // return xpub, fingerprint
   resultsArray.add(wallet.xPubRoot);
-  resultsArray.add(wallet.fingerprintRoot);
+  resultsArray.add(wallet.fingerprints[0]);
 }
 
 void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
@@ -103,7 +103,7 @@ void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
 
   // return xpub, fingerprint
   resultsArray.add(wallet.xPubAccount);
-  resultsArray.add(wallet.fingerprintAccount);
+  resultsArray.add(wallet.fingerprints[3]);
 }
 
 void wipe(const JsonDocument& request, JsonDocument& response) {

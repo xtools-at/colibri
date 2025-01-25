@@ -66,7 +66,7 @@ const char RPC_RESULT_ADD_MNEMONIC[] = "number: wallet id";
 const char RPC_RESULT_SELECTED_WALLET[] =
     "[number: wallet id, number: chain type (1=BTC|2=ETH), string: address, string: pubkey, "
     "string: hdPath]";
-const char RPC_RESULT_EXPORT_XPUB[] = "[string: xpub, string: fingerprint]";
+const char RPC_RESULT_EXPORT_XPUB[] = "[string: xpub, number: fingerprint]";
 const char RPC_RESULT_STATUS[] = "[bool: unlocked, bool: key set, bool: password set]";
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, string: display type, number: "
@@ -109,3 +109,10 @@ const char STORAGE_SYS_CHECKSUM[] = "cks";
 // ===== BLE ===== //
 const char BLE_INPUT_DEFAULT_MSG[] = "Input JSON-RPC";
 const char BLE_OUTPUT_DEFAULT_MSG[] = "Output JSON-RPC";
+
+// ===== BC-UR ===== //
+const char UR_PREFIX[] = "ur:";
+const char UR_TYPE_HDKEY[] = "crypto-hdkey";
+const char UR_TYPE_ACCOUNT[] = "crypto-account";
+const char UR_TYPE_ETH_SIGNATURE[] = "eth-signature";
+const char UR_TYPE_ETH_SIGN_REQUEST[] = "eth-sign-request";
