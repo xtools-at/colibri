@@ -1,3 +1,9 @@
+# ElegantOTA
+
+Forked and trimmed version of the open source version of _ElegantOTA v3_ (AGPL-3.0) for [Colibri.diy](https://colibri.diy).
+
+---
+
 <p align="center">
   <a href="https://elegantota.pro?ref=ghfeature" target="_blank">
     <img src="https://raw.githubusercontent.com/ayushsharma82/ElegantOTA/master/docs/feature.png" width="1200"></p>
@@ -41,7 +47,7 @@ ElegantOTA works on the following microcontrollers/boards:
 - ESP8266
 - ESP32
 - RP2040 ( Pico W )
-- *( more coming soon )*
+- _( more coming soon )_
 
 <br/>
 <br/>
@@ -56,7 +62,8 @@ ElegantOTA works on the following microcontrollers/boards:
 <br>
 
 ## Open-Source Preview
-*Preview might appear as blurry due to image optimization.*
+
+_Preview might appear as blurry due to image optimization._
 <br>
 
 <img src="https://raw.githubusercontent.com/ayushsharma82/ElegantOTA/master/docs/demo.gif" width="600">
@@ -67,6 +74,7 @@ ElegantOTA works on the following microcontrollers/boards:
 ## Looking for more? Upgrade to Pro.
 
 ElegantOTA Pro comes with the following extended functionality:
+
 - New Drag & Drop Zone
 - Disable certain OTA modes
 - Hardware ID & Firmware Version on portal

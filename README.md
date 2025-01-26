@@ -109,15 +109,7 @@ Valuable extensions to the project, once the core product is functional:
 
 Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the contents of the Colibri monorepo are _copyright © 2024-2025 by Colibri contributors_, and are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License.
 
-The names "Colibri", "Colibri.diy" and "Colibri Wallet", as well as the Colibri logo are copyright © 2024 by [xtools-at](https://github.com/xtools-at), and are licensed under [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0) - Creative Commons Attribution-NonCommercial 4.0.
-
-The Colibri firmware additionally includes the following open-source libraries:
-
-- [trezor-crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/src/LICENSE)) and [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Trezor.GPL-3.0.txt))
-- Blockstream [ESP32 bc-ur lib](https://github.com/Blockstream/esp32_bc-ur/tree/0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d) ([BSD-2-Clause-Patent](https://github.com/xtools-at/colibri/blob/main/firmware/lib/esp32_bc-ur-Arduino/LICENSE)) and [Jade firmware](https://github.com/Blockstream/Jade/tree/348f972c77314fd6e2fc170d43168fef3cf65cf1/main) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Blockstream.MIT.txt))
-- [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
-- [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
-- [TinyCBOR for Arduino](https://github.com/soburi/tinycbor) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TinyCBOR/LICENSE))
+The names "Colibri", "Colibri.diy" and "Colibri Wallet", as well as the Colibri logo are _copyright © 2024 by [xtools-at](https://github.com/xtools-at)_, and are licensed under [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0) - Creative Commons Attribution-NonCommercial 4.0.
 
 ### Disclaimer
 

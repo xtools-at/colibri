@@ -34,6 +34,7 @@
   #define INTERFACE_BLE_NIMBLE
   #define INTERFACE_USB_HID
   #define INTERFACE_QR
+  #define OTA_ENABLED
   #warning "Please compile this project in a recent version of Arduino IDE"
 #endif
 
@@ -53,10 +54,16 @@
 #include "types.h"
 
 // ========== System ========== //
-#define HW_MANUFACTURER_NAME "Colibri"
-#define HW_DEVICE_NAME "Colibri DIY"
-#define HW_FIRMWARE_VERSION "0.0.5"
-#define HW_FIRMWARE_VERSION_NUM 5  // e.g. 30201 == "3.2.1"
+#ifndef HW_MANUFACTURER_NAME
+  #define HW_MANUFACTURER_NAME "Colibri"
+#endif
+#ifndef HW_DEVICE_NAME
+  #define HW_DEVICE_NAME "Colibri DIY"
+#endif
+#ifndef HW_FIRMWARE_VERSION
+  #define HW_FIRMWARE_VERSION "0.0.5"
+  #define HW_FIRMWARE_VERSION_NUM 5  // e.g. 30201 == "3.2.1"
+#endif
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).
@@ -180,19 +187,6 @@
   #define NVS_PARTITION_NAME "nvs"
 #endif
 
-// - self-destruct
-#ifndef SELF_DESTRUCT_ENABLED
-  #define SELF_DESTRUCT_ENABLED false
-#endif
-
-#ifndef SELF_DESTRUCT_MAX_FAILED_ATTEMPTS
-  #define SELF_DESTRUCT_MAX_FAILED_ATTEMPTS 10
-#endif
-
-#if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
-  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be >= 3"
-#endif
-
 // - ESP32 hardware RNG depends on antenna activity
 #if (defined(INTERFACE_BLE_DISABLED))
   #warning "BLE disabled, bundling `WiFi` library as a fallback for true RNG instead"
@@ -303,6 +297,9 @@
 #define XPUB_LENGTH 111
 #define MAX_HDPATH_LENGTH 59  // (5 * 10) + 9
 #define MAX_ADDRESS_LENGTH 93  // in chars
+#ifndef DEFAULT_HD_PATH
+  #define DEFAULT_HD_PATH "m/44'/60'/0'/0/0"
+#endif
 
 // Keystore
 #define MIN_PASSPHRASE_LENGTH 12
@@ -314,6 +311,9 @@
    STORAGE_SIZE_LOGIN_ATTEMPTS /* login attempts */ + 64 /* buffer for NVS ids & -metadata */)
 #define MAX_STORED_KEYS \
   ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
+#ifndef DEFAULT_MNEMONIC_WORDS
+  #define DEFAULT_MNEMONIC_WORDS 24
+#endif
 
 // Timeouts
 // - approvals
@@ -332,11 +332,46 @@
   #error "TIMEOUT_INACTIVITY_LOCK must be >= 20000ms (20s)"
 #endif
 
+// Self-destruct
+#ifndef SELF_DESTRUCT_ENABLED
+  #define SELF_DESTRUCT_ENABLED false
+#endif
+
+#ifndef SELF_DESTRUCT_MAX_FAILED_ATTEMPTS
+  #define SELF_DESTRUCT_MAX_FAILED_ATTEMPTS 10
+#endif
+
+#if (SELF_DESTRUCT_MAX_FAILED_ATTEMPTS < 3 && SELF_DESTRUCT_ENABLED)
+  #error "SELF_DESTRUCT_MAX_FAILED_ATTEMPTS must be >= 3"
+#endif
+
 // ========== Interfaces config ========== //
 // - BLE service config
 #ifndef BLE_SERVER_NAME
   #define BLE_SERVER_NAME HW_DEVICE_NAME
 #endif
+#ifndef BLE_PAIRING_KEY
+  #define BLE_PAIRING_KEY 200913
+#endif
 #define BLE_SERVICE_UUID "31415926-5358-9793-2384-626433832795"
 #define BLE_CHARACTERISTIC_INPUT "C001"
 #define BLE_CHARACTERISTIC_OUTPUT "C000"
+
+// - OTA
+#if !defined(OTA_ENABLED) && !defined(OTA_DISABLED)
+// #define OTA_ENABLED  // experimental feature, disabled by default for now
+#endif
+#ifndef OTA_WIFI_SSID
+  #define OTA_WIFI_SSID "Colibri OTA Update"
+#endif
+#ifndef OTA_WIFI_PASSWORD
+  #define OTA_WIFI_PASSWORD "ColibriOTAUpdate"
+#endif
+#ifndef OTA_DNS_NAME
+  #define OTA_DNS_NAME "colibri"
+#endif
+#ifndef OTA_PAGE_TITLE
+  #define OTA_PAGE_TITLE "Colibri OTA Update"
+#endif
+#define OTA_WIFI_CHANNEL 6
+#define OTA_MAX_CLIENTS 1

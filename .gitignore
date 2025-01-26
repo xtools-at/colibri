@@ -26,6 +26,7 @@ launch.json
 
 # custom
 tmp/
+tmp.*
 *.xx
 
 # library files
