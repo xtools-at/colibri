@@ -70,8 +70,8 @@ $ echo "Developers only!"
   - Or set your own board configuration below (configure at least the pins for `LED_GPIO` and `BUTTON_GPIO_OK`)
 
 - Make sure your board is connected and the right _board type_ and _port_ are selected in Arduino IDE
+- Set `Tools > Partition Scheme > Minimal SPIFFS` in Arduino IDE to make sure we have enough memory available for our firmware
 - Click on "Upload" to build and flash Colibri
-- In case the compiled sketch exceeds your board's memory, try setting `Tools > Partition Scheme > Minimal SPIFFS` and recompile.
 
 #### Debug builds
 

@@ -6,7 +6,11 @@
 
 (TODO: date)
 
-- `*` App: Static webapp for [colibri.diy](https://colibri.diy) for device setup and docs
+- `*` App: TODO: Static webapp for [colibri.diy](https://colibri.diy) for device setup and docs
+- `+` Wallet: Account pubkey + xpub derivation
+- `+` Core: improved configuration schema
+- `!` Wallet: experimental base [BC-UR](https://github.com/BlockchainCommons/bc-ur) integration
+- `!` Core: experimental base _OTA firmware update_ integration
 
 ## v0.0.4
 
