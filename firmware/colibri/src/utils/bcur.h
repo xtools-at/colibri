@@ -9,6 +9,8 @@
   #include <cencoder.h>
   #include <tinycbor.h>
 
+  #include <bc-ur.hpp>
+
   #include "../../constants.h"
   #include "./chains.h"
 
@@ -16,18 +18,25 @@ extern "C" {
   #include <bip32.h>
 }
 
-std::vector<std::string> getUrHdKey(
-    HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath, uint8_t hdPathDepth,
-    const uint32_t fingerprints[7]
-);
-std::vector<std::string> getUrAccount(
-    HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath, uint8_t hdPathDepth,
-    const uint32_t fingerprints[7]
+using namespace ur;
+
+UR getUrHdKey(
+    HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath,
+    uint8_t hdPathDepth, const uint32_t fingerprints[7]
 );
 
-std::vector<std::string> getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16] = {0});
+UR getUrAccount(
+    HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath,
+    uint8_t hdPathDepth, const uint32_t fingerprints[7]
+);
 
-// bool decodeEthSignRequest();
+UR getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16] = {0});
+
+UREncoder getUREncoder(UR &ur, size_t maxFragmentLen = 114);
+
+void parseUr(UR &ur);  // TODO: implement request parsing
+
+/*
 struct EthSignRequest {
   std::vector<uint8_t> signData;
   uint32_t dataType;
@@ -37,26 +46,6 @@ struct EthSignRequest {
   std::vector<uint8_t> address;  // optional
   std::string origin;  // optional
 };
-
-class BcUrDecoder {
- public:
-  const char *urType;
-
-  BcUrDecoder();
-  virtual ~BcUrDecoder() = default;
-  void init();
-  bool addFragment(const std::string &fragment);
-  bool isComplete() const;
-  std::vector<uint8_t> decode();
-
- protected:
-  uint8_t decoderCtx[URDECODER_SIZE];
-};
-
-class EthSignRequestDecoder : public BcUrDecoder {
- public:
-  EthSignRequestDecoder() : BcUrDecoder() {};
-  EthSignRequest parseRequest();
-};
+*/
 
 #endif

@@ -5,55 +5,25 @@
 /*
  * For more information on the BC-UR specification and the EIP-4527 extension, see also:
  * - https://developer.blockchaincommons.com/ur/
+ * - https://github.com/BlockchainCommons/bc-ur
  * - https://eips.ethereum.org/EIPS/eip-4527
  */
 
 #include "bcur.h"
 
 #ifdef INTERFACE_QR
+
 /*
  * START ported and/or adapted code from Jade wallet firmware (licensed under MIT, see
  * `licenses/Blockstream.MIT.txt`):
  * https://github.com/Blockstream/Jade/blob/348f972c77314fd6e2fc170d43168fef3cf65cf1/main/bcur.c
  */
-
   #define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
     (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
-
   #define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
 
-static std::vector<std::string> createUr(const char *urType, uint8_t *cbor, size_t cborLen) {
-  // create UR
-  uint8_t urEncoder[URENCODER_SIZE];
-  urcreate_placement_encoder(
-      urEncoder, sizeof(urEncoder), urType, cbor, cborLen, BCUR_MAX_FRAGMENT_SIZE(114, urType), 0, 8
-  );  // 114 -> QR code v4 max capacity
-  const size_t min_num_fragments =
-      urseqlen_encoder(urEncoder);  // the number of 'pure' data fragments
-  const size_t num_fragments =
-      BCUR_NUM_FRAGMENTS(min_num_fragments);  // add some fountain-code fragments
-  // ASSERT(num_fragments >= min_num_fragments);
-
-  // encode all fragments
-  const bool forceUppercase = true;
-  std::vector<std::string> ursVector;
-  for (int i = 0; i < num_fragments; ++i) {
-    char *fragment = NULL;
-    urnext_part_encoder(urEncoder, forceUppercase, &fragment);
-
-    // push encoded fragment into vector
-    log_d("Encoded UR fragment #%d: %s", i, fragment);
-    ursVector.push_back(std::string(fragment));
-
-    // free memory
-    urfree_encoded_encoder(fragment);
-  }
-
-  return ursVector;
-}
-
 static void encodeHdKey(
-    CborEncoder *encoder, HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH],
+    CborEncoder *encoder, HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH],
     std::string &hdPath, uint8_t hdPathDepth, const uint32_t fingerprints[7]
 ) {
   // init key map
@@ -126,34 +96,37 @@ static void encodeScriptVariantTag(CborEncoder *encoder, const uint32_t bipPurpo
       cbor_encode_tag(encoder, 400);
       cbor_encode_tag(encoder, 404);
       break;
-    default:  // 44 / P2PKH
+    default:  // case 44: P2PKH
       cbor_encode_tag(encoder, 403);
+      break;
   }
 }
 
-std::vector<std::string> getUrHdKey(
+UR getUrHdKey(
     HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath, uint8_t hdPathDepth,
     const uint32_t fingerprints[7]
 ) {
   uint8_t cbor[128];
-
   CborEncoder encoder;
   cbor_encoder_init(&encoder, cbor, sizeof(cbor), 0);
 
   encodeHdKey(&encoder, node, pubkeyAccount, hdPath, hdPathDepth, fingerprints);
 
-  // get CBOR length
+  // create UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
+  UR ur(std::string(UR_TYPE_HDKEY), ByteVector(cbor, cbor + cborLen));
 
-  return createUr(UR_TYPE_HDKEY, cbor, cborLen);
+  urfree_encoder(&encoder);
+
+  return ur;
 }
 
-std::vector<std::string> getUrAccount(
-    HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath, uint8_t hdPathDepth,
-    const uint32_t fingerprints[7]
+UR getUrAccount(
+    HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath,
+    uint8_t hdPathDepth, const uint32_t fingerprints[7]
 ) {
-  CborEncoder encoder;
   uint8_t cbor[128];
+  CborEncoder encoder;
   cbor_encoder_init(&encoder, cbor, 128, 0);
   {
     // Fingerprint and list of output descriptors
@@ -180,24 +153,31 @@ std::vector<std::string> getUrAccount(
 
       // Close the array
       e = cbor_encoder_close_container(&root_map_encoder, &key_array_encoder);
+      urfree_encoder(&key_array_encoder);
     }
 
     // Close the root map
     e = cbor_encoder_close_container(&encoder, &root_map_encoder);
     // ASSERT(e == CborNoError);
+    urfree_encoder(&root_map_encoder);
   }
-  size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
 
-  return createUr(UR_TYPE_ACCOUNT, cbor, cborLen);
+  // create UR object
+  size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
+  UR ur(std::string(UR_TYPE_ACCOUNT), ByteVector(cbor, cbor + cborLen));
+
+  urfree_encoder(&encoder);
+
+  return ur;
 }
 
 /*
  * END ported code from Jade Wallet firmware
  */
 
-std::vector<std::string> getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16]) {
-  CborEncoder encoder;
+UR getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16]) {
   uint8_t cbor[128];
+  CborEncoder encoder;
 
   // init
   cbor_encoder_init(&encoder, cbor, 128, 0);
@@ -215,60 +195,33 @@ std::vector<std::string> getUrEthSignature(const uint8_t *signature, const uint8
   // close
   e = cbor_encoder_close_container(&encoder, &key_map_encoder);
 
-  // get CBOR length
+  // get UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
+  UR ur(std::string(UR_TYPE_ETH_SIGNATURE), ByteVector(cbor, cbor + cborLen));
 
-  return createUr(UR_TYPE_ETH_SIGNATURE, cbor, cborLen);
+  urfree_encoder(&encoder);
+  urfree_encoder(&key_map_encoder);
+
+  return ur;
 }
 
-/*
- * UR decoding
- */
-BcUrDecoder::BcUrDecoder() { init(); }
-
-void BcUrDecoder::init() { urcreate_placement_decoder(&decoderCtx, URDECODER_SIZE); }
-
-bool BcUrDecoder::addFragment(const std::string &fragment) {
-  if (isComplete()) {
-    return false;
-  }
-
-  // check if BC-UR fragment
-  const size_t prefixLen = strlen(UR_PREFIX);
-  if (fragment.length() <= prefixLen ||
-      std::equal(
-          fragment.begin(), fragment.begin() + prefixLen, UR_PREFIX, UR_PREFIX + prefixLen,
-          [](char a, char b) { return tolower(a) == tolower(b); }
-      )) {
-    return false;
-  }
-
-  // receive BC-UR fragment
-  return urreceive_part_decoder(decoderCtx, fragment.c_str()) == 0;
+UREncoder getUREncoder(UR &ur, size_t maxFragmentLen) {
+  return UREncoder(ur, BCUR_MAX_FRAGMENT_SIZE(maxFragmentLen, ur.type().c_str()), 0, 8);
 }
 
-bool BcUrDecoder::isComplete() const {
-  bool complete = uris_complete_decoder((uint8_t *)decoderCtx);
+// ========= UR Decoding =========
 
-  return complete;
-}
+// TODO: `eth-sign-request`
+static void parseEthSignRequest(UR &ur) {
+  // init parser
+  CborParser parser;
+  CborValue value;
+  cbor_parser_init(ur.cbor().data(), ur.cbor().size(), 0, &parser, &value);
 
-std::vector<uint8_t> BcUrDecoder::decode() {
-  if (!isComplete()) {
-    return std::vector<uint8_t>();
-  }
+  // open map
+  CborValue map;
+  cbor_value_enter_container(&value, &map);
 
-  uint8_t *data;
-  size_t dataLen;
-  urresult_ur_decoder(&decoderCtx, &data, &dataLen, &urType);
-
-  urfree_placement_decoder(&decoderCtx);
-
-  return std::vector<uint8_t>(data, data + dataLen);
-}
-
-static void parseEthSignRequest(CborValue &map, EthSignRequest &request) {
-  // `eth-sign-request`
   while (!cbor_value_at_end(&map)) {
     uint64_t key;
     cbor_value_get_uint64(&map, &key);
@@ -282,7 +235,7 @@ static void parseEthSignRequest(CborValue &map, EthSignRequest &request) {
         cbor_value_get_string_length(&map, &len);
         uint8_t data[len];
         cbor_value_copy_byte_string(&map, data, &len, NULL);
-        request.signData = std::vector<uint8_t>(data, data + len);
+        // request.signData = std::vector<uint8_t>(data, data + len);
         break;
       }
       case 3:  // data-type: integer // 1 = legacy tx; 2 = typed data; 3 = message; 4 = typed tx
@@ -300,40 +253,30 @@ static void parseEthSignRequest(CborValue &map, EthSignRequest &request) {
   }
 }
 
-EthSignRequest EthSignRequestDecoder::parseRequest() {
-  EthSignRequest request;
-  CborParser parser;
-  CborValue value;
+void parseUr(UR &ur) {
+  const char *urType = ur.type().c_str();
 
-  if (!isComplete()) {
-    return request;
+  // parse different action types
+  if (!strncasecmp(urType, UR_TYPE_ETH_SIGN_REQUEST, sizeof(UR_TYPE_ETH_SIGN_REQUEST))) {
+    parseEthSignRequest(ur);
+  } else {
+    // unknown type
   }
-
-  std::vector<uint8_t> cbor = decode();
-
-  cbor_parser_init(cbor.data(), cbor.size(), 0, &parser, &value);
-
-  CborValue map;
-  cbor_value_enter_container(&value, &map);
-
-  // check UR type and parse accordingly
-  if (strncasecmp(urType, UR_TYPE_ETH_SIGNATURE, sizeof(UR_TYPE_ETH_SIGNATURE)) == 0) {
-    parseEthSignRequest(map, request);
-  }
-
-  return request;
 }
 
 /*
-// Example usage
-void processUrFragment(const std::string &fragment) {
-  static EthSignRequestDecoder decoder;
+void howToUse() {
+  // init, add parts
+  URDecoder urDecoder;
+  urDecoder.receive_part("ur:foo/2345");
+  urDecoder.receive_part("ur:foo/6789");
 
-  if (decoder.addFragment(fragment)) {
-    if (decoder.isComplete()) {
-      EthSignRequest request = decoder.parseRequest();
-      // Process request
-    }
+  // create UR object if complete
+  if (urDecoder.is_complete()) {
+    if (urDecoder.is_failure()) return;
+
+    const UR ur = urDecoder.result_ur();
+    parseUr(ur);
   }
 }
 */
