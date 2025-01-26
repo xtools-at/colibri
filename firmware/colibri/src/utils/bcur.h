@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#include <cdecoder.h>
-#include <cencoder.h>
-#include <tinycbor.h>
-
 #include "../../config.h"
-#include "../../constants.h"
-#include "./chains.h"
+
+#ifdef INTERFACE_QR
+
+  #include <cdecoder.h>
+  #include <cencoder.h>
+  #include <tinycbor.h>
+
+  #include "../../constants.h"
+  #include "./chains.h"
 
 extern "C" {
-#include <bip32.h>
+  #include <bip32.h>
 }
 
 std::vector<std::string> getUrHdKey(
@@ -55,3 +58,5 @@ class EthSignRequestDecoder : public BcUrDecoder {
   EthSignRequestDecoder() : BcUrDecoder() {};
   EthSignRequest parseRequest();
 };
+
+#endif

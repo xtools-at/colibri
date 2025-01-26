@@ -71,8 +71,7 @@ $ echo "Developers only!"
 
 - Make sure your board is connected and the right _board type_ and _port_ are selected in Arduino IDE
 - Click on "Upload" to build and flash Colibri
-
-In case the compiled sketch exceeds your board's memory, try setting `Tools > Partition Scheme > Huge App`or `> Minimal SPIFFS` and recompile.
+- In case the compiled sketch exceeds your board's memory, try setting `Tools > Partition Scheme > Minimal SPIFFS` and recompile.
 
 #### Debug builds
 
@@ -198,3 +197,16 @@ For any kind of JS/TS `packages` or `apps` (e.g. SDK, Webapp):
 - (more instructions are coming once there's something to build)
 
 Finally, open a PR with your changes. Don't forget to update `README` and `CHANGELOG`, and to put yourself on the `CONTRIBUTORS` list :)
+
+---
+
+## License
+
+Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the Colibri firmware is _copyright © 2024-2025 by Colibri contributors_, and is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License. It includes the following open-source libraries:
+
+- [trezor-crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/src/LICENSE)) and [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Trezor.GPL-3.0.txt))
+- Blockstream [ESP32 bc-ur lib](https://github.com/Blockstream/esp32_bc-ur/tree/0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d) ([BSD-2-Clause-Patent](https://github.com/xtools-at/colibri/blob/main/firmware/lib/esp32_bc-ur-Arduino/LICENSE)) and [Jade firmware](https://github.com/Blockstream/Jade/tree/348f972c77314fd6e2fc170d43168fef3cf65cf1/main) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Blockstream.MIT.txt))
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
+- [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
+- [TinyCBOR for Arduino](https://github.com/soburi/tinycbor) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TinyCBOR/LICENSE))
+- [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA) ([AGPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/src/core/ota/ElegantOTA/LICENSE))

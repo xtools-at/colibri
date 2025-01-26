@@ -48,6 +48,7 @@ AsyncLed led = AsyncLed(LED_GPIO);
 // state tracking
 bool isHot = false;
 bool isBusy = false;
+bool otaActive = false;
 Connection connection = NotConnected;
 
 void setup() {

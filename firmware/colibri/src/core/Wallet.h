@@ -2,6 +2,7 @@
 #pragma once
 
 #include <ArduinoJson.h>
+#include <esp_system.h>
 
 #include "../../config.h"
 #include "../signers/bitcoin.h"
@@ -12,7 +13,6 @@
 #include "../utils/chains.h"
 #include "../utils/crypto.h"
 #include "Storage.h"
-#include "esp_system.h"
 
 extern Storage store;
 

@@ -9,22 +9,29 @@ extern Wallet wallet;
 static void checkForGesture() {
   if (isHot) return;
 
-  // check for lock/reboot request
+  // check for lock/OTA request
   if (buttonCancel.isLongPressed()) {
     bool isLocked = wallet.isLocked();
 
-    if (isLocked) {
-      log_i("Rebooting device\n");
-      esp_restart();
-    } else {
-      log_i("Locking device\n");
+    if (!isLocked) {
+      log_i("Locking device");
       wallet.lock();
+#ifdef OTA_ENABLED
+    } else if (!otaActive) {
+      otaInit();
+      led_blink(100, 100, RgbColor::Busy);
+#endif
+    } else {
+      log_i("Rebooting device");
+      led_turnOn(RgbColor::Warning);
+      delay(500);
+      esp_restart();
     }
   }
 
   // check for wipe request
   if (buttonCancel.isMultiPressed(10)) {
-    log_i("Device wipe initiated\n");
+    log_i("Device wipe initiated");
     if (!waitForApproval(RgbColor::Warning)) {
       return;
     }
@@ -71,6 +78,10 @@ static void updateLed() {
 }
 
 void updateUi() {
+  if (otaActive) {
+    otaUpdate();
+  }
+
   updateButtons();
   updateLed();
   checkForGesture();

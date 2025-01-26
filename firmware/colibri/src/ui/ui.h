@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include <esp_system.h>
+
 #include "../../config.h"
+#include "../core/ota/ota.h"
 #include "AsyncButton.h"
 #include "AsyncLed.h"
-#include "esp_system.h"
 #ifdef DISPLAY_ENABLED
 // #include "Display.h"
 #endif
@@ -20,6 +22,7 @@ extern AsyncLed led;
 #endif
 extern bool isHot;
 extern bool isBusy;
+extern bool otaActive;
 extern Connection connection;
 
 void updateUi();
