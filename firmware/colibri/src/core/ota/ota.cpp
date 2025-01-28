@@ -79,6 +79,8 @@ void initOta() {
 void stopOta() {
   WiFi.mode(WIFI_OFF);
   server.stop();
+  MDNS.end();
+
   initInterfaces();
 }
 
