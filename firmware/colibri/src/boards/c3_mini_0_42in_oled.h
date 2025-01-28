@@ -5,11 +5,11 @@
 
 // Onboard 0.42" OLED display config
 #define DISPLAY_ENABLED
-#define DISPLAY_SSD1306_I2C
+#define DISPLAY_SSD1306
 
 #define DISPLAY_WIDTH 40
 #define DISPLAY_HEIGHT 72
 
-#define DISPLAY_I2C
+#define DISPLAY_USE_I2C
 #define DISPLAY_GPIO_I2C_SDA 5
 #define DISPLAY_GPIO_I2C_SCL 6

@@ -65,17 +65,18 @@ void setup() {
   log_printf("> Serial debug log level: %d\n", CORE_DEBUG_LEVEL);
 #endif
 
-  // display setup and boot screen
-  // TODO
+  // display setup & boot screen
+  initDisplay();
 
+  // rpc setup
   rpc.init();
   delay(50);
 
+  // interfaces setup
   initInterfaces();
   delay(100);
 
-  // show version screen
-  // TODO
+  // TODO: show start screen
 }
 
 void loop() {

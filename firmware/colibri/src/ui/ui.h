@@ -8,7 +8,7 @@
 #include "AsyncButton.h"
 #include "AsyncLed.h"
 #ifdef DISPLAY_ENABLED
-// #include "Display.h"
+  #include "./gui/Display.h"
 #endif
 
 extern AsyncButton buttonOk;

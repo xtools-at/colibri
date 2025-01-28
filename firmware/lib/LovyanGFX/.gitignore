@@ -1,0 +1,16 @@
+doc/
+examples*/
+src/LGFX_AUTODETECT*.hpp
+src/lgfx/Fonts/efont*/
+src/lgfx/Fonts/IPA*/
+src/lgfx/v1_autodetect*/
+src/lgfx/v1/platforms/esp8266*/
+src/lgfx/v1/platforms/framebuffer*/
+src/lgfx/v1/platforms/opencv*/
+src/lgfx/v1/platforms/samd21*/
+src/lgfx/v1/platforms/samd51*/
+src/lgfx/v1/platforms/stm32*/
+src/lgfx/v1/platforms/spresense*/
+src/lgfx/v1/platforms/rp2040*/
+src/lgfx/v1/platforms/sdl*/
+src/lgfx_user/

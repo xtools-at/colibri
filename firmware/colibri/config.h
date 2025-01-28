@@ -18,26 +18,9 @@
  */
 #pragma once
 
-// VSCode shims to make IntelliSense work mostly
-#if (!defined(COLIBRI_PIO_BUILD) && (!defined(ARDUINO) || ARDUINO < 100))
-  #undef ARDUINO
-  #define ARDUINO 20320
-  #define ARDUINO_ARCH_ESP32
-  #define ARDUINO_BOARD "esp32dev"
-  #define ARDUINO_USB_MODE 0
-  #define ESP32
-  #define ESP_PLATFORM
-  #define CONFIG_IDF_TARGET "esp32s3"
-  #define CORE_DEBUG_LEVEL 4
-  #define __XTENSA__
-  #define INTERFACE_BLE_ARDUINO
-  #define INTERFACE_BLE_NIMBLE
-  #define INTERFACE_USB_HID
-  #define INTERFACE_QR
-  #define OTA_ENABLED
-  #warning "Please compile this project in a recent version of Arduino IDE"
-#endif
-
+// include VSCode IntelliSense shims
+#include "vscode.h"
+// include Arduino core
 #include <Arduino.h>
 
 /*
@@ -268,9 +251,66 @@
   #define BUTTON_LAYOUT_EXTRA_UP_DOWN
 #endif
 
-// Display types
+/// ========== Displays ========== //
+#if defined(DISPLAY_ENABLED) && (!defined(DISPLAY_WIDTH) || !defined(DISPLAY_HEIGHT))
+  #error "Incomplete display configuration, check `config_board.h`"
+#endif
+
+// defaults
+#ifndef DISPLAY_ROTATION
+  #define DISPLAY_ROTATION 1
+#endif
+#ifndef DISPLAY_INVERT
+  #define DISPLAY_INVERT false
+#endif
+#ifndef DISPLAY_BRIGHTNESS
+  #define DISPLAY_BRIGHTNESS 200
+#endif
+#ifndef DISPLAY_COLOR_DEPTH
+  #define DISPLAY_COLOR_DEPTH 16
+#endif
+#ifndef DISPLAY_GPIO_CS
+  #define DISPLAY_GPIO_CS -1
+#endif
+#ifndef DISPLAY_GPIO_BACKLIGHT
+  #define DISPLAY_GPIO_BACKLIGHT -1
+#endif
+#ifndef DISPLAY_GPIO_RST
+  #define DISPLAY_GPIO_RST -1
+#endif
+#ifndef DISPLAY_OFFSET_X
+  #define DISPLAY_OFFSET_X 0
+#endif
+#ifndef DISPLAY_OFFSET_Y
+  #define DISPLAY_OFFSET_Y 0
+#endif
+#ifndef DISPLAY_OFFSET_ROTATION
+  #define DISPLAY_OFFSET_ROTATION 0
+#endif
+// - SPI TODO:
+#ifndef DISPLAY_GPIO_SPI_MOSI
+  #define DISPLAY_GPIO_SPI_MOSI 3
+#endif
+#ifndef DISPLAY_GPIO_SPI_MISO
+  #define DISPLAY_GPIO_SPI_MISO -1
+#endif
+#ifndef DISPLAY_GPIO_SPI_SCLK
+  #define DISPLAY_GPIO_SPI_SCLK 2
+#endif
+#ifndef DISPLAY_GPIO_SPI_DC
+  #define DISPLAY_GPIO_SPI_DC 6
+#endif
+// - I2C TODO:
+#ifndef DISPLAY_GPIO_I2C_SDA
+  #define DISPLAY_GPIO_I2C_SDA 5
+#endif
+#ifndef DISPLAY_GPIO_I2C_SCL
+  #define DISPLAY_GPIO_I2C_SCL 6
+#endif
+
+// display type categories:
 #ifndef DISPLAY_TYPE_ID
-  #if (!defined(DISPLAY_ENABLED) || !defined(DISPLAY_WIDTH))
+  #if (!defined(DISPLAY_ENABLED))
     #define DISPLAY_TYPE_ID 0  // No screen
     #define DISPLAY_TYPE "No display"
   #elif (DISPLAY_WIDTH < 80)

@@ -27,13 +27,14 @@ launch.json
 # custom
 tmp/
 tmp.*
+*.tmp.*
 *.xx
 
 # library files
-firmware/lib/**/examples/**
+firmware/lib/**/examples*/**
 firmware/lib/**/extras/**
 firmware/lib/**/tests/**
-firmware/lib/**/docs/**
+firmware/lib/**/doc*/**
 
 # experimental files and folders
 firmware/vendor

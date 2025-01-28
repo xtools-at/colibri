@@ -12,7 +12,7 @@
 // #include "src/boards/s3_supermini.h";
 // #include "src/boards/s3_wroom_camera.h";
 
-// - Boards with displays: (TODO: displays not supported yet!)
+// - Boards with displays:
 // #include "src/boards/32_t3display_1_14in_lcd.h";
 // #include "src/boards/c3_mini_0_42in_oled.h";
 
@@ -22,6 +22,7 @@
 // #include "src/boards/h2_supermini.h";
 // #include "src/boards/s2_wemos_d1mini.h";
 
+//*/
 // >>>> ...OR set up custom board below:
 
 // ========== CUSTOM BOARD CONFIG ========== //
@@ -45,51 +46,54 @@
 // #define BUTTON_PUSHED LOW
 // #define LED_ON HIGH
 
-// !! TODO: The following has not yet been implemented: !!
-
 // ========== DISPLAY CONFIG ========== //
 // #define DISPLAY_ENABLED
 
-// Uncomment to select a display type:
+//*/
+// > Display config - uncomment to select a type:
 // - SSD1306 OLED displays
-// #define DISPLAY_SSD1306_I2C  // (I2C - 2-pin)
-// #define DISPLAY_SSD1306_SPI  // (SPI - 4-pin)
+// #define DISPLAY_SSD1306
 
-// - ST77XX TFT displays (SPI - 4-pin)
+// - SH110x OLED displays (SH1106, SH1107)
+// #define DISPLAY_SH110X
+
+// - ST77xx TFT displays (SPI)
 // #define DISPLAY_ST7735
+// #define DISPLAY_ST7735S
 // #define DISPLAY_ST7789
+// #define DISPLAY_ST7796
 
-// -- ST7735-specific config:
-// #define DISPLAY_ST7735_TYPE_BLACKTAB  // 1.8" TFT
-// #define DISPLAY_ST7735_TYPE_GREENTAB  // 1.8" TFT with offset
-// #define DISPLAY_ST7735_TYPE_144GREENTAB  // 1.44" TFT
-// #define DISPLAY_ST7735_TYPE_REDTAB
-// #define DISPLAY_ST7735_TYPE_MINI160x80  // ST7735S 0.96" 160x80
-// #define DISPLAY_ST7735_TYPE_MINI160x80_PLUGIN  // ST7735S 0.96" 160x80 with FPC plugin
-// #define DISPLAY_ST7735_TYPE_B  // new ST7735B chip
+// - ILIxxxx TFT displays (SPI)
+// #define DISPLAY_ILI9341
 
-// General display config:
-// #define DISPLAY_WIDTH 80
-// #define DISPLAY_HEIGHT 160
-// #define DISPLAY_ROTATION 1 // 0-4, default: not defined
-// TODO: DISPLAY_INVERT?
+//*/
+// > Panel config:
+// #define DISPLAY_WIDTH 80 // default: not defined
+// #define DISPLAY_HEIGHT 160 // default: not defined
+// #define DISPLAY_BRIGHTNESS 200 // 0-255
+// #define DISPLAY_COLOR_DEPTH 16 // 1/2/4/8/16/24
+// #define DISPLAY_ROTATION 1 // 0-4
+// #define DISPLAY_INVERT false
+// #define DISPLAY_OFFSET_X 0
+// #define DISPLAY_OFFSET_Y 0
+// #define DISPLAY_OFFSET_ROTATION 0
 
-// Connection and pin config:
-// - I2C
-// #define DISPLAY_I2C
-// -- optional if using hardware I2C pins:
-// #define DISPLAY_GPIO_I2C_SDA 5 // default: not defined
-// #define DISPLAY_GPIO_I2C_SCL 6 // default: not defined
+// > Connection and pin config:
+// - 2-wire I2C /TODO: figure out defaults for different chips
+// #define DISPLAY_USE_I2C // -> set this if not using SPI
+// #define DISPLAY_GPIO_I2C_SDA 5
+// #define DISPLAY_GPIO_I2C_SCL 6
 
-// - 4-Wire SPI:
-// #define DISPLAY_SPI
-// #define DISPLAY_GPIO_SPI_SDA 3 // aka MOSI
-// #define DISPLAY_GPIO_SPI_SCK 2 // aka SCLK
-// #define DISPLAY_GPIO_SPI_CS 7
+// - 3/4-wire SPI: /TODO: figure out defaults for different chips
+// #define DISPLAY_GPIO_SPI_MOSI 3 // aka SDA
+// #define DISPLAY_GPIO_SPI_MISO -1 // -1 if using 3-wire SPI display
+// #define DISPLAY_GPIO_SPI_SCLK 2 // aka SCK
 // #define DISPLAY_GPIO_SPI_DC 6
 
-// - shared:
-// #define DISPLAY_GPIO_BACKLIGHT -1
+//*/
+// > Panel pin config:
+// #define DISPLAY_GPIO_CS -1 // -1 to disable
+// #define DISPLAY_GPIO_BACKLIGHT -1 // -1 to disable
 // #define DISPLAY_GPIO_RST -1  // -1 if NC or connected to EN
 
 // ========== EXPERT/DEVELOPER SETTINGS ========== //

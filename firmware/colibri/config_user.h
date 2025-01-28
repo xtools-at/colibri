@@ -35,14 +35,16 @@
 
 // > Interface settings
 
-// - custom disable interfaces
+// - disable interfaces
+// -- generally:
 // #define INTERFACE_BLE_DISABLED
+// #define INTERFACE_USB_DISABLED
+// -- specific ones:
 // #define INTERFACE_BLE_NIMBLE_DISABLED
 // #define INTERFACE_BLE_ARDUINO_DISABLED
-// #define INTERFACE_USB_DISABLED
 // #define INTERFACE_USB_HID_DISABLED
 
-// - OTA
+// - OTA settings
 // #define OTA_WIFI_SSID "Colibri OTA Update"  // WiFi access point SSID for OTA updates
 // #define OTA_WIFI_PASSWORD "ColibriOTAUpdate" // min. 8 characters
 // #define OTA_DNS_NAME "colibri"  // local DNS name for OTA server (e.g. "colibri" > http://colibri.local)
