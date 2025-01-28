@@ -11,11 +11,11 @@
 
   #include "ElegantOTA/ElegantOTA.h"
 
-void otaInit();
-void otaStop();
-void otaUpdate();
+void initOta();
+void stopOta();
+void updateOta();
 #else
-  #define otaInit()
-  #define otaStop()
-  #define otaUpdate()
+  #define initOta()
+  #define stopOta()
+  #define updateOta()
 #endif

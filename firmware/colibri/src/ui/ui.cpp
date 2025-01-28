@@ -11,14 +11,14 @@ static void checkForGesture() {
 
   // check for lock/OTA request
   if (buttonCancel.isLongPressed()) {
-    bool isLocked = wallet.isLocked();
-
-    if (!isLocked) {
+    if (!wallet.isLocked()) {
       log_i("Locking device");
       wallet.lock();
 #ifdef OTA_ENABLED
-    } else if (!otaActive) {
-      otaInit();
+    } else if (!isOtaActive) {
+      log_i("Enabling OTA mode");
+      initOta();
+      isOtaActive = true;
       led_blink(100, 100, RgbColor::Busy);
 #endif
     } else {
@@ -78,8 +78,8 @@ static void updateLed() {
 }
 
 void updateUi() {
-  if (otaActive) {
-    otaUpdate();
+  if (isOtaActive) {
+    updateOta();
   }
 
   updateButtons();

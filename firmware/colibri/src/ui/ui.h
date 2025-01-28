@@ -22,7 +22,7 @@ extern AsyncLed led;
 #endif
 extern bool isHot;
 extern bool isBusy;
-extern bool otaActive;
+extern bool isOtaActive;
 extern Connection connection;
 
 void updateUi();

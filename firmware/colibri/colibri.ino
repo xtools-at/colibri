@@ -22,8 +22,8 @@
 /*
  * Stub `.ino` file to enable both Arduino IDE and PlatformIO compatibility.
  *
- *   - See `main.cpp` and `/src` for the actual code.
- *   - Find configuration options in `config.h`/`config_custom.h`/`config_board.h`.
+ *   - See `main.cpp` and `./src` for the actual code.
+ *   - Find configuration options in `config.h`/`config_user.h`/`config_board.h`.
  *
  * Check the repo's `README.md` for more information.
  */

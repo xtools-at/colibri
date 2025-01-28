@@ -6,7 +6,7 @@
 class AsyncButton {
  public:
   AsyncButton(
-      uint8_t pin, uint64_t debounceTime = 20, uint64_t longPressTime = 600,
+      uint8_t pin, uint64_t debounceTime = 20, uint64_t longPressTime = 800,
       uint64_t multiClickTimeout = 2500
   );
 

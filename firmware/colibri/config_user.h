@@ -45,9 +45,9 @@
 // - OTA
 // #define OTA_WIFI_SSID "Colibri OTA Update"  // WiFi access point SSID for OTA updates
 // #define OTA_WIFI_PASSWORD "ColibriOTAUpdate" // min. 8 characters
-// #define OTA_DNS_NAME "colibri"  // local DNS name for OTA server (e.g. "http://colibri.local")
+// #define OTA_DNS_NAME "colibri"  // local DNS name for OTA server (e.g. "colibri" > http://colibri.local)
 
 // > Developer settings
 
-// #define OTA_ENABLED // test OTA updates
-// #define INTERFACE_QR // test BC-UR QR code interface
+// #define OTA_ENABLED  // test OTA updates
+// #define INTERFACE_QR  // test BC-UR QR code interface

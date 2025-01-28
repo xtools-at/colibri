@@ -3,7 +3,7 @@
 
 #include "ota.h"
 
-#include "../interfaces/interfaces.h"
+#include "../../interfaces/interfaces.h"
 
 #ifdef OTA_ENABLED
 
@@ -36,7 +36,7 @@ static void redirectTo(const char *url) {
   server.send(302, "text/plain", "");
 }
 
-void otaInit() {
+void initOta() {
   // stop other interfaces
   stopInterfaces();
 
@@ -50,7 +50,7 @@ void otaInit() {
 
   // mDNS
   MDNS.begin(OTA_DNS_NAME);
-  log_i("OTA access point DNS name: %s", OTA_DNS_NAME);
+  log_i("OTA access point DNS address: http://%s.local", OTA_DNS_NAME);
 
   // configure server
   // - 404s
@@ -76,12 +76,12 @@ void otaInit() {
   server.begin();
 }
 
-void otaStop() {
+void stopOta() {
   WiFi.mode(WIFI_OFF);
   server.stop();
   initInterfaces();
 }
 
-void otaUpdate() { server.handleClient(); }
+void updateOta() { server.handleClient(); }
 
 #endif

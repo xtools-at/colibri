@@ -48,7 +48,7 @@ AsyncLed led = AsyncLed(LED_GPIO);
 // state tracking
 bool isHot = false;
 bool isBusy = false;
-bool otaActive = false;
+bool isOtaActive = false;
 Connection connection = NotConnected;
 
 void setup() {
@@ -81,6 +81,9 @@ void setup() {
 void loop() {
   updateUi();
   updateInterfaces();
+  if (isOtaActive) {
+    updateOta();
+  }
 
   // debounce
   delay(5);

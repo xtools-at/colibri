@@ -55,9 +55,9 @@ var O=function(l){return l!=null&&(M(l)||P(l)||!!l._isBuffer)};function M(l){ret
     id="fileInput" class="hidden" accept=".bin,.bin.gz" onchange="onFileInput(files)">
         </div>
       </form>-->
-    </div>
   */
     R"=====(
+      </div>
       <div id="progressColumn" class="flex flex-col justify-center mt-14 mb-10 hidden">
         <p id="progressTitle" class="text-center mb-2 text-sm dark:text-[#b0b3b8]"></p>
         <div class="flex flex-row items-center gap-4 w-[280px]">
@@ -124,7 +124,7 @@ var O=function(l){return l!=null&&(M(l)||P(l)||!!l._isBuffer)};function M(l){ret
           <hr class="dark:opacity-10 opacity-60"/>
           <div class="flex flex-row justify-between items-center gap-4">
             <p>
-              Hardware ID
+              Hardware Model
             </p>
             <p class="opacity-60">
               )=====" HW_DEVICE_NAME R"=====(
