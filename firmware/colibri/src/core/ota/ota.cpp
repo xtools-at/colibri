@@ -67,12 +67,18 @@ static bool handleFileRead(const String &path) {
   else if (filePath.endsWith(".gz"))
     contentType = "application/x-gzip";
 
+  log_d("LittleFS: Checking for file: %s", filePath.c_str());
+
   if (LittleFS.exists(filePath)) {
     File file = LittleFS.open(filePath, "r");
     server.streamFile(file, contentType);
     file.close();
+
+    log_d("LittleFS: File found, serving: %s", filePath.c_str());
     return true;
   }
+
+  log_d("LittleFS: File not found: %s", filePath.c_str());
 
   return false;
 }
@@ -136,8 +142,8 @@ void initOta() {
   server.on("/success.txt", []() { server.send(200); });  // firefox
 
   #ifdef OTA_USE_LITTLEFS
-  // init LittleFS
-  LittleFS.begin();
+  // serve portal page from LittleFS
+  server.on("/portal", []() { handleFileRead("/portal/index.html"); });
   #else
   // serve portal page from PROGMEM
   server.on("/portal", []() { server.send_P(200, "text/html", OTA_PORTAL_HTML); });
