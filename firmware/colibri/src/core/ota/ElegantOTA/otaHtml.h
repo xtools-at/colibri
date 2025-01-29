@@ -6,7 +6,7 @@
 
 #include "../../../../config.h"
 
-#if defined(OTA_ENABLED) && !defined(OTA_USE_SPIFFS)
+#if defined(OTA_ENABLED) && !defined(OTA_USE_LITTLEFS)
 
 const char *OTA_PAGE_HTML =
     R"=====(

@@ -43,7 +43,7 @@ static void redirectTo(const char *url) {
 
 static void redirectToPortal() { redirectTo("/portal"); }
 
-  #ifdef OTA_USE_SPIFFS
+  #ifdef OTA_USE_LITTLEFS
 static bool handleFileRead(const String &path) {
   String filePath = path;
   if (filePath.endsWith("/")) {
@@ -67,8 +67,8 @@ static bool handleFileRead(const String &path) {
   else if (filePath.endsWith(".gz"))
     contentType = "application/x-gzip";
 
-  if (SPIFFS.exists(filePath)) {
-    File file = SPIFFS.open(filePath, "r");
+  if (LittleFS.exists(filePath)) {
+    File file = LittleFS.open(filePath, "r");
     server.streamFile(file, contentType);
     file.close();
     return true;
@@ -84,9 +84,9 @@ void initOta() {
   // stop other interfaces
   stopInterfaces();
 
-  #ifdef OTA_USE_SPIFFS
-  // init SPIFFS
-  SPIFFS.begin();
+  #ifdef OTA_USE_LITTLEFS
+  // init LittleFS
+  LittleFS.begin();
   #endif
 
   // configure Wifi access point
@@ -135,9 +135,9 @@ void initOta() {
   }
   server.on("/success.txt", []() { server.send(200); });  // firefox
 
-  #ifdef OTA_USE_SPIFFS
-  // init SPIFFS
-  SPIFFS.begin();
+  #ifdef OTA_USE_LITTLEFS
+  // init LittleFS
+  LittleFS.begin();
   #else
   // serve portal page from PROGMEM
   server.on("/portal", []() { server.send_P(200, "text/html", OTA_PORTAL_HTML); });
@@ -159,8 +159,8 @@ void stopOta() {
   MDNS.end();
   dns.stop();
 
-  #ifdef OTA_USE_SPIFFS
-  SPIFFS.end();
+  #ifdef OTA_USE_LITTLEFS
+  LittleFS.end();
   #endif
 
   initInterfaces();

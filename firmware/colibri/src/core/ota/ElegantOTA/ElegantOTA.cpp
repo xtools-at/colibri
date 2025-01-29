@@ -36,7 +36,7 @@ void ElegantOTAClass::begin(
     request->send(response);
   });
   #else
-    #ifndef OTA_USE_SPIFFS
+    #ifndef OTA_USE_LITTLEFS
   _server->on(updatePath, HTTP_GET, [&]() {
     if (_authenticate && !_server->authenticate(_username.c_str(), _password.c_str())) {
       return _server->requestAuthentication();

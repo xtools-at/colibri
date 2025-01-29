@@ -51,5 +51,5 @@
 // > Developer settings
 
 // #define OTA_ENABLED  // test OTA updates
-// #define OTA_USE_SPIFFS // alternatively serving data from SPIFFS
+// #define OTA_USE_LITTLEFS  // alternatively serving data from LittleFS
 // #define INTERFACE_QR  // test BC-UR QR code interface

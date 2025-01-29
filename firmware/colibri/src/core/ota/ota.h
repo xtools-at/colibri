@@ -10,9 +10,9 @@
   #include <WiFi.h>
   #include <esp_system.h>
 
-  #ifdef OTA_USE_SPIFFS
+  #ifdef OTA_USE_LITTLEFS
     #include <FS.h>
-    #include <SPIFFS.h>
+    #include <LittleFS.h>
   #endif
 
   #include "ElegantOTA/ElegantOTA.h"
