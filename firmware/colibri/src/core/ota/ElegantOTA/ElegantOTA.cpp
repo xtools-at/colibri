@@ -8,7 +8,7 @@
 
 #ifdef OTA_ENABLED
 
-  #include "otaHtml.h"
+  #include "./otaHtml.h"
 
 ElegantOTAClass::ElegantOTAClass() {}
 
@@ -36,6 +36,7 @@ void ElegantOTAClass::begin(
     request->send(response);
   });
   #else
+    #ifndef OTA_USE_SPIFFS
   _server->on(updatePath, HTTP_GET, [&]() {
     if (_authenticate && !_server->authenticate(_username.c_str(), _password.c_str())) {
       return _server->requestAuthentication();
@@ -43,6 +44,7 @@ void ElegantOTAClass::begin(
     // _server->sendHeader("Content-Encoding", "gzip");
     _server->send_P(200, "text/html", OTA_PAGE_HTML);
   });
+    #endif
   #endif
 
   #if ELEGANTOTA_USE_ASYNC_WEBSERVER == 1

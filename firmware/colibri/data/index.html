@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Colibri OTA Update
+    </title>
+    <script src="/ota.js" type="module" crossorigin></script>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="dark:bg-[#18191a] bg-white dark:text-[#e4e6eb] px-6">
+    <div class="flex flex-col items-center mt-12 mb-16">
+
+      <h1>Colibri OTA Update</h1>
+
+      <div id="uploadColumn" class="flex flex-col justify-center mt-12 mb-4">
+        <form>
+          <button id="uploadButton" class="dark:text-white bg-gray-50 border border-[#b0b3b8] border-opacity-40 hover:bg-gray-200 text-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 rounded-full px-5 py-3 mr-2 flex flex-row gap-3 items-center dark:bg-[#242526] dark:hover:bg-[#3a3b3c] dark:focus:ring-[#3a3b3c] dark:border-[#3a3b3c]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+            <span>
+              Select File
+            </span>
+          </button>
+          <input type="file" id="fileInput" class="hidden" accept=".bin,.bin.gz" onchange="onFileInput(files)">
+        </form>
+      </div>
+
+      <div id="progressColumn" class="flex flex-col justify-center mt-14 mb-10 hidden">
+        <p id="progressTitle" class="text-center mb-2 text-sm dark:text-[#b0b3b8]"></p>
+        <div class="flex flex-row items-center gap-4 w-[280px]">
+          <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-[#242526]">
+            <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+          </div>
+          <p id="progressValue" class="text-sm">
+            0%
+          </p>
+        </div>
+      </div>
+
+      <div id="successColumn" class="flex flex-col items-center gap-4 mt-12 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <p>
+          Update Successful
+        </p>
+        <button onclick="resetView()" type="button" class="dark:text-white bg-gray-50 border border-[#b0b3b8] border-opacity-40 hover:bg-gray-200 text-gray-700 text-xs focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full px-4 py-2 mr-2 mt-2 flex flex-row gap-2 items-center dark:bg-[#242526] dark:hover:bg-[#3a3b3c] dark:focus:ring-[#3a3b3c] dark:border-[#3a3b3c]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          Go Back
+        </button>
+      </div>
+
+      <div id="errorColumn" class="flex flex-col items-center gap-2 mt-12 hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <p id="errorTitle" class="mt-2">
+          Unexpected Error
+        </p>
+        <p id="errorReason" class="text-xs dark:text-[#b0b3b8]">
+          Please try again
+        </p>
+        <button onclick="resetView()" type="button" class="dark:text-white bg-gray-50 border border-[#b0b3b8] border-opacity-40 hover:bg-gray-200 text-gray-700 text-xs focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full px-4 py-2 mr-2 mt-4 flex flex-row gap-2 items-center dark:bg-[#242526] dark:hover:bg-[#3a3b3c] dark:focus:ring-[#3a3b3c] dark:border-[#3a3b3c]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          Go Back
+        </button>
+      </div>
+
+      <div id="settingsColumn" class="flex flex-col justify-center mt-10 hidden">
+        <div class="flex flex-row justify-center items-center gap-1 uppercase text-xs select-none">
+          <p class="dark:text-[#b0b3b8] transition-colors">
+            OTA Update
+          </p>
+        </div>
+        <div id="settingsContent" class="flex flex-col gap-4 mt-6 w-[300px]">
+          <div class="flex flex-row justify-between items-center gap-4">
+            <p>
+              OTA Mode
+            </p>
+            <select id="otaMode" class="block appearance-none py-1 px-2 text-sm text-gray-900 border border-gray-200 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#242526] dark:border-[#242526] dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <option value="fr" selected>Firmware</option>
+              <!--<option value="fs">LittleFS / SPIFFS</option>-->
+            </select>
+            <input type="checkbox" checked id="darkModeCheckbox" value="" class="sr-only peer" />
+          </div>
+          <div class="flex flex-row justify-between items-center gap-4">
+            <p>
+              Hardware Model
+            </p>
+            <p class="opacity-60">
+              )=====" HW_DEVICE_NAME R"=====(
+            </p>
+          </div>
+          <div class="flex flex-row justify-between items-center gap-4">
+            <p>
+              Firmware Version
+            </p>
+            <p class="opacity-60">
+              )=====" HW_FIRMWARE_VERSION R"=====(
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

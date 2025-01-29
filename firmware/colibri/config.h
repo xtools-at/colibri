@@ -407,11 +407,6 @@
 #ifndef OTA_WIFI_PASSWORD
   #define OTA_WIFI_PASSWORD "ColibriOTAUpdate"
 #endif
-#ifndef OTA_DNS_NAME
-  #define OTA_DNS_NAME "colibri"
-#endif
-#ifndef OTA_PAGE_TITLE
-  #define OTA_PAGE_TITLE "Colibri OTA Update"
-#endif
+#define OTA_WIFI_HOSTNAME "colibri"
 #define OTA_WIFI_CHANNEL 6
 #define OTA_MAX_CLIENTS 1

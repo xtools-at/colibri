@@ -5,11 +5,9 @@
 
 #include "../../config.h"
 #include "../core/ota/ota.h"
+#include "./gui/Display.h"
 #include "AsyncButton.h"
 #include "AsyncLed.h"
-#ifdef DISPLAY_ENABLED
-  #include "./gui/Display.h"
-#endif
 
 extern AsyncButton buttonOk;
 #ifdef BUTTON_LAYOUT_MAIN_TWO
