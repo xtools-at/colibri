@@ -4,7 +4,9 @@
 #include "ota.h"
 
 #include "../../interfaces/interfaces.h"
-#include "./portalHtml.h"
+#ifndef OTA_USE_LITTLEFS
+  #include "./portalHtml.h"
+#endif
 
 #ifdef OTA_ENABLED
 

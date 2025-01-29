@@ -8,7 +8,9 @@
 
 #ifdef OTA_ENABLED
 
-  #include "./otaHtml.h"
+  #ifndef OTA_USE_LITTLEFS
+    #include "./otaHtml.h"
+  #endif
 
 ElegantOTAClass::ElegantOTAClass() {}
 
