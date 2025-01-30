@@ -23,7 +23,8 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "web": "pnpm --filter @colibriwallet/web",
-    "sdk:ts": "pnpm --filter @colibriwallet/sdk"
+    "sdk:ts": "pnpm --filter @colibriwallet/sdk",
+    "build:ota": "node ./firmware/scripts/compileOtaHtml.js"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.20.0",

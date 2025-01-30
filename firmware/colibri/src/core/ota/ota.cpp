@@ -147,8 +147,9 @@ void initOta() {
   // serve portal page from LittleFS
   server.on("/portal", []() { handleFileRead("/portal/index.html"); });
   #else
-  // serve portal page from PROGMEM
-  server.on("/portal", []() { server.send_P(200, "text/html", OTA_PORTAL_HTML); });
+  // serve gzipped portal page from PROGMEM
+  server.sendHeader("Content-Encoding", "gzip");
+  server.on("/portal", []() { server.send_P(200, "text/html", (const char *)OTA_PORTAL_HTML); });
   #endif
 
   // configure OTA

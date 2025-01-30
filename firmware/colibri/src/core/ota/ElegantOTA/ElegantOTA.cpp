@@ -32,9 +32,9 @@ void ElegantOTAClass::begin(
     AsyncWebServerResponse *response =
         request->beginResponse(200, "text/html", OTA_PAGE_HTML, sizeof(OTA_PAGE_HTML));
     #else
-        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", OTA_PAGE_HTML, sizeof(OTA_PAGE_HTML));
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", (const char *)OTA_PAGE_HTML, sizeof(OTA_PAGE_HTML));
     #endif
-    // response->addHeader("Content-Encoding", "gzip");
+    response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   });
   #else
@@ -43,8 +43,8 @@ void ElegantOTAClass::begin(
     if (_authenticate && !_server->authenticate(_username.c_str(), _password.c_str())) {
       return _server->requestAuthentication();
     }
-    // _server->sendHeader("Content-Encoding", "gzip");
-    _server->send_P(200, "text/html", OTA_PAGE_HTML);
+    _server->sendHeader("Content-Encoding", "gzip");
+    _server->send_P(200, "text/html", (const char *)OTA_PAGE_HTML);
   });
     #endif
   #endif
