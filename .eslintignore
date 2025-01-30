@@ -3,3 +3,5 @@
 *.test.js
 *.test.ts
 dist
+out
+.next

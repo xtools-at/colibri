@@ -38,5 +38,3 @@ firmware/lib/**/doc*/**
 
 # experimental files and folders
 firmware/vendor
-apps/tmp
-apps/web

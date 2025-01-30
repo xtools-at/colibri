@@ -17,8 +17,8 @@
     "url": "https://github.com/xtools-at/colibri.git"
   },
   "engines": {
-    "node": ">=22",
-    "pnpm": ">=9"
+    "node": ">=18",
+    "pnpm": ">=8"
   },
   "packageManager": "pnpm@9.15.4",
   "scripts": {
@@ -31,6 +31,8 @@
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
     "prettier": "^3.4.2"
   }
 }
