@@ -1,23 +1,3 @@
-import { LinkArrowIcon } from 'nextra/icons'
-import type { FC, ReactNode } from 'react'
-import { useMDXComponents } from '../mdx-components'
-
-// eslint-disable-next-line react-hooks/rules-of-hooks -- isn't react hook
-const { code: Code } = useMDXComponents()
-
-const ExternalLink: FC<{ children: ReactNode }> = ({ children }) => {
-  return (
-    <>
-      <Code>{children}</Code>&thinsp;
-      <LinkArrowIcon
-        // based on font-size
-        height="1em"
-        className="x:inline x:align-baseline x:shrink-0"
-      />
-    </>
-  )
-}
-
 export default {
   index: {
     type: 'page',

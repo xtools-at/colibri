@@ -6,6 +6,7 @@ import { Banner, Head } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import type { FC, ReactNode } from 'react'
 import './globals.css'
+import { BleProvider } from 'contexts/BleContext'
 
 export const metadata: Metadata = {
   description: 'Make beautiful websites with Next.js & MDX.',
@@ -92,22 +93,24 @@ const RootLayout: FC<{
   children: ReactNode
 }> = async ({ children }) => {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
-      <Head />
-      <body>
-        <Layout
-          banner={banner}
-          navbar={navbar}
-          pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
-          editLink="Edit this page on GitHub"
-          sidebar={{ defaultMenuCollapseLevel: 1 }}
-          footer={footer}
-        >
-          {children}
-        </Layout>
-      </body>
-    </html>
+    <BleProvider>
+      <html lang="en" dir="ltr" suppressHydrationWarning>
+        <Head />
+        <body>
+          <Layout
+            banner={banner}
+            navbar={navbar}
+            pageMap={await getPageMap()}
+            docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
+            editLink="Edit this page on GitHub"
+            sidebar={{ defaultMenuCollapseLevel: 1 }}
+            footer={footer}
+          >
+            {children}
+          </Layout>
+        </body>
+      </html>
+    </BleProvider>
   )
 }
 

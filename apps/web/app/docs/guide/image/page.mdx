@@ -62,8 +62,8 @@ import { Image } from 'nextra/components'
 export default {
   // ... your other configurations
   components: {
-    img: props => <Image {...props} />
-  }
+    img: (props) => <Image {...props} />,
+  },
 }
 ```
 
@@ -86,3 +86,9 @@ import { Image } from 'nextra/components'
 
 <Image src="/demo.png" />
 ```
+
+### Fooo
+
+import { Connect } from './_bleButton.tsx'
+
+<Connect>**Connect to BLE**</Connect>

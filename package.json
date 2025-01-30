@@ -26,6 +26,7 @@
     "sdk:ts": "pnpm --filter @colibriwallet/sdk"
   },
   "devDependencies": {
+    "@types/web-bluetooth": "^0.0.20",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "eslint": "^8.57.1",
