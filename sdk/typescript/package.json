@@ -1,15 +1,33 @@
 {
-  "name": "@colibriwallet/sdk",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "module": "dist/esm/index.js",
-  "umd:main": "dist/umd/index.js",
+  "name": "ts-npm-package-boilerplate-2024",
+  "type": "module",
+  "description": "TS NPM Package Boilerplate for 2024 ",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonorzel26/ts-npm-package-boilerplate-2024.git"
+  },
+  "homepage": "https://github.com/simonorzel26/ts-npm-package-boilerplate-2024",
   "files": [
-    "dist/src/",
-    "LICENSE",
-    "README.md"
+    "dist/**/*"
   ],
-  "publishConfig": {
-    "access": "public"
+  "scripts": {
+    "build": "tsc",
+    "check": "biome check --write ./src",
+    "workflow:check": "biome check ./src",
+    "release": "pnpm run build && changeset publish"
+  },
+  "author": "Simon Orzel",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "@changesets/cli": "^2.27.7",
+    "@total-typescript/tsconfig": "^1.0.4",
+    "typescript": "^5.5.3"
+  },
+  "bugs": {
+    "url": "https://github.com/simonorzel26/ts-npm-package-boilerplate-2024/issues"
   }
 }
