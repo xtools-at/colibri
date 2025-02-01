@@ -9,10 +9,15 @@ const uint32_t propRead =
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::READ_AUTHEN;
 const uint32_t propWrite =
     NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN;
-const size_t maxCharValueLen = 251 - 3;
+const uint16_t maxCharValueLen = 251 - 3;
 
 std::string requestBuffer;
 bool requestReady = false;
+
+static uint16_t getMaxChunkLen(uint16_t peerMtu) {
+  uint16_t maxLen = peerMtu > 20 ? peerMtu - 3 : 20;
+  return maxLen > maxCharValueLen ? maxCharValueLen : maxLen;
+}
 
 // ========== BLE Callbacks ========== //
 class BLEWriteCallback : public NimBLECharacteristicCallbacks {
@@ -74,6 +79,11 @@ class BLEServerCallback : public NimBLEServerCallbacks {
     pServer->startAdvertising();
   }
 
+  void onMTUChange(uint16_t MTU, ble_gap_conn_desc *desc) {
+    log_d("MTU changed to %d", MTU);
+    pCharChunkLen->setValue(getMaxChunkLen(MTU));
+  }
+
   uint32_t onPassKeyRequest() {
   #ifdef DISPLAY_ENABLED
       // TODO: show passkey on display
@@ -121,6 +131,10 @@ void NimBLEInterface::init() {
   pCharOutput =
       pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
   pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
+
+  // - mtu:
+  pCharChunkLen = pService->createCharacteristic(BLE_CHARACTERISTIC_CHUNK_SIZE, propRead);
+  pCharChunkLen->setValue(20);  // minimum MTU
 
   // start BLE advertising
   pService->start();
@@ -201,9 +215,8 @@ void NimBLEInterface::sendResponse(std::string &data) {
   bool hasSubscribers = pCharOutput->getSubscribedCount() > 0;
 
   // prevent messages from getting truncated, figure out "sweet spot" for chunk size
-  size_t peerMtu = pServer->getPeerMTU(pServer->getPeerInfo(0).getConnHandle());
-  size_t maxLen = peerMtu > 3 ? peerMtu - 3 : 20;
-  if (maxLen > maxCharValueLen) maxLen = maxCharValueLen;
+  uint16_t peerMtu = pServer->getPeerMTU(pServer->getPeerInfo(0).getConnHandle());
+  size_t maxLen = getMaxChunkLen(peerMtu);
 
   // send data in chunks
   size_t dataLen = data.length();
