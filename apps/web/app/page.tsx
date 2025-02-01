@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Link } from 'nextra-theme-docs'
 import { MdxIcon } from 'nextra/icons'
-import docsCardDark from 'public/assets/card-1.dark.png'
-import docsCard from 'public/assets/card-1.png'
+//import docsCardDark from 'public/assets/card-1.dark.png'
+//import docsCard from 'public/assets/card-1.png'
 import { Feature, Features } from './_components/features'
 import { MotionDiv, MotionH3 } from './_components/framer-motion'
 import { I18n } from './_components/i18n-demo'
@@ -13,8 +13,7 @@ import './page.css'
 import type { FC } from 'react'
 
 export const metadata: Metadata = {
-  description:
-    'Build fast, customizable, and content-rich websites with Nextra. Powered by Next.js, it offers seamless Markdown support, customizable themes, file conventions, and easy integration with MDX, making it perfect for documentation, blogs, and static websites.',
+  //description: 'Foo',
 }
 
 const IndexPage: FC = () => {
@@ -50,12 +49,12 @@ const IndexPage: FC = () => {
               id="docs-card"
               href="/docs/docs-theme/start"
             >
-              <Image src={docsCard} alt="Background" loading="eager" />
+              {/*<Image src={docsCard} alt="Background" loading="eager" />
               <Image
                 src={docsCardDark}
                 alt="Background (Dark)"
                 loading="eager"
-              />
+              />*/}
               <h3>
                 Full-power documentation <br className="show-on-mobile" />
                 in minutes
@@ -229,7 +228,7 @@ const IndexPage: FC = () => {
                 </Link>
                 .
               </p>
-              <div className="absolute inset-0 z-1 size-full bg-[linear-gradient(to_right,white_250px,_transparent)] max-sm:hidden dark:bg-[linear-gradient(to_right,#202020_250px,_transparent)]" />
+              <div className="z-1 absolute inset-0 size-full bg-[linear-gradient(to_right,white_250px,_transparent)] max-sm:hidden dark:bg-[linear-gradient(to_right,#202020_250px,_transparent)]" />
               <video
                 autoPlay
                 loop

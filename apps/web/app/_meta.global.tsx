@@ -12,6 +12,7 @@ export default {
         items: {
           link: '',
           image: '',
+          markdown: '',
         },
       },
     },

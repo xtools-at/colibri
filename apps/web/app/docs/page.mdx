@@ -11,8 +11,8 @@ import { cloneElement } from 'react'
 export default function MdxLayout(props) {
   return cloneElement(props.children, {
     components: {
-      img: Image
-    }
+      img: Image,
+    },
   })
 }
 
@@ -26,6 +26,7 @@ Markdown-based content with ease.
 
 To start using Nextra, you need to select a theme first:
 
+```
 <Cards num={2}>
   <Cards.Card arrow title="Documentation theme" href="/docs/docs-theme/start">
     <>![Documentation theme](/assets/docs-theme.png)</>
@@ -34,6 +35,7 @@ To start using Nextra, you need to select a theme first:
     <>![Blog theme](/assets/blog-theme.png)</>
   </Cards.Card>
 </Cards>
+```
 
 If you want to use Nextra without using these built-in themes, you can follow
 the [Custom Theme](/docs/custom-theme) docs.

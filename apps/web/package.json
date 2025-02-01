@@ -20,12 +20,13 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.0.1",
-    "@tailwindcss/postcss": "^4.0.0-beta.8",
+    "@tailwindcss/postcss": "4.0.0-beta.9",
     "@types/node": "^22.0.0",
     "@types/react": "^18.2.23",
     "next-sitemap": "^4.2.3",
     "pagefind": "^1.3.0",
-    "tailwindcss": "^4.0.0-beta.8",
+    "postcss": "^8.5.1",
+    "tailwindcss": "4.0.0-beta.9",
     "typescript": "^5.7.3"
   },
   "browserslist": [
