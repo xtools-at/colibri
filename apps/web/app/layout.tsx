@@ -13,7 +13,7 @@ import { Banner, Head, Image } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import type { FC, ReactNode } from 'react'
 import './globals.css'
-import { ColibriBleProvider } from 'colibri/ColibriBleContext'
+import { ColibriProvider } from '@colibriwallet/sdk/react'
 
 const APP_NAME = 'Colibri'
 const APP_URL = 'https://colibri.diy'
@@ -204,7 +204,7 @@ const RootLayout: FC<{
   children: ReactNode
 }> = async ({ children }) => {
   return (
-    <ColibriBleProvider>
+    <ColibriProvider>
       <html lang="en" dir="ltr" suppressHydrationWarning>
         <Head
           color={{
@@ -229,7 +229,7 @@ const RootLayout: FC<{
           </Layout>
         </body>
       </html>
-    </ColibriBleProvider>
+    </ColibriProvider>
   )
 }
 

@@ -1,121 +1,88 @@
+# Colibri Typescript SDK
 
-# TS NPM Package Boilerplate (2025)
+for Web and React
 
-This TypeScript NPM package boilerplate is designed to kickstart the development of TypeScript libraries for Node.js and the browser. It features a modern build setup with TypeScript, leveraging `tsup` for bundling and `@changesets/cli` for version management. The package exports a simple function as an example to demonstrate the setup.
-
-## Features
-
-- TypeScript for type safety.
-- Biome for linting and formatting.
-- Dual package output (CommonJS and ESM) for compatibility.
-- Type definitions for TypeScript projects.
-- Automated build and release scripts.
-
-## Prerequisites
-
-- Node.js v22.5.1 (ensure you have this version by using `.nvmrc`)
-- `pnpm` (Follow [pnpm installation guide](https://pnpm.io/installation) if you haven't installed it)
-- [Biome](https://biomejs.dev/) for linting and formatting
-
-## Reuse
-
-### Step 1: Clone the Boilerplate Repository
-
-First, clone the existing repository `simonorzel26/npm-package-boilerplate-2025` to your local machine. This step involves copying all the files from the original repository.
+## Install
 
 ```bash
-git clone https://github.com/simonorzel26/npm-package-boilerplate-2025.git <your-new-repository-name>
-cd <your-new-repository-name>
+pnpm i @colibriwallet/sdk
 ```
 
-### Step 2: Remove the Existing Git History
+## Use
 
-Since you're creating a new project, you'll likely want to start with a clean history:
-
-```bash
-rm -rf .git
-```
-
-This command removes the `.git` directory which contains all the git history of the original repository.
-
-### Step 3: Initialize a New Repository
-
-Now, initialize a new git repository:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit based on npm-package-boilerplate-2025"
-```
-
-### Step 4: Create a New Repository on GitHub
-
-Go to GitHub and create a new repository named `<your-new-repository-name>`. Do not initialize it with a README, .gitignore, or license since you are importing an existing project.
-
-### Step 5: Push to GitHub
-
-Link your local repository to the GitHub repository and push the changes:
-
-```bash
-git remote add origin https://github.com/<your-username>/<your-new-repository-name>.git
-git branch -M main
-git push -u origin main
-```
-
-Replace `<your-username>` with your GitHub username.
-
-## Installation
-
-To use this boilerplate for your project, clone the repository and install the dependencies.
-
-```bash
-pnpm install
-```
-
-## Usage
-
-After installation, you can start using the boilerplate to build your TypeScript library. Here's how to import and use the example function exported by this package:
+### Typescript
 
 ```typescript
-import { foo } from 'your-package-name';
+import { Colibri } from '@colibriwallet/sdk'
 
-console.log(foo('Hello, world!'));
+const colibri = new Colibri()
+
+// init a connect button
+if (colibri.isBleAvailable()) {
+  document
+    .querySelector('#connectButton')
+    ?.addEventListener('click', colibri.connectBle)
+}
+
+// send commands
+if (colibri.isBleConnected()) {
+  const unlocked = await colibri.unlock('MyPassword')
+
+  if (unlocked) {
+    const { walletId, seedPhrase } = await colibri.createSeedPhrase(24)
+  }
+}
 ```
 
-## Development
+### React
 
-This package includes several scripts to help with development:
+Wrap your root layout with the `ColibriProvider`:
 
-- `pnpm run build`: Compiles the TypeScript source code and generates both CommonJS and ESM modules along with type definitions.
-- `pnpm run lint`: Runs TypeScript compiler checks without emitting code to ensure type safety.
-- `pnpm run release`: Bundles the package and publishes it to NPM with version management.
+```tsx
+// e.g. src/app/layout.tsx
+import { ColibriProvider } from '@colibriwallet/sdk/react'
 
-### Adding New Functions
-
-To add a new function, create a `.ts` file in the `src` directory. For example:
-
-```typescript
-// src/newFunction.ts
-export const newFunction = (): void => {
-  // Implementation here
-};
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html>
+      <body>
+        <ColibriProvider>{children}</ColibriProvider>
+      </body>
+    </html>
+  )
+}
 ```
 
-Then, export it from `index.ts`:
+Then you can call the `useColibri()` hook in your component or page:
 
-```typescript
-// src/index.ts
-export * from './newFunction';
+```tsx
+import { useColibri } from '@colibriwallet/sdk/react'
+
+export const ConnectButton = () => {
+  const { isBleAvailable, isBleConnected, connectBle, disconnectBle } =
+    useColibri()
+
+  return (
+    <button
+      onClick={() => {
+        if (isBleConnected) {
+          connectBle()
+        } else {
+          disconnectBle()
+        }
+      }}
+      disabled={!isBleAvailable}
+    >
+      {isBleConnected ? 'Disconnect from BLE' : 'Connect via BLE'}
+    </button>
+  )
+}
 ```
-
-## Contributing
-
-Contributions are welcome! Please submit a pull request or create an issue for any features, bug fixes, or improvements.
 
 ## License
 
-This project is open-sourced under the MIT License. See the [LICENSE](https://github.com/simonorzel26/ts-npm-package-boilerplate-2025/blob/main/LICENSE) file for more details.
-
-## Author
-
-Simon Orzel
+licensed under the [MIT](https://github.com/xtools-at/colibri/blob/main/sdk/typescript/LICENSE.md) license.

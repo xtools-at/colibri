@@ -1,22 +1,5 @@
-interface JsonRpcError {
-  code: number
-  message: string
-  data?: any
-}
-
-interface JsonRpcErrorResponse {
-  jsonrpc: '2.0'
-  id: number | string | null
-  error: JsonRpcError
-}
-
-interface JsonRpcSuccessResponse<T = any> {
-  jsonrpc: '2.0'
-  id: number | string | null
-  result: T
-}
-
-type JsonRpcResponse<T = any> = JsonRpcErrorResponse | JsonRpcSuccessResponse<T>
+import type { JsonRpcResponse, ColibriInterface } from './types'
+import { stringToBuffer, bufferToString, dataViewToBuffer } from './utils'
 
 const BLE_SERVICE_UUID = '31415926-5358-9793-2384-626433832795'
 const BLE_CHARACTERISTIC_INPUT = 'C001'
@@ -28,22 +11,22 @@ const BLE_DEFAULT_REQUEST_OPTIONS: RequestDeviceOptions = {
   filters: [{ services: [BLE_SERVICE_UUID] }],
 }
 
-export class ColibriBleService {
+export class ColibriBleInterface implements ColibriInterface {
+  private bluetooth: Bluetooth | undefined = undefined
   private device: BluetoothDevice | null = null
   private gatt: BluetoothRemoteGATTServer | undefined = undefined
-  private bluetooth: Bluetooth | undefined = undefined
   private maxChunkSize: number = BLE_DEFAULT_CHUNK_SIZE
   private responseBuffer: string = ''
+  private response: JsonRpcResponse | undefined = undefined
 
   public connected = false
-  public response: JsonRpcResponse | undefined
 
-  constructor(bluetoothModule?: Bluetooth) {
+  constructor(webBleLibrary?: Bluetooth) {
     if (typeof window !== 'undefined') {
       this.bluetooth = navigator.bluetooth
     }
-    if (bluetoothModule) {
-      this.bluetooth = bluetoothModule
+    if (webBleLibrary) {
+      this.bluetooth = webBleLibrary
     }
   }
 
@@ -62,10 +45,12 @@ export class ColibriBleService {
     }
 
     if (this.connected) {
-      throw new Error('Already connected')
+      throw new Error('BLE device already connected')
     }
 
     if (!options) options = BLE_DEFAULT_REQUEST_OPTIONS
+
+    this.reset()
 
     try {
       const device = await this.bluetooth!.requestDevice(options)
@@ -73,21 +58,19 @@ export class ColibriBleService {
 
       this.device = device
       this.gatt = gatt
-
       this.connected = true
 
-      setTimeout(() => this.updateMaxChunkSize(), 2000)
+      setTimeout(() => this.updateMaxChunkSize(), 1000)
 
       this.startDeviceListeners()
       this.startNotifications()
     } catch (error) {
       console.error(`Failed to connect: ${error}`)
+      throw error
     }
-
-    this.connected = false
   }
 
-  async updateMaxChunkSize(): Promise<void> {
+  private async updateMaxChunkSize(): Promise<void> {
     try {
       const chunkBytes = await this.readRaw(
         BLE_SERVICE_UUID,
@@ -100,6 +83,16 @@ export class ColibriBleService {
     }
   }
 
+  private reset() {
+    this.device = null
+    this.gatt = undefined
+    this.maxChunkSize = BLE_DEFAULT_CHUNK_SIZE
+    this.response = undefined
+    this.responseBuffer = ''
+
+    this.connected = false
+  }
+
   disconnect() {
     this.stopNotifications()
     this.stopDeviceListeners()
@@ -108,13 +101,7 @@ export class ColibriBleService {
       this.gatt.disconnect()
     }
 
-    this.device = null
-    this.gatt = undefined
-    this.maxChunkSize = BLE_DEFAULT_CHUNK_SIZE
-    this.response = undefined
-    this.responseBuffer = ''
-
-    this.connected = false
+    this.reset()
   }
 
   private async getCharacteristic(
@@ -126,34 +113,6 @@ export class ColibriBleService {
     const service = await this.gatt.getPrimaryService(serviceId)
     const characteristic = await service.getCharacteristic(characteristicId)
     return characteristic
-  }
-
-  private stringToBuffer(str: string): ArrayBuffer {
-    // we don't need encoding, only char->byte conversion
-    const buffer = new ArrayBuffer(str.length)
-    const view = new Uint8Array(buffer)
-    for (let i = 0; i < str.length; i++) {
-      view[i] = str.charCodeAt(i)
-    }
-    return buffer
-  }
-
-  private bufferToString(buffer: ArrayBuffer): string {
-    const view = new Uint8Array(buffer)
-    let str = ''
-    for (let i = 0; i < view.length; i++) {
-      if (view[i] != undefined) {
-        str += String.fromCharCode(view[i] as number)
-      }
-    }
-    return str.trim()
-  }
-
-  private dataViewToBuffer(dataView: DataView): ArrayBuffer {
-    return dataView.buffer.slice(
-      dataView.byteOffset,
-      dataView.byteOffset + dataView.byteLength
-    ) as ArrayBuffer
   }
 
   private async writeRaw(
@@ -172,7 +131,7 @@ export class ColibriBleService {
     const chunks: ArrayBuffer[] = []
     for (let i = 0; i < text.length; i += this.maxChunkSize) {
       const textChunk = text.substring(i, i + this.maxChunkSize)
-      chunks.push(this.stringToBuffer(textChunk))
+      chunks.push(stringToBuffer(textChunk))
     }
 
     for (const chunk of chunks) {
@@ -181,7 +140,7 @@ export class ColibriBleService {
     }
   }
 
-  private async writeJsonRpc(
+  async rpcCall(
     method: string,
     params: any[] = []
   ): Promise<JsonRpcResponse | undefined> {
@@ -192,13 +151,15 @@ export class ColibriBleService {
       params,
     }
     const str = JSON.stringify(input)
+
+    this.responseBuffer = ''
     this.response = undefined
 
     await this.writeString(str)
 
     let counter = 0
     const timeout = 35
-    const timeoutMax = 30_000
+    const timeoutMax = 20_000
     while (!this.response || (this.response as JsonRpcResponse).id !== id) {
       if (counter > timeoutMax) break
 
@@ -206,12 +167,9 @@ export class ColibriBleService {
       counter += timeout
     }
 
-    return this.response
-  }
+    if (!this.response) return
 
-  async ping(): Promise<boolean> {
-    const response = await this.writeJsonRpc('ping')
-    return !!response
+    return this.response as JsonRpcResponse
   }
 
   private async readRaw(
@@ -225,20 +183,12 @@ export class ColibriBleService {
     return characteristic.readValue()
   }
 
-  private notificationHandler(event: Event) {
-    const value = (event.target as BluetoothRemoteGATTCharacteristic).value
-    if (value) {
-      this.onNotification(value)
-    }
-  }
+  private onNotification(event: Event) {
+    const data = (event.target as BluetoothRemoteGATTCharacteristic).value
+    if (!data) return
 
-  private deviceDisconnectHandler() {
-    this.disconnect()
-  }
-
-  private onNotification(data: DataView) {
     try {
-      const str = this.bufferToString(this.dataViewToBuffer(data))
+      const str = bufferToString(dataViewToBuffer(data))
 
       if (str.startsWith('{')) {
         this.responseBuffer = ''
@@ -268,7 +218,7 @@ export class ColibriBleService {
       // Add event listener
       characteristic.addEventListener(
         'characteristicvaluechanged',
-        this.notificationHandler
+        this.onNotification
       )
     } catch (error) {
       console.error('Failed to start notifications:', error)
@@ -285,7 +235,7 @@ export class ColibriBleService {
 
       characteristic.removeEventListener(
         'characteristicvaluechanged',
-        this.notificationHandler
+        this.onNotification
       )
       await characteristic.stopNotifications()
     } catch (error) {
@@ -297,18 +247,12 @@ export class ColibriBleService {
   private startDeviceListeners() {
     if (!this.device) return
 
-    this.device.addEventListener(
-      'gattserverdisconnected',
-      this.deviceDisconnectHandler
-    )
+    this.device.addEventListener('gattserverdisconnected', this.disconnect)
   }
 
   private stopDeviceListeners() {
     if (!this.device) return
 
-    this.device.removeEventListener(
-      'gattserverdisconnected',
-      this.deviceDisconnectHandler
-    )
+    this.device.removeEventListener('gattserverdisconnected', this.disconnect)
   }
 }

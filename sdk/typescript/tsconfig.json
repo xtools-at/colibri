@@ -2,6 +2,15 @@
   "extends": "@total-typescript/tsconfig/tsc/dom/library",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
-  }
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

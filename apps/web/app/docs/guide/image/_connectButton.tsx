@@ -1,22 +1,23 @@
 'use client'
 
-import { useColibriBle } from 'colibri/useColibriBle'
+import { useColibri } from '@colibriwallet/sdk/react'
 
 export const ConnectButton = () => {
-  const { isAvailable, isConnected, connect, disconnect } = useColibriBle()
+  const { isBleAvailable, isBleConnected, connectBle, disconnectBle } =
+    useColibri()
 
   return (
     <button
       onClick={() => {
-        if (isConnected) {
-          disconnect()
+        if (isBleConnected) {
+          connectBle()
         } else {
-          connect()
+          disconnectBle()
         }
       }}
-      disabled={!isAvailable}
+      disabled={!isBleAvailable}
     >
-      {isConnected ? 'Disconnect from BLE' : 'Connect via BLE'}
+      {isBleConnected ? 'Disconnect from BLE' : 'Connect via BLE'}
     </button>
   )
 }

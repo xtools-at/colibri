@@ -1,33 +1,44 @@
 {
-  "name": "ts-npm-package-boilerplate-2024",
-  "type": "module",
-  "description": "TS NPM Package Boilerplate for 2024 ",
-  "version": "0.0.1",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "name": "@colibriwallet/sdk",
+  "description": "Typescript SDK for Colibri Wallet, incl. React hooks",
+  "version": "0.0.5",
+  "author": "xtools-at <https://github.com/xtools-at>",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/simonorzel26/ts-npm-package-boilerplate-2024.git"
+    "url": "git+https://github.com/xtools-at/colibri.git"
   },
-  "homepage": "https://github.com/simonorzel26/ts-npm-package-boilerplate-2024",
+  "bugs": {
+    "url": "https://github.com/xtools-at/colibri/issues"
+  },
+  "homepage": "https://colibri.diy",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./react": "./dist/react/index.js"
+  },
   "files": [
     "dist/**/*"
   ],
   "scripts": {
     "build": "tsc",
-    "check": "biome check --write ./src",
-    "workflow:check": "biome check ./src",
     "release": "pnpm run build && changeset publish"
   },
-  "author": "Simon Orzel",
-  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
     "@changesets/cli": "^2.27.7",
     "@total-typescript/tsconfig": "^1.0.4",
+    "@types/react": "^18.2.23",
+    "react": "18.3.1",
     "typescript": "^5.5.3"
-  },
-  "bugs": {
-    "url": "https://github.com/simonorzel26/ts-npm-package-boilerplate-2024/issues"
   }
 }

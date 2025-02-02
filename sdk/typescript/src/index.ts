@@ -1,3 +1,2 @@
-export const foo = (bar: string): string => {
-	return bar;
-};
+export * from './Colibri'
+export * from './types'

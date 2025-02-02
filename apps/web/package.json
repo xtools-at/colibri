@@ -10,6 +10,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@colibriwallet/sdk": "workspace:*",
     "clsx": "^2.1.0",
     "framer-motion": "^11.5.4",
     "next": "^15.0.2",

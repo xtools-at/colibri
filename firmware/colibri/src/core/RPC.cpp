@@ -251,7 +251,7 @@ void JsonRpcHandler::init() {
     return;
   }
 
-  // permissive methods
+  // unrestricted methods
   addMethod(RPC_METHOD_PING, ping, EMPTY, RPC_RESULT_STRING, Permission::Always);
   addMethod(
       RPC_METHOD_LIST_METHODS,
@@ -364,9 +364,8 @@ bool JsonRpcHandler::validateRequest(const JsonDocument& request, JsonDocument& 
   }
 
   // Check if the request contains parameters.
-  // Methods with only one optional parameter are not supported, hardcode affected ones here.
+  // Methods with only one optional parameter are not detected, hardcode affected ones here.
   bool methodRequiresParams = strlen(methods[methodName].paramsDescription) != 0 &&
-      methodName.compare(RPC_METHOD_LIST_METHODS) != 0 &&
       methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0;
 
   if (methodRequiresParams &&
