@@ -13,33 +13,22 @@
 extern Wallet wallet;
 extern bool isHot;
 
+void listMethods(const JsonDocument& request, JsonDocument& response);
+
 // Structure to hold method information
 struct RpcMethod {
   std::function<void(const JsonDocument&, JsonDocument&)> handle;
   const char* paramsDescription;  // Simplified parameter description
   const char* resultDescription;
-  Permission allowed;
+  Permission allowed = Permission::AfterKeysSetupAndUnlock;
 };
 
 // JSON RPC Handler
 class JsonRpcHandler {
  public:
-  JsonRpcHandler();
-
-  void init();
+  JsonRpcHandler() {};
   void handleRequest(const std::string& input, std::string& output);
 
  private:
-  void addMethod(
-      const char* name, std::function<void(const JsonDocument&, JsonDocument&)> handle,
-      const char* paramsDescription, const char* resultDescription,
-      Permission allowed = Permission::AfterKeysSetupAndUnlock
-  );
-  void listMethods(JsonDocument& response);
   bool validateRequest(const JsonDocument& request, JsonDocument& response);
-
-  bool initialised = false;
-  // Map to store method names and their corresponding functions and
-  // descriptions
-  std::map<std::string, RpcMethod> methods;
 };

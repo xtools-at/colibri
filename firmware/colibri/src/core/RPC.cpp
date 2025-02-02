@@ -13,9 +13,11 @@ static void rpcError(JsonDocument& response, const char* errorMsg, int errorCode
   jsonError[RPC_ERROR_MESSAGE] = errorMsg;
 }
 
-void ping(const JsonDocument& request, JsonDocument& response) { response[RPC_RESULT] = "pong"; }
+static void ping(const JsonDocument& request, JsonDocument& response) {
+  response[RPC_RESULT] = "pong";
+}
 
-void setPassword(const JsonDocument& request, JsonDocument& response) {
+static void setPassword(const JsonDocument& request, JsonDocument& response) {
   std::string password = request[RPC_PARAMS][0];
 
   // process and store the password
@@ -30,7 +32,7 @@ void setPassword(const JsonDocument& request, JsonDocument& response) {
   password.clear();
 }
 
-void unlock(const JsonDocument& request, JsonDocument& response) {
+static void unlock(const JsonDocument& request, JsonDocument& response) {
   if (!wallet.isLocked()) {
     return rpcError(response, RPC_ERROR_UNLOCKED, Status::InvalidRequest);
   }
@@ -48,12 +50,12 @@ void unlock(const JsonDocument& request, JsonDocument& response) {
   password.clear();
 }
 
-void lock(const JsonDocument& request, JsonDocument& response) {
+static void lock(const JsonDocument& request, JsonDocument& response) {
   wallet.lock();
   response[RPC_RESULT] = true;
 }
 
-void getStatus(const JsonDocument& request, JsonDocument& response) {
+static void getStatus(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
   resultsArray.add(!wallet.isLocked());
@@ -61,7 +63,7 @@ void getStatus(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.isPasswordSet());
 }
 
-void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
+static void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
   resultsArray.add(HW_DEVICE_NAME);
@@ -71,7 +73,7 @@ void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.storedSeedPhrases);
 }
 
-void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
+static void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
   // return wallet id, current chainType, address, pubkey, hdPath
@@ -82,7 +84,7 @@ void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.hdPath);
 }
 
-void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
+static void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
   if (!waitForApproval()) {
     return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
   }
@@ -94,7 +96,7 @@ void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.fingerprints[0]);
 }
 
-void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
+static void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
   if (!waitForApproval()) {
     return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
   }
@@ -106,7 +108,7 @@ void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(wallet.fingerprints[3]);
 }
 
-void wipe(const JsonDocument& request, JsonDocument& response) {
+static void wipe(const JsonDocument& request, JsonDocument& response) {
   WalletResponse r = wallet.wipeRemote();
 
   if (r.status < Ok) {
@@ -116,7 +118,7 @@ void wipe(const JsonDocument& request, JsonDocument& response) {
   }
 }
 
-void deletePairedDevices(const JsonDocument& request, JsonDocument& response) {
+static void deletePairedDevices(const JsonDocument& request, JsonDocument& response) {
   WalletResponse r = wallet.wipeRemote(true);
 
   if (r.status < Ok) {
@@ -126,7 +128,7 @@ void deletePairedDevices(const JsonDocument& request, JsonDocument& response) {
   }
 }
 
-void createMnemonic(const JsonDocument& request, JsonDocument& response) {
+static void createMnemonic(const JsonDocument& request, JsonDocument& response) {
   uint8_t words = request[RPC_PARAMS][0];
   uint16_t id = request[RPC_PARAMS][1];
 
@@ -150,7 +152,7 @@ void createMnemonic(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void addMnemonic(const JsonDocument& request, JsonDocument& response) {
+static void addMnemonic(const JsonDocument& request, JsonDocument& response) {
   std::string mnemonic = request[RPC_PARAMS][0];
   uint16_t id = request[RPC_PARAMS][1];
 
@@ -166,7 +168,7 @@ void addMnemonic(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void selectWallet(const JsonDocument& request, JsonDocument& response) {
+static void selectWallet(const JsonDocument& request, JsonDocument& response) {
   uint16_t id = request[RPC_PARAMS][0];
   const char* hdPath = request[RPC_PARAMS][1];
   const char* bip32Passphrase = request[RPC_PARAMS][2];
@@ -186,7 +188,7 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
   }
 }
 
-void signDigest(const JsonDocument& request, JsonDocument& response) {
+static void signDigest(const JsonDocument& request, JsonDocument& response) {
   std::string hash = request[RPC_PARAMS][0];
 
   WalletResponse r = wallet.signDigest(hash);
@@ -200,7 +202,7 @@ void signDigest(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void signMessage(const JsonDocument& request, JsonDocument& response) {
+static void signMessage(const JsonDocument& request, JsonDocument& response) {
   std::string msg = request[RPC_PARAMS][0];
   uint16_t chainType = request[RPC_PARAMS][1];
 
@@ -215,7 +217,7 @@ void signMessage(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
+static void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
   std::string domainSeparatorHash = request[RPC_PARAMS][0];
   std::string msgHash = request[RPC_PARAMS][1];
 
@@ -231,7 +233,7 @@ void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
   memzero(&r, sizeof(r));
 }
 
-void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
+static void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
   JsonArrayConst params = request[RPC_PARAMS];
 
   WalletResponse r = wallet.signTransaction(params);
@@ -244,77 +246,47 @@ void signEthereumTransaction(const JsonDocument& request, JsonDocument& response
   memzero(&r, sizeof(r));
 }
 
-JsonRpcHandler::JsonRpcHandler() : initialised(false) {}
+static std::map<std::string, RpcMethod> methods = {
+    // unrestricted methods
+    {RPC_METHOD_PING, {ping, EMPTY, RPC_RESULT_STRING, Always}},
+    // {RPC_METHOD_LIST_METHODS, {listMethods, EMPTY, RPC_RESULT_LIST_METHODS, Always}},
+    {RPC_METHOD_SET_PW, {setPassword, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Always}},
+    {RPC_METHOD_GET_STATUS, {getStatus, EMPTY, RPC_RESULT_STATUS, Always}},
+    // after password is set
+    {RPC_METHOD_UNLOCK, {unlock, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, AfterPasswordSetup}},
+    {RPC_METHOD_LOCK, {lock, EMPTY, RPC_RESULT_SUCCESS, AfterPasswordSetup}},
+    // after unlock
+    {RPC_METHOD_WIPE, {wipe, EMPTY, RPC_RESULT_SUCCESS, AfterUnlock}},
+    {RPC_METHOD_DELETE_PAIRED_DEVICES, {deletePairedDevices, EMPTY, RPC_RESULT_SUCCESS, AfterUnlock}
+    },
+    {RPC_METHOD_CREATE_MNEMONIC,
+     {createMnemonic, RPC_PARAMS_CREATE_MNEMONIC, RPC_RESULT_CREATE_MNEMONIC, AfterUnlock}},
+    {RPC_METHOD_ADD_MNEMONIC,
+     {addMnemonic, RPC_PARAMS_ADD_MNEMONIC, RPC_RESULT_ADD_MNEMONIC, AfterUnlock}},
+    {RPC_METHOD_GET_INFO, {getDeviceInfo, EMPTY, RPC_RESULT_INFO, AfterUnlock}},
+    // after unlock + keys set
+    {RPC_METHOD_GET_WALLET,
+     {getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET, AfterKeysSetupAndUnlock}},
+    {RPC_METHOD_EXPORT_XPUB_ROOT,
+     {exportXpubRoot, EMPTY, RPC_RESULT_EXPORT_XPUB, AfterKeysSetupAndUnlock}},
+    {RPC_METHOD_EXPORT_XPUB_ACCOUNT,
+     {exportXpubAccount, EMPTY, RPC_RESULT_EXPORT_XPUB, AfterKeysSetupAndUnlock}},
+    {RPC_METHOD_SELECT_WALLET,
+     {selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET, AfterKeysSetupAndUnlock}},
+    // signing
+    {RPC_METHOD_SIGN_HASH,
+     {signDigest, RPC_PARAMS_DIGEST, RPC_RESULT_SIGNATURE, AfterKeysSetupAndUnlock}},
+    {RPC_METHOD_SIGN_MSG,
+     {signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE, AfterKeysSetupAndUnlock}},
+    {RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH,
+     {signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH, RPC_RESULT_SIGNATURE, AfterKeysSetupAndUnlock}
+    },
+    {RPC_METHOD_ETH_SIGN_TX,
+     {signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX, RPC_RESULT_SIGNATURE, AfterKeysSetupAndUnlock
+     }},
+};
 
-void JsonRpcHandler::init() {
-  if (initialised) {
-    return;
-  }
-
-  // permissive methods
-  addMethod(RPC_METHOD_PING, ping, EMPTY, RPC_RESULT_STRING, Permission::Always);
-  addMethod(
-      RPC_METHOD_LIST_METHODS,
-      [this](const JsonDocument& request, JsonDocument& response) { this->listMethods(response); },
-      EMPTY, RPC_RESULT_LIST_METHODS, Permission::Always
-  );
-  addMethod(RPC_METHOD_SET_PW, setPassword, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Permission::Always);
-  addMethod(RPC_METHOD_GET_STATUS, getStatus, EMPTY, RPC_RESULT_STATUS, Permission::Always);
-
-  // after password is set
-  addMethod(
-      RPC_METHOD_UNLOCK, unlock, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Permission::AfterPasswordSetup
-  );
-  addMethod(RPC_METHOD_LOCK, lock, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterPasswordSetup);
-
-  // after unlock
-  addMethod(RPC_METHOD_WIPE, wipe, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
-  addMethod(
-      RPC_METHOD_DELETE_PAIRED_DEVICES, deletePairedDevices, EMPTY, RPC_RESULT_SUCCESS,
-      Permission::AfterUnlock
-  );
-  addMethod(
-      RPC_METHOD_CREATE_MNEMONIC, createMnemonic, RPC_PARAMS_CREATE_MNEMONIC,
-      RPC_RESULT_CREATE_MNEMONIC, Permission::AfterUnlock
-  );
-  addMethod(
-      RPC_METHOD_ADD_MNEMONIC, addMnemonic, RPC_PARAMS_ADD_MNEMONIC, RPC_RESULT_ADD_MNEMONIC,
-      Permission::AfterUnlock
-  );
-  addMethod(RPC_METHOD_GET_INFO, getDeviceInfo, EMPTY, RPC_RESULT_INFO, Permission::AfterUnlock);
-
-  // after unlock + keys set
-  addMethod(RPC_METHOD_GET_WALLET, getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET);
-  addMethod(RPC_METHOD_EXPORT_XPUB_ROOT, exportXpubRoot, EMPTY, RPC_RESULT_EXPORT_XPUB);
-  addMethod(RPC_METHOD_EXPORT_XPUB_ACCOUNT, exportXpubAccount, EMPTY, RPC_RESULT_EXPORT_XPUB);
-  addMethod(
-      RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET
-  );
-
-  // - signing
-  addMethod(RPC_METHOD_SIGN_HASH, signDigest, RPC_PARAMS_DIGEST, RPC_RESULT_SIGNATURE);
-  addMethod(RPC_METHOD_SIGN_MSG, signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE);
-  addMethod(
-      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH,
-      RPC_RESULT_SIGNATURE
-  );
-  addMethod(
-      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX, RPC_RESULT_SIGNATURE
-  );
-
-  initialised = true;
-}
-
-// Add or update a method with its handling function and parameter description
-void JsonRpcHandler::addMethod(
-    const char* name, std::function<void(const JsonDocument&, JsonDocument&)> handle,
-    const char* paramsDescription, const char* resultDescription, Permission allowed
-) {
-  methods[name] = {handle, paramsDescription, resultDescription, allowed};
-}
-
-// adds a list of all available methods to response->result
-void JsonRpcHandler::listMethods(JsonDocument& response) {
+void listMethods(const JsonDocument& request, JsonDocument& response) {
   JsonArray resultsArray = response[RPC_RESULT].to<JsonArray>();
 
   for (const auto& method : methods) {
