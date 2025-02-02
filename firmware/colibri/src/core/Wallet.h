@@ -55,9 +55,9 @@ class Wallet {
   std::string getAddress();
 
   WalletResponse signDigest(std::string& hexDigest);
-  WalletResponse signMessage(std::string& message, ChainType chainTypeOverride = UNKNOWN);
+  WalletResponse signMessage(std::string& message);
   WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
-  WalletResponse signTransaction(JsonArrayConst input, ChainType chainTypeOverride = UNKNOWN);
+  WalletResponse signTransaction(JsonArrayConst input);
 
  private:
   void deleteHdNode();

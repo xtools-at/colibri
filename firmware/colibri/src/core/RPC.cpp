@@ -204,9 +204,8 @@ static void signDigest(const JsonDocument& request, JsonDocument& response) {
 
 static void signMessage(const JsonDocument& request, JsonDocument& response) {
   std::string msg = request[RPC_PARAMS][0];
-  uint16_t chainType = request[RPC_PARAMS][1];
 
-  WalletResponse r = wallet.signMessage(msg, (ChainType)chainType);
+  WalletResponse r = wallet.signMessage(msg);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {

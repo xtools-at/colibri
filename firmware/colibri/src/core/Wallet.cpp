@@ -209,7 +209,6 @@ void Wallet::lock() {
   deleteHdNode();
   memzero(pwHash, sizeof(pwHash));
   memzero(&storedSeedPhrases, sizeof(storedSeedPhrases));
-  memzero(&walletId, sizeof(walletId));
 
   timeLastActivity = 0;
 
@@ -377,6 +376,7 @@ void Wallet::deleteHdNode() {
   memzero(&accountId, sizeof(accountId));
   memzero(&chainType, sizeof(chainType));
   memzero(&hdPathDepth, sizeof(hdPathDepth));
+  memzero(&walletId, sizeof(walletId));
 
   log_v("cleared hd node");
 }
@@ -535,14 +535,13 @@ WalletResponse Wallet::signDigest(std::string& hexDigest) {
   return WalletResponse(signature);
 }
 
-WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainTypeOverride) {
+WalletResponse Wallet::signTransaction(JsonArrayConst input) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
-  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
-  log_i("Signing tx (chain type %d)", useChainType);
+  log_i("Signing tx (chain type %d)", chainType);
 
-  if (useChainType == ETH) {
+  if (chainType == ETH) {
     // Ethereum
     return ethSignTransaction(&hdNode, input);
   }
@@ -550,18 +549,17 @@ WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainType
   return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
 }
 
-WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOverride) {
+WalletResponse Wallet::signMessage(std::string& message) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   std::string signature;
-  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
-  log_i("Signing message (type %d): %s", useChainType, message.c_str());
+  log_i("Signing message (type %d): %s", chainType, message.c_str());
 
-  if (useChainType == ETH) {
+  if (chainType == ETH) {
     // Ethereum
     signature = ethSignMessage(&hdNode, message);
-  } else if (useChainType == BTC) {
+  } else if (chainType == BTC) {
     // Bitcoin
     signature = btcSignMessage(&hdNode, message, slip44, bipPurpose);
   } else {
