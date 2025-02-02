@@ -62,8 +62,12 @@ export class Colibri implements ColibriMethods {
   }
 
   connectBle = async () => {
-    await this.ble.connect()
-    this.connection = this.ble
+    try {
+      await this.ble.connect()
+      this.connection = this.ble
+    } catch (error) {
+      this.disconnectBle()
+    }
 
     await this.getStatus()
     this.stateChanged()

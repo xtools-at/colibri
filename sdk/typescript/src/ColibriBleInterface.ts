@@ -2,9 +2,9 @@ import type { JsonRpcResponse, ColibriInterface } from './types'
 import { stringToBuffer, bufferToString, dataViewToBuffer } from './utils'
 
 const BLE_SERVICE_UUID = '31415926-5358-9793-2384-626433832795'
-const BLE_CHARACTERISTIC_INPUT = 'C001'
-const BLE_CHARACTERISTIC_OUTPUT = 'C000'
-const BLE_CHARACTERISTIC_CHUNK_SIZE = 'BB73'
+const BLE_CHARACTERISTIC_INPUT = 0xc001
+const BLE_CHARACTERISTIC_OUTPUT = 0xc000
+const BLE_CHARACTERISTIC_CHUNK_SIZE = 0xbb73
 const BLE_DEFAULT_CHUNK_SIZE = 20
 
 const BLE_DEFAULT_REQUEST_OPTIONS: RequestDeviceOptions = {
@@ -30,16 +30,16 @@ export class ColibriBleInterface implements ColibriInterface {
     this.stateCallback = stateCallback
   }
 
-  isAvailable(): boolean {
+  isAvailable = (): boolean => {
     return !!this.bluetooth?.requestDevice
   }
 
-  isConnected(): boolean {
+  isConnected = (): boolean => {
     this.connected = !!this.gatt?.connected
     return this.connected
   }
 
-  async connect(options?: RequestDeviceOptions): Promise<void> {
+  connect = async (options?: RequestDeviceOptions): Promise<void> => {
     if (!this.isAvailable()) {
       throw new Error('Web Bluetooth API is not available')
     }
@@ -56,6 +56,10 @@ export class ColibriBleInterface implements ColibriInterface {
       const device = await this.bluetooth!.requestDevice(options)
       const gatt = await device.gatt?.connect()
 
+      if (!gatt) {
+        throw new Error('Failed to connect to GATT server')
+      }
+
       this.device = device
       this.gatt = gatt
       this.connected = true
@@ -65,12 +69,12 @@ export class ColibriBleInterface implements ColibriInterface {
       this.startDeviceListeners()
       this.startNotifications()
     } catch (error) {
-      console.error(`Failed to connect: ${error}`)
+      console.warn(`Failed to connect: ${error}`)
       throw error
     }
   }
 
-  private async updateMaxChunkSize(): Promise<void> {
+  private updateMaxChunkSize = async (): Promise<void> => {
     try {
       const chunkBytes = await this.readRaw(
         BLE_SERVICE_UUID,
@@ -83,7 +87,7 @@ export class ColibriBleInterface implements ColibriInterface {
     }
   }
 
-  private reset() {
+  private reset = () => {
     this.device = null
     this.gatt = undefined
     this.maxChunkSize = BLE_DEFAULT_CHUNK_SIZE
@@ -93,7 +97,7 @@ export class ColibriBleInterface implements ColibriInterface {
     this.connected = false
   }
 
-  disconnect() {
+  disconnect = () => {
     this.stopNotifications()
     this.stopDeviceListeners()
 
@@ -108,10 +112,10 @@ export class ColibriBleInterface implements ColibriInterface {
     this.reset()
   }
 
-  private async getCharacteristic(
+  private getCharacteristic = async (
     serviceId: string,
-    characteristicId: string
-  ): Promise<BluetoothRemoteGATTCharacteristic> {
+    characteristicId: number
+  ): Promise<BluetoothRemoteGATTCharacteristic> => {
     if (!this.gatt) throw new Error('No device connected')
 
     const service = await this.gatt.getPrimaryService(serviceId)
@@ -119,11 +123,11 @@ export class ColibriBleInterface implements ColibriInterface {
     return characteristic
   }
 
-  private async writeRaw(
+  private writeRaw = async (
     serviceId: string,
-    characteristicId: string,
+    characteristicId: number,
     data: ArrayBuffer
-  ): Promise<void> {
+  ): Promise<void> => {
     const characteristic = await this.getCharacteristic(
       serviceId,
       characteristicId
@@ -131,7 +135,7 @@ export class ColibriBleInterface implements ColibriInterface {
     await characteristic.writeValue(data)
   }
 
-  private async writeString(text: string): Promise<void> {
+  private writeString = async (text: string): Promise<void> => {
     const chunks: ArrayBuffer[] = []
     for (let i = 0; i < text.length; i += this.maxChunkSize) {
       const textChunk = text.substring(i, i + this.maxChunkSize)
@@ -144,11 +148,11 @@ export class ColibriBleInterface implements ColibriInterface {
     }
   }
 
-  async rpcCall(
+  rpcCall = async (
     method: string,
     params: any[] = []
-  ): Promise<JsonRpcResponse | undefined> {
-    const id = Math.abs(Math.random() * 100)
+  ): Promise<JsonRpcResponse | undefined> => {
+    const id = Math.round(Math.random() * 100)
     const input = {
       id,
       method,
@@ -166,20 +170,24 @@ export class ColibriBleInterface implements ColibriInterface {
     const timeoutMax = 20_000
     while (!this.response || (this.response as JsonRpcResponse).id !== id) {
       if (counter > timeoutMax) break
+      console.log('Waiting for response...', this.response)
 
       await new Promise((resolve) => setTimeout(resolve, timeout))
       counter += timeout
     }
 
-    if (!this.response) return
+    if (!this.response) {
+      console.warn('Request timed out')
+      return
+    }
 
     return this.response as JsonRpcResponse
   }
 
-  private async readRaw(
+  private readRaw = async (
     serviceId: string,
-    characteristicId: string
-  ): Promise<DataView> {
+    characteristicId: number
+  ): Promise<DataView> => {
     const characteristic = await this.getCharacteristic(
       serviceId,
       characteristicId
@@ -187,12 +195,14 @@ export class ColibriBleInterface implements ColibriInterface {
     return characteristic.readValue()
   }
 
-  private onNotification(event: Event) {
+  private onNotification = (event: Event) => {
     const data = (event.target as BluetoothRemoteGATTCharacteristic).value
+    console.log('onNotification', data)
     if (!data) return
 
     try {
       const str = bufferToString(dataViewToBuffer(data))
+      console.log('onNotification str', str)
 
       if (str.startsWith('{')) {
         this.responseBuffer = ''
@@ -201,6 +211,7 @@ export class ColibriBleInterface implements ColibriInterface {
 
       if (this.responseBuffer.endsWith('}')) {
         const json = JSON.parse(this.responseBuffer)
+        console.log('parsed', json)
         this.response = json
         this.responseBuffer = ''
       }
@@ -209,7 +220,7 @@ export class ColibriBleInterface implements ColibriInterface {
     }
   }
 
-  private async startNotifications(): Promise<void> {
+  private startNotifications = async (): Promise<void> => {
     try {
       const characteristic = await this.getCharacteristic(
         BLE_SERVICE_UUID,
@@ -225,12 +236,12 @@ export class ColibriBleInterface implements ColibriInterface {
         this.onNotification
       )
     } catch (error) {
-      console.error('Failed to start notifications:', error)
+      console.warn('Failed to start notifications:', error)
       throw error
     }
   }
 
-  private async stopNotifications(): Promise<void> {
+  private stopNotifications = async (): Promise<void> => {
     try {
       const characteristic = await this.getCharacteristic(
         BLE_SERVICE_UUID,
@@ -243,18 +254,18 @@ export class ColibriBleInterface implements ColibriInterface {
       )
       await characteristic.stopNotifications()
     } catch (error) {
-      console.error('Failed to stop notifications:', error)
+      console.warn('Failed to stop notifications:', error)
       throw error
     }
   }
 
-  private startDeviceListeners() {
+  private startDeviceListeners = () => {
     if (!this.device) return
 
     this.device.addEventListener('gattserverdisconnected', this.disconnect)
   }
 
-  private stopDeviceListeners() {
+  private stopDeviceListeners = () => {
     if (!this.device) return
 
     this.device.removeEventListener('gattserverdisconnected', this.disconnect)
