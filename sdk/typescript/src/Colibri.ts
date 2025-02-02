@@ -46,7 +46,7 @@ export class Colibri {
     return this.ble.isConnected()
   }
 
-  private async rpcCall(method: string, params?: any[]) {
+  private async rpcCall(method: string, params: any[] = []) {
     if (!this.connection) {
       throw new Error('Not connected')
     }
@@ -63,8 +63,8 @@ export class Colibri {
   }
 
   async ping(): Promise<boolean> {
-    const res = await this.rpcCall(RPC_METHOD_PING)
-    return res as unknown as boolean
+    const res = await this.rpcCall(RPC_METHOD_PING) // returns string 'pong'
+    return !!res?.length
   }
 
   async listMethods(): Promise<Array<Record<string, string>>> {
