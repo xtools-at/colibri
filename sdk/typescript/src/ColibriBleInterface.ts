@@ -170,7 +170,6 @@ export class ColibriBleInterface implements ColibriInterface {
     const timeoutMax = 20_000
     while (!this.response || (this.response as JsonRpcResponse).id !== id) {
       if (counter > timeoutMax) break
-      console.log('Waiting for response...', this.response)
 
       await new Promise((resolve) => setTimeout(resolve, timeout))
       counter += timeout
@@ -197,12 +196,10 @@ export class ColibriBleInterface implements ColibriInterface {
 
   private onNotification = (event: Event) => {
     const data = (event.target as BluetoothRemoteGATTCharacteristic).value
-    console.log('onNotification', data)
     if (!data) return
 
     try {
       const str = bufferToString(dataViewToBuffer(data))
-      console.log('onNotification str', str)
 
       if (str.startsWith('{')) {
         this.responseBuffer = ''
@@ -211,7 +208,6 @@ export class ColibriBleInterface implements ColibriInterface {
 
       if (this.responseBuffer.endsWith('}')) {
         const json = JSON.parse(this.responseBuffer)
-        console.log('parsed', json)
         this.response = json
         this.responseBuffer = ''
       }
