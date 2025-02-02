@@ -9,7 +9,7 @@ export const ConnectButton = () => {
   return (
     <button
       onClick={() => {
-        if (isBleConnected) {
+        if (!isBleConnected) {
           connectBle()
         } else {
           disconnectBle()

@@ -18,16 +18,16 @@ export class ColibriBleInterface implements ColibriInterface {
   private maxChunkSize: number = BLE_DEFAULT_CHUNK_SIZE
   private responseBuffer: string = ''
   private response: JsonRpcResponse | undefined = undefined
+  private stateCallback: (() => void) | undefined
 
   public connected = false
 
-  constructor(webBleLibrary?: Bluetooth) {
+  constructor(stateCallback?: (() => void) | undefined) {
     if (typeof window !== 'undefined') {
       this.bluetooth = navigator.bluetooth
     }
-    if (webBleLibrary) {
-      this.bluetooth = webBleLibrary
-    }
+
+    this.stateCallback = stateCallback
   }
 
   isAvailable(): boolean {
@@ -99,6 +99,10 @@ export class ColibriBleInterface implements ColibriInterface {
 
     if (this.gatt?.connected) {
       this.gatt.disconnect()
+    }
+
+    if (this.stateCallback) {
+      this.stateCallback()
     }
 
     this.reset()

@@ -23,6 +23,7 @@
     "dist/**/*"
   ],
   "scripts": {
+    "dev": "tsc --watch",
     "build": "tsc",
     "release": "pnpm run build && changeset publish"
   },
