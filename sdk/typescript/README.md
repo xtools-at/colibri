@@ -39,7 +39,7 @@ if (colibri.isBleConnected()) {
 Wrap your root layout with the `ColibriProvider`:
 
 ```tsx
-// e.g. src/app/layout.tsx
+// e.g. app/layout.tsx or pages/_app.tsx
 import { ColibriProvider } from '@colibriwallet/sdk/react'
 
 export default function RootLayout({

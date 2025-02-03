@@ -43,7 +43,7 @@ export class Colibri implements ColibriMethods {
     this.ble = new ColibriBleInterface(this.stateChanged)
   }
 
-  private reset() {
+  private reset = () => {
     this.isUnlocked = false
     this.isSeedPhraseSet = false
     this.isPasswordSet = false

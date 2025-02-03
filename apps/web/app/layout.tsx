@@ -14,6 +14,7 @@ import { getPageMap } from 'nextra/page-map'
 import type { FC, ReactNode } from 'react'
 import './globals.css'
 import { ColibriProvider } from '@colibriwallet/sdk/react'
+import Script from 'next/script'
 
 const APP_NAME = 'Colibri'
 const APP_URL = 'https://colibri.diy'
@@ -227,6 +228,7 @@ const RootLayout: FC<{
           >
             {children}
           </Layout>
+          <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
         </body>
       </html>
     </ColibriProvider>

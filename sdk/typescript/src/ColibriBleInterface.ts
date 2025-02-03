@@ -4,7 +4,7 @@ import { stringToBuffer, bufferToString, dataViewToBuffer } from './utils'
 const BLE_SERVICE_UUID = '31415926-5358-9793-2384-626433832795'
 const BLE_CHARACTERISTIC_INPUT = 0xc001
 const BLE_CHARACTERISTIC_OUTPUT = 0xc000
-const BLE_CHARACTERISTIC_CHUNK_SIZE = 0xbb73
+const BLE_CHARACTERISTIC_CHUNK_SIZE = 0xcb73
 const BLE_DEFAULT_CHUNK_SIZE = 20
 
 const BLE_DEFAULT_REQUEST_OPTIONS: RequestDeviceOptions = {
@@ -64,7 +64,13 @@ export class ColibriBleInterface implements ColibriInterface {
       this.gatt = gatt
       this.connected = true
 
-      setTimeout(() => this.updateMaxChunkSize(), 1000)
+      setTimeout(() => {
+        try {
+          this.updateMaxChunkSize()
+        } catch (e) {
+          console.error(e)
+        }
+      }, 1000)
 
       this.startDeviceListeners()
       this.startNotifications()

@@ -7,7 +7,7 @@ import type { ColibriContextType } from '../types'
 export const useColibri = (): ColibriContextType => {
   const context = useContext(ColibriContext)
   if (!context) {
-    throw new Error('useColibri must be used within a ColibriProvider')
+    throw new Error('`useColibri()` must be used within a <ColibriProvider>')
   }
   return context
 }

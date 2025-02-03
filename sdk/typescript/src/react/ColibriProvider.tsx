@@ -11,6 +11,7 @@ export const ColibriContext = createContext<ColibriContextType>(
 export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // init states
   const [colibri] = useState(new Colibri())
   const [isBleAvailable, setIsBleAvailable] = useState(false)
   const [isBleConnected, setIsBleConnected] = useState(false)
@@ -28,6 +29,7 @@ export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
   const [pubKey, setPubKey] = useState('')
   const [hdPath, setHdPath] = useState('')
 
+  // update React states on change
   useEffect(() => {
     const changeHandler = (data: ColibriStatus) => {
       setIsBleAvailable(data.isBleAvailable)
@@ -54,6 +56,7 @@ export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [colibri])
 
+  // expose methods
   const {
     connectBle,
     disconnectBle,
