@@ -1,16 +1,18 @@
-# Colibri Typescript SDK
+# Colibri TypeScript SDK
 
-for Web and React
+Zero-dependency TypeScript SDK for the [Colibri.diy](https://colibri.diy) hardware wallet, for Web and React. This package is part of the [Colibri monorepo](https://github.com/xtools-at/colibri).
 
-## Install
+## Getting started
+
+First, install the SDK from [npm](https://www.npmjs.com/package/@colibriwallet/sdk):
 
 ```bash
 pnpm i @colibriwallet/sdk
 ```
 
-## Use
+### TypeScript
 
-### Typescript
+In your TypeScript- or Javascript file, import and instantiate the `Colibri` class to use it:
 
 ```typescript
 import { Colibri } from '@colibriwallet/sdk'
@@ -36,10 +38,12 @@ if (colibri.isBleConnected()) {
 
 ### React
 
-Wrap your root layout with the `ColibriProvider`:
+The SDK includes a React context provider, and a hook to access wallet state and all SDK methods. React >= 18 is required as a peer-dependency for this to work.
+
+You'll need to wrap your root layout with the `ColibriProvider` like this:
 
 ```tsx
-// e.g. app/layout.tsx or pages/_app.tsx
+// e.g. your app/layout.tsx or pages/_app.tsx
 import { ColibriProvider } from '@colibriwallet/sdk/react'
 
 export default function RootLayout({
@@ -48,11 +52,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html>
-      <body>
-        <ColibriProvider>{children}</ColibriProvider>
-      </body>
-    </html>
+    <ColibriProvider>
+      <html>
+        <body>{children}</body>
+      </html>
+    </ColibriProvider>
   )
 }
 ```
@@ -85,4 +89,4 @@ export const ConnectButton = () => {
 
 ## License
 
-licensed under the [MIT](https://github.com/xtools-at/colibri/blob/main/sdk/typescript/LICENSE.md) license.
+Copyright © 2025 by [The Colibri Project](https://colibri.diy). This package is licensed under the [MIT](https://github.com/xtools-at/colibri/blob/main/sdk/typescript/LICENSE.md) license.
