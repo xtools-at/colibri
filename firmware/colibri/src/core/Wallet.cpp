@@ -309,24 +309,24 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
   uint16_t counter = store.readWalletCounter();
   log_d("Read wallet counter: %d", counter);
   uint16_t newCounter = counter + 1;
-  uint16_t walletId = newCounter;
+  uint16_t newWalletId = newCounter;
 
   // overwrite existing wallet
   if (overwriteId) {
-    if (overwriteId < walletId) {
+    if (overwriteId < newWalletId) {
       log_d("Overwriting wallet #%d", overwriteId);
 
-      walletId = overwriteId;
+      newWalletId = overwriteId;
       newCounter = counter;
     } else {
       log_e(
           "Error: non-existing wallet id #%d passed, using next available slot #%d instead",
-          overwriteId, walletId
+          overwriteId, newWalletId
       );
     }
   }
 
-  if (store.isOutOfBounds(walletId))
+  if (store.isOutOfBounds(newWalletId))
     return WalletResponse(InvalidRequest, RPC_ERROR_MNEMONIC_STORE);
 
   log_ss("input mnemonic: %s", mnemonic.c_str());
@@ -338,19 +338,19 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
   if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   // encrypt mnemonic with password
-  encryptAndStoreMnemonic(walletId, mnemonic, pwHash);
+  encryptAndStoreMnemonic(newWalletId, mnemonic, pwHash);
 
   // update counters
   store.writeWalletCounter(newCounter);
   storedSeedPhrases = newCounter;
 
   // select wallet if it's the first one
-  if (walletId == 1) {
-    selectWallet(walletId);
+  if (newWalletId == 1) {
+    selectWallet(newWalletId);
   }
 
-  // return walletId (compatible with Status since always >=1) and mnemonic
-  return WalletResponse((Status)walletId, mnemonic);
+  // return wallet ID (compatible with Status since always >=1) and mnemonic
+  return WalletResponse((Status)newWalletId, mnemonic);
 }
 
 WalletResponse Wallet::createMnemonic(uint8_t words, uint16_t overwriteId) {
