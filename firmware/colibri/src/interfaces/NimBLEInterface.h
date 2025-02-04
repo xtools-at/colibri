@@ -10,8 +10,6 @@
 
   #include "../utils/trng.h"
 
-NimBLECharacteristic *pCharChunkLen;
-
 class NimBLEInterface : public Interface {
  public:
   NimBLEInterface() : Interface() {};

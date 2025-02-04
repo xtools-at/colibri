@@ -79,11 +79,6 @@ class BLEServerCallback : public NimBLEServerCallbacks {
     pServer->startAdvertising();
   }
 
-  void onMTUChange(uint16_t MTU, ble_gap_conn_desc *desc) {
-    log_d("MTU changed to %d", MTU);
-    pCharChunkLen->setValue(getMaxChunkLen(MTU));
-  }
-
   uint32_t onPassKeyRequest() {
   #ifdef DISPLAY_ENABLED
       // TODO: show passkey on display
@@ -131,10 +126,6 @@ void NimBLEInterface::init() {
   pCharOutput =
       pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
   pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
-
-  // - mtu:
-  pCharChunkLen = pService->createCharacteristic(BLE_CHARACTERISTIC_CHUNK_SIZE, propRead);
-  pCharChunkLen->setValue(20);  // minimum MTU
 
   // start BLE advertising
   pService->start();

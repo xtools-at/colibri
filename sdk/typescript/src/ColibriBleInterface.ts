@@ -4,8 +4,7 @@ import { stringToBuffer, bufferToString, dataViewToBuffer } from './utils'
 const BLE_SERVICE_UUID = '31415926-5358-9793-2384-626433832795'
 const BLE_CHARACTERISTIC_INPUT = 0xc001
 const BLE_CHARACTERISTIC_OUTPUT = 0xc000
-const BLE_CHARACTERISTIC_CHUNK_SIZE = 0xcb73
-const BLE_DEFAULT_CHUNK_SIZE = 20
+const BLE_DEFAULT_CHUNK_SIZE = 248
 
 const BLE_DEFAULT_REQUEST_OPTIONS: RequestDeviceOptions = {
   filters: [{ services: [BLE_SERVICE_UUID] }],
@@ -15,7 +14,6 @@ export class ColibriBleInterface implements ColibriInterface {
   private bluetooth: Bluetooth | undefined = undefined
   private device: BluetoothDevice | null = null
   private gatt: BluetoothRemoteGATTServer | undefined = undefined
-  private maxChunkSize: number = BLE_DEFAULT_CHUNK_SIZE
   private responseBuffer: string = ''
   private response: JsonRpcResponse | undefined = undefined
   private stateCallback: (() => void) | undefined
@@ -64,14 +62,6 @@ export class ColibriBleInterface implements ColibriInterface {
       this.gatt = gatt
       this.connected = true
 
-      setTimeout(() => {
-        try {
-          this.updateMaxChunkSize()
-        } catch (e) {
-          console.error(e)
-        }
-      }, 1000)
-
       this.startDeviceListeners()
       this.startNotifications()
     } catch (error) {
@@ -80,23 +70,9 @@ export class ColibriBleInterface implements ColibriInterface {
     }
   }
 
-  private updateMaxChunkSize = async (): Promise<void> => {
-    try {
-      const chunkBytes = await this.readRaw(
-        BLE_SERVICE_UUID,
-        BLE_CHARACTERISTIC_CHUNK_SIZE
-      )
-      this.maxChunkSize = chunkBytes.getUint16(0, true)
-    } catch (error) {
-      console.error(error)
-      this.maxChunkSize = BLE_DEFAULT_CHUNK_SIZE
-    }
-  }
-
   private reset = () => {
     this.device = null
     this.gatt = undefined
-    this.maxChunkSize = BLE_DEFAULT_CHUNK_SIZE
     this.response = undefined
     this.responseBuffer = ''
 
@@ -143,8 +119,8 @@ export class ColibriBleInterface implements ColibriInterface {
 
   private writeString = async (text: string): Promise<void> => {
     const chunks: ArrayBuffer[] = []
-    for (let i = 0; i < text.length; i += this.maxChunkSize) {
-      const textChunk = text.substring(i, i + this.maxChunkSize)
+    for (let i = 0; i < text.length; i += BLE_DEFAULT_CHUNK_SIZE) {
+      const textChunk = text.substring(i, i + BLE_DEFAULT_CHUNK_SIZE)
       chunks.push(stringToBuffer(textChunk))
     }
 
