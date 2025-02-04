@@ -18,6 +18,9 @@
     <a href="https://bsky.app/profile/xtools.at" target="_blank">
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/connect-on_Bluesky-dodgerblue?logo=bluesky" />
     </a>
+    <a href="https://hachyderm.io/@xtools" target="_blank" rel="me">
+      <img alt="connect on Mastodon" src="https://img.shields.io/badge/connect-on_Mastodon-violet?logo=mastodon" />
+    </a>
 </p>
 
 **Colibri** is a free and open source DIY project, with the goal to enable everyone with _$5 and access to a laptop and Internet_ to create their own secure _hardware wallet_, using off-the-shelf hardware development boards.
@@ -107,7 +110,7 @@ Valuable extensions to the project, once the core product is functional:
 
 ## License
 
-Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the contents of the Colibri monorepo are _copyright © 2024-2025 by Colibri contributors_, and are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License.
+Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the contents of the Colibri monorepo are _copyright © 2024-2025 by The Colibri Project_, and are licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License.
 
 The names "Colibri", "Colibri.diy" and "Colibri Wallet", as well as the Colibri logo are _copyright © 2024 by [xtools-at](https://github.com/xtools-at)_, and are licensed under [CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0) - Creative Commons Attribution-NonCommercial 4.0.
 
