@@ -14,6 +14,7 @@ export interface ColibriStatus {
   address: string
   pubKey: string
   hdPath: string
+  remainingAttempts: number
 }
 
 export interface ColibriMethods {
@@ -26,6 +27,7 @@ export interface ColibriMethods {
     unlocked: boolean
     seedPhraseSet: boolean
     passwordSet: boolean
+    remainingAttempts: number
   }>
   unlock: (password: string) => Promise<boolean>
   lock: () => Promise<boolean>

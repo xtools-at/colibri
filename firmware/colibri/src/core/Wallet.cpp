@@ -185,7 +185,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
     }
 #endif
 
-    return WalletResponse(InvalidParams, RPC_ERROR_PW_WRONG);
+    return WalletResponse(Unauthorized, RPC_ERROR_PW_WRONG);
   }
 
   // successful unlock

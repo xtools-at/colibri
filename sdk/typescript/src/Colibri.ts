@@ -38,6 +38,7 @@ export class Colibri implements ColibriMethods {
   public address = ''
   public pubKey = ''
   public hdPath = ''
+  public remainingAttempts = 0
 
   constructor() {
     this.ble = new ColibriBleInterface(this.stateChanged)
@@ -57,6 +58,7 @@ export class Colibri implements ColibriMethods {
     this.address = ''
     this.pubKey = ''
     this.hdPath = ''
+    this.remainingAttempts = 0
 
     this.connection = undefined
   }
@@ -67,6 +69,7 @@ export class Colibri implements ColibriMethods {
       this.connection = this.ble
     } catch (error) {
       this.disconnectBle()
+      throw error
     }
 
     await this.getStatus()
@@ -74,7 +77,9 @@ export class Colibri implements ColibriMethods {
   }
 
   disconnectBle = () => {
-    this.ble.disconnect()
+    try {
+      this.ble.disconnect()
+    } catch (error) {}
     this.connection = undefined
     this.stateChanged()
   }
@@ -116,6 +121,7 @@ export class Colibri implements ColibriMethods {
         address,
         pubKey,
         hdPath,
+        remainingAttempts,
       } = this
 
       this.stateCallback({
@@ -134,6 +140,7 @@ export class Colibri implements ColibriMethods {
         address,
         pubKey,
         hdPath,
+        remainingAttempts,
       })
     }
   }
@@ -174,33 +181,33 @@ export class Colibri implements ColibriMethods {
 
   getStatus = async () => {
     const res = await this.rpcCall(RPC_METHOD_GET_STATUS)
-    const [unlocked, seedPhraseSet, passwordSet] = res as unknown as [
-      boolean,
-      boolean,
-      boolean,
-    ]
+    const [unlocked, seedPhraseSet, passwordSet, remainingAttempts] =
+      res as unknown as [boolean, boolean, boolean, number]
 
     this.isUnlocked = unlocked
     this.isSeedPhraseSet = seedPhraseSet
     this.isPasswordSet = passwordSet
+    this.remainingAttempts = remainingAttempts
     this.stateChanged()
 
     return {
       unlocked,
       seedPhraseSet,
       passwordSet,
+      remainingAttempts,
     }
   }
 
-  unlock = async (password: string): Promise<boolean> => {
+  unlock = async (password: string) => {
     const res = await this.rpcCall(RPC_METHOD_UNLOCK, [password])
     const unlocked = res as unknown as boolean
 
-    if (unlocked) {
-      this.isUnlocked = true
+    this.isUnlocked = unlocked
 
+    if (unlocked) {
       await this.getDeviceInfo()
       await this.getSelectedWallet()
+      await this.getStatus()
     }
 
     return unlocked
@@ -223,6 +230,7 @@ export class Colibri implements ColibriMethods {
 
   deletePairedDevices = async (): Promise<boolean> => {
     const res = await this.rpcCall(RPC_METHOD_DELETE_PAIRED_DEVICES)
+    this.reset()
     return res as unknown as boolean
   }
 

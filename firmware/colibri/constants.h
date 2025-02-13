@@ -67,7 +67,8 @@ const char RPC_RESULT_SELECTED_WALLET[] =
     "[number: wallet id, number: chain type (1=BTC|2=ETH), string: address, string: pubkey, "
     "string: hdPath]";
 const char RPC_RESULT_EXPORT_XPUB[] = "[string: xpub, number: fingerprint]";
-const char RPC_RESULT_STATUS[] = "[bool: unlocked, bool: key set, bool: password set]";
+const char RPC_RESULT_STATUS[] =
+    "[bool: unlocked, bool: key set, bool: password set, number: remaining login attempts]";
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, string: display type, number: "
     "stored wallets]";

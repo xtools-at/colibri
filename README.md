@@ -19,7 +19,7 @@
       <img alt="connect on Bluesky" src="https://img.shields.io/badge/connect-on_Bluesky-dodgerblue?logo=bluesky" />
     </a>
     <a href="https://hachyderm.io/@xtools" target="_blank" rel="me">
-      <img alt="connect on Mastodon" src="https://img.shields.io/badge/connect-on_Mastodon-violet?logo=mastodon" />
+      <img alt="connect on Mastodon" src="https://img.shields.io/badge/connect-on_Mastodon-darkslateblue?logo=mastodon" />
     </a>
 </p>
 
@@ -44,7 +44,6 @@ _Version `0.2.X`_ will introduce support for a wide range of display types commo
 
 - build and flash the firmware with Arduino IDE (tested with ESP32-C3 & -S3)
 - communicate with wallet via the BLE interface (JSON-RPC)
-- use the (insecure) debug serial interface
 - set a password to encrypt wallet storage
 - generate truly random mnemonics and add existing ones
 - store up to 30 encrypted mnemonics and switch between them
@@ -71,7 +70,8 @@ Check out the [README in the firmware folder](https://github.com/xtools-at/colib
 - [x] JSON-RPC core interface
 - [x] BLE interface
 - [x] Ethereum signing
-- Trusted companion webapp for wallet setup
+- [x] Trusted companion webapp for wallet setup
+- Typescript SDK
 - Proof of concept 3rd-party wallet integration
 
 `0.2.x`:
@@ -81,14 +81,13 @@ Check out the [README in the firmware folder](https://github.com/xtools-at/colib
   - Recover seed phrase on device
   - Enter password on device
 - More presets for common dev-boards
-- Typescript SDK
 - 3rd-party wallet integrations
 
 `to be prioritized`:
 
 - USB interface (HID)
 - Bitcoin signing
-- Airgapped interface (camera + QR codes)
+- Airgapped interface (BC-UR: camera + QR codes)
 - Python SDK
 - Arduino CLI build setup
 - Platform.io build setup

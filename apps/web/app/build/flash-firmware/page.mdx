@@ -1,0 +1,68 @@
+---
+description:
+  TODO: Meta description
+---
+
+import Image from 'next/image'
+
+# Build firmware and flash Colibri
+
+Now that you have your ESP32 development board and Arduino IDE set up, it's time to build and flash the firmware to your board.
+
+## Get the source code and setup libraries
+
+Start with cloning or downloading the [Colibri repository](https://github.com/xtools-at/colibri).
+
+Copy or symlink the contents of `firmware/lib` to `<user>/Documents/Arduino/libraries` (Windows) or `<user>/Arduino/libraries` (macOS, Linux). If you're not afraid of the command line, you can use the following command to symlink the libraries on macOS/Linux:
+
+```bash
+ln -s ~/full/path/to/colibri/firmware/lib/* ~/Arduino/libraries/
+```
+
+> [!TIP]
+>
+> In case you have some of the libraries installed already, please delete them and use the exact version from the repo.
+>
+> Do _not_ auto-update these libraries if prompted by Arduino IDE.
+
+## Configure your board
+
+Open `firmware/colibri/colibri.ino` in Arduino IDE, then navigate to the tab `config_board.h` ([can't see tabs?](/build/setup-arduino-ide#TODO)).
+
+This file contains _all_ available configuration options for your board, but you'll probably only need to change a few, as most options have fallbacks and defaults.
+
+Additionally there are already configured boards in there to choose from.
+
+### Option 1: Use a preset board configuration
+
+Pick one of the preset board-configurations by uncommenting it. This example is using the "original" ESP32 Devkit:
+
+![Select a preset board configuration](/assets/build/flash-select-board.png)
+
+More boards coming soon!
+
+### Option 2: Set your own board configuration
+
+Set your own board configuration below instead. You'll need to configure at least the pins for `LED_GPIO` and `BUTTON_GPIO_OK` for a working build:
+
+![Set custom board configuration](/assets/build/flash-configure-board.png)
+
+## Build and flash the firmware
+
+Make sure your board is plugged in and connected, and the right [_board type_ and _port_ are selected in Arduino IDE](/build/setup-arduino-ide#TODO). In this example we're flashing an ESP32 C3 Supermini:
+
+![Connected and configured board](/assets/build/flash-board-and-port.png)
+
+Set `Tools > Partition Scheme > Minimal SPIFFS` in Arduino IDE to make sure we have enough space available for our firmware:
+
+![Select partition scheme](/assets/build/flash-change-partition.png)
+
+> [!TIP]
+>
+> If you can't find this option, change your _board type_ to the generic `ESP32XX Dev Module`, with `XX` being your ESP32 chip type.
+
+Finally, click on the **"Upload"** button to build and flash Colibri. This can take a few minutes, please be patient.
+
+## Next steps
+
+Congratulations, you've made it! 🎉 Head over here to [setup and interact with your wallet](/use/setup#TODO).

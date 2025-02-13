@@ -3,6 +3,33 @@ export default {
     type: 'page',
     display: 'hidden',
   },
+  build: {
+    type: 'page',
+    title: 'Build',
+    items: {
+      index: 'Build your own crypto hardware wallet',
+      'get-esp32-board': '',
+      'setup-arduino-ide': '',
+      'flash-firmware': '',
+    },
+  },
+  use: {
+    type: 'page',
+    title: 'Use',
+  },
+  develop: {
+    type: 'page',
+    title: 'Develop',
+  },
+  tools: {
+    type: 'page',
+    title: 'Tools',
+    items: {
+      index: '',
+      'wallet-setup': '',
+    },
+  },
+  /*
   docs: {
     type: 'page',
     title: 'Documentation',
@@ -31,14 +58,6 @@ export default {
       },
     },
   },
-  /*
-  about: {
-    type: 'page',
-    theme: {
-      typesetting: 'article',
-      // layout: 'full',
-      // timestamp: false,
-    },
-  },
+
   */
 }

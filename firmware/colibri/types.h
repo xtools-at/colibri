@@ -61,6 +61,7 @@ struct WalletResponse {
   WalletResponse(Status okCode, std::string result) : status(okCode), result(result) {}
   WalletResponse(std::string result) : status(Ok), result(result) {}
   WalletResponse() : status(Ok) {}
+  WalletResponse(Status code) : status(code) {}
 };
 
 /*

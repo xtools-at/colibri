@@ -1,0 +1,67 @@
+---
+description:
+  TODO: Meta description
+---
+
+# Use
+
+- no own wallet app
+- arch: RPC + interfaces
+
+## toc
+
+- connect
+- setup
+- basics (Buttons, LED)
+- 3rd party apps
+
+## Connect wallet
+
+- BLE
+- pair in OS
+- pin
+- supported browsers
+
+## Basic controls
+
+- various boards and forms
+- "graceful degradation", controls depend on capabilities
+
+### Button actions
+
+Some actions require confirmation on the hardware, you'll notice the led start flashing. If your device has two buttons, press _Ok_ to approve or _Cancel_ to reject. If you only have one, _double-click_ to approve or _long-press_ to cancel.
+
+Additionally the following actions can be triggered on the device directly:
+
+- Hold down _Cancel_ to lock your idle wallet. If it's locked already, it will reboot the device instead.
+- Quickly press _Cancel_ ten times to trigger a complete wipe of the device.
+
+### LED status
+
+- flashing
+- solid
+- colors
+
+### Display
+
+coming soon
+
+## Wallet setup
+
+tool - supported browser
+
+### set pw
+
+First we need to set a _password_ for our wallet. This is used to encrypt **all** sensitive information, so choosing a secure password is crucial for the security of your device. We recommend using a [Diceware](https://diceware.dmuth.org/) password with at least 3-4 random words.
+
+Next time we want to use our wallet, we'll need to unlock it first:
+
+### add seed
+
+Next we need to generate or add a mnemonic seed phrase to our wallet. Use a **metal seed storage** to back up your seed phrase - we recommend [SAFU Ninja](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/) as a cheap and reliable DIY solution.
+
+- no recovery on devices w/o screen -> once in response
+
+## Use wallet with 3rd party apps
+
+foo

@@ -1,0 +1,39 @@
+---
+description:
+  TODO: Meta description
+---
+
+# Setup Arduino IDE
+
+**Arduino IDE** is a beginner-friendly development environment for programming microcontrollers.
+
+## Install and configure Arduino IDE
+
+- [Download Arduino IDE](https://www.arduino.cc/en/software) and [enable support for ESP32 boards](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions). Internally we're using these versions to build:
+  - Arduino IDE 2.3.2 (w/ Arduino CLI 0.35.3)
+  - `esp32` Arduino Core 3.1.0 (w/ ESP-IDF 5.3)
+- Go to `File > Preferences` and enable _"Show files inside sketches"_ and _"Show verbose output during compile"_
+
+## Test your setup
+
+Connect your ESP32 dev board via USB, and change the target board in Arduino IDE to `Tools > Board > esp32 > ESP32XX Dev Module` (where "XX" is your ESP32 chip type).
+
+Also make sure that the USB port your board is connected to is set in `Tools > Port`:
+
+![Select board type in Arduino IDE](/assets/build/ide-select-board.png)
+
+Then try uploading an _empty sketch_ to your board to verify everything is working as it should. Click on `File > New Sketch`, then the `Upload` button:
+
+![Flash empty sketch](/assets/build/ide-test-flashing.png)
+
+## Troubleshooting
+
+[Try these](https://randomnerdtutorials.com/esp32-troubleshooting-guide) and [these tips](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/) in case you're running into any connection issues.
+
+Most common issues:
+
+- Some boards require you to put them in flash mode manually (hold down _BOOT_ button, then press _RST/EN_ button)
+- [Wrong port selected](https://docs.arduino.cc/learn/starting-guide/troubleshooting-sketches/#board--port) in `Tools > Port`
+- [Missing drivers on Windows/macOS](https://randomnerdtutorials.com/esp32-troubleshooting-guide/#COM-port-not-found)
+- [Missing user group permission on Linux](https://support.arduino.cc/hc/en-us/articles/360016495679-Fix-port-access-on-Linux)
+- USB cable doesn't support data transfer (try another cable)

@@ -9,7 +9,7 @@ import {
 import cn from 'clsx'
 import type { Metadata } from 'next'
 import { Footer, Layout, Link, Navbar } from 'nextra-theme-docs'
-import { Banner, Head, Image } from 'nextra/components'
+import { Head, Image } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import type { FC, ReactNode } from 'react'
 import './globals.css'
@@ -167,17 +167,21 @@ const footer = (
         <BlueskyLogo height="24" />
       </SocialIcon>
       <SocialIcon
-        title="Connect on Mastodon"
+        title="Connect on Mastodon: @xtools"
         href="https://hachyderm.io/@xtools"
         rel="me noreferrer noopener"
       >
         <MastodonLogo height="24" />
       </SocialIcon>
     </div>
-    <p className="mt-6 text-xs">
+    <p className="mt-6 text-center text-xs md:text-left">
       © 2024-{new Date().getFullYear()}{' '}
       <Link href={LINK_GITHUB} rel="noopener">
         The Colibri Project
+      </Link>
+      . Created by{' '}
+      <Link href="https://github.com/xtools-at" rel="noopener">
+        xtools-at
       </Link>
       . Licensed under{' '}
       <Link href={`${LINK_GITHUB}/blob/main/LICENSE.md`} rel="noopener">

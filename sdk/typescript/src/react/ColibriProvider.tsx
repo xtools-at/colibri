@@ -28,6 +28,7 @@ export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
   const [address, setAddress] = useState('')
   const [pubKey, setPubKey] = useState('')
   const [hdPath, setHdPath] = useState('')
+  const [remainingAttempts, setRemainingAttempts] = useState(0)
 
   // update React states on change
   useEffect(() => {
@@ -47,6 +48,7 @@ export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
       setAddress(data.address)
       setPubKey(data.pubKey)
       setHdPath(data.hdPath)
+      setRemainingAttempts(data.remainingAttempts)
     }
 
     colibri.onChange(changeHandler)
@@ -98,6 +100,7 @@ export const ColibriProvider: React.FC<{ children: React.ReactNode }> = ({
         address,
         pubKey,
         hdPath,
+        remainingAttempts,
         connectBle,
         disconnectBle,
         ping,

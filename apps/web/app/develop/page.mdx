@@ -1,0 +1,74 @@
+---
+description:
+  TODO: Meta description
+---
+
+# Developer Quickstart
+
+Contribs appreciated!
+Finally, open a PR with your changes. Don't forget to update `README` and `CHANGELOG`, and to put yourself on the `CONTRIBUTORS` list :)
+
+## Help wanted!
+
+We're looking for contributors and sponsors to help bootstrap Colibri and make it a viable option for everyday crypto usage.
+Valuable extensions to the project, once the core product is functional:
+
+- Support for more coins and chains (e.g. Monero, Solana, Polkadot)
+- 3rd party wallet integrations (e.g. MetaMask, Bitcoin HWI)
+- Libraries and SDKs for builders (e.g. Typescript, Python)
+- New hardware interfaces (e.g. USB support, airgap via camera/QR codes)
+- Support for more advanced build environments (e.g. Platform.io, ESP-IDF, Arduino-CLI)
+- Testing & QA, bugfixing and automated tests
+- Support channels for builders, users and the community
+- Learning materials, content of all kinds
+
+## Firmware
+
+If you want to contribute to the development of Colibri, first do _all of the above_, even if only to get the hang of it :) If you don't know where to start, see the [roadmap](https://github.com/xtools-at/colibri#development-roadmap) and ["Help wanted"](https://github.com/xtools-at/colibri#help-wanted) section below to find ideas for some valuable extensions.
+
+Then proceed to:
+
+- Fork the repo and clone
+- Open the repo in VSCode, install _all_ recommended extensions
+
+For `firmware` development:
+
+- Tweak `.vscode/c_cpp_properties.json` to match your operating system's specifics
+  - Linux should work out of the box
+  - Windows and macOS configs exist, but are likely wrong or outdated. Activate the right config by clicking on "Linux" in the bottom right corner while having the file above opened
+- Trigger builds and firmware uploads from Arduino IDE
+
+### Debug builds
+
+- _Developers only:_ if you want to use the (insecure) **debugging** features (logs, serial interface), set the following in Arduino IDE. Make sure they're **not** set for your production builds:
+
+  - `Tools > USB CDC On Boot: Enabled`
+  - `Tools > Core Debug Level: Debug`
+
+### Debug Serial Interface
+
+If you've enabled **debugging** features for your build, the serial interface should automatically connect to your host PC, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
+
+### Experimental hardware support
+
+- _ESP32-C6_ and _ESP32-H2_ can be built and may work, but haven't been tested thoroughly yet.
+- _ESP32-S2_ and _ESP32-P4_ don't support BLE, but have USB-OTG. They could be used for development purposes with the _Serial Debug Interface_.
+
+## Webapp & Typescript SDK
+
+For any kind of JS/TS `packages` or `apps` (e.g. SDK, Webapp):
+
+- Install Node.js 22 (e.g. via [nvm](https://github.com/nvm-sh/nvm)), and install _pnpm_: `npm i -g pnpm`
+- Install dependencies: `pnpm i`
+
+### Webapp
+
+To build the _Typescript SDK_, run `pnpm sdk:ts build`. You can use `pnpm sdk:ts dev` to watch for changes and rebuild automatically.
+
+### Typescript SDK
+
+Run `pnpm web dev` to start the _Webapp_ locally in development mode, and `pnpm web build` to create a static build
+
+## Use Typescript SDK
+
+foo

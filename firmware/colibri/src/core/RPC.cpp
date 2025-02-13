@@ -59,6 +59,10 @@ void getStatus(const JsonDocument& request, JsonDocument& response) {
   resultsArray.add(!wallet.isLocked());
   resultsArray.add(wallet.isKeySet());
   resultsArray.add(wallet.isPasswordSet());
+
+  uint16_t remainingAttempts =
+      SELF_DESTRUCT_ENABLED ? SELF_DESTRUCT_MAX_FAILED_ATTEMPTS - store.readLoginAttempts() : 0;
+  resultsArray.add(remainingAttempts);
 }
 
 void getDeviceInfo(const JsonDocument& request, JsonDocument& response) {

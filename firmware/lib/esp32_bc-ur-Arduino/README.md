@@ -1,10 +1,10 @@
-# [Blockchain Commons UR Library for ESP32 IDF](https://github.com/blockstream/esp32_bc-ur)
+# [BC-UR Library for ESP32 and Arduino IDE](https://github.com/xtools-at/colibri/tree/main/firmware/lib/esp32_bc-ur-Arduino)
 
-This is a fork of bc-ur from Blockchain Commons with some patches to run on esp32 via the [esp idf framework](https://github.com/espressif/esp-idf).
+Forked from Blockstream's [Blockchain Commons UR Library for ESP32 IDF](https://github.com/blockstream/esp32_bc-ur), which itself is a fork of [bc-ur](https://github.com/BlockchainCommons/bc-ur) from Blockchain Commons with some patches to run on esp32 via the [esp idf framework](https://github.com/espressif/esp-idf).
 
-**Adapted for Arduino IDE from commit _[0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d](https://github.com/Blockstream/esp32_bc-ur/tree/0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d)_ for [Colibri Wallet](https://colibri.diy) by [xtools](https://github.com/xtools-at).**
-
-**Requires _[TinyCBOR](https://github.com/soburi/tinycbor)_ Arduino library to be installed alongside.**
+> Adapted for Arduino IDE from commit _[0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d](https://github.com/Blockstream/esp32_bc-ur/tree/0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d)_ for [Colibri Wallet](https://colibri.diy) by [xtools](https://github.com/xtools-at).
+>
+> Requires _[TinyCBOR](https://github.com/soburi/tinycbor)_ Arduino library to be installed alongside in Arduino IDE.
 
 ## Origin, Authors, Copyright & Licenses
 

@@ -33,6 +33,8 @@
     "firmware/lib": false
   },
   "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "editor.wordWrapColumn": 120, // optional: set wrap column
   "json.format.enable": true,
   "cSpell.words": [
     "Adafruit",
@@ -157,6 +159,7 @@
     "core.h": "c",
     "s3_supermini.h": "c",
     "secp256k1.h": "c",
-    "format": "cpp"
+    "format": "cpp",
+    "*.inc": "cpp"
   }
 }

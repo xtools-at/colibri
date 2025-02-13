@@ -6,11 +6,14 @@
 
 (TODO: date)
 
-- `*` App: TODO: Static webapp for [colibri.diy](https://colibri.diy) for device setup and docs
+- `*` App: Webapp for [colibri.diy](https://colibri.diy) for device setup and docs
 - `+` Wallet: Account pubkey + xpub derivation
 - `+` Core: improved configuration schema
-- `!` Wallet: experimental base [BC-UR](https://github.com/BlockchainCommons/bc-ur) integration
+- `#` Core: cleaned up RPC interface
+- `!` SDK: experimental Typescript/React SDK
+- `!` Core: experimental base _display_ integration using [LGFX](https://github.com/lovyan03/LovyanGFX)
 - `!` Core: experimental base _OTA firmware update_ integration
+- `!` Wallet: experimental base [BC-UR](https://github.com/BlockchainCommons/bc-ur) integration
 
 ## v0.0.4
 

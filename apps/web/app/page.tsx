@@ -11,10 +11,9 @@ import { I18n } from './_components/i18n-demo'
 import styles from './page.module.css'
 import './page.css'
 import type { FC } from 'react'
+import { Button } from '@components/core'
 
-export const metadata: Metadata = {
-  //description: 'Foo',
-}
+export const metadata: Metadata = {}
 
 const IndexPage: FC = () => {
   return (
@@ -34,9 +33,7 @@ const IndexPage: FC = () => {
           .
         </p>
         <p className="subtitle">
-          <Link className={styles.cta} href="/docs">
-            Get started <span>→</span>
-          </Link>
+          <Button disabled={true}>My CTA</Button>
         </p>
       </div>
       <div className="features-container x:border-b nextra-border">

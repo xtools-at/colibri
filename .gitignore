@@ -37,4 +37,4 @@ firmware/lib/**/tests/**
 firmware/lib/**/doc*/**
 
 # experimental files and folders
-firmware/vendor
+firmware/dev
