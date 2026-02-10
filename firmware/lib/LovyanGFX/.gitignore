@@ -9,7 +9,7 @@ build
 # ESP32 only + No Autodetect (using "PolymorphicLGFX" class instead)
 doc/
 examples*/
-src/LGFX_AUTODETECT*.hpp
+src/LGFX_AUTODETECT.hpp
 src/lgfx/Fonts/efont*/
 src/lgfx/Fonts/IPA*/
 src/lgfx/v1_autodetect*/

@@ -26,7 +26,7 @@ Contributors:
 
 #if defined ( LGFX_AUTODETECT )
 
-  // #include "LGFX_AUTODETECT.hpp"
+  #include "LGFX_AUTODETECT.hpp"
 
 #endif
 
