@@ -40,7 +40,7 @@ extern "C"
 // #define AES_128     /* if a fast 128 bit key scheduler is needed     */
 // #define AES_192     /* if a fast 192 bit key scheduler is needed     */
 #define AES_256     /* if a fast 256 bit key scheduler is needed     */
-// #define AES_VAR     /* if variable key size scheduler is needed      */
+#define AES_VAR     /* if variable key size scheduler is needed      */
 #if 1
 #  define AES_MODES /* if support is needed for modes in the C code  */
 #endif              /* (these will use AES_NI if it is present)      */
