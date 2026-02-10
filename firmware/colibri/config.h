@@ -100,15 +100,14 @@
 
 // ========== Board defaults ========== //
 // fail build for unsupported ESP32 targets
-#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C5) || \
-     defined(CONFIG_IDF_TARGET_ESP32C61))
+#if (defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32H2) || \
+     defined(CONFIG_IDF_TARGET_ESP32P4))
   #error "You're using an unsupported ESP32 chip variant!"
 #endif
 
 // warn if using experimental targets
-#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6) || \
-     defined(CONFIG_IDF_TARGET_ESP32P4) || defined(CONFIG_IDF_TARGET_ESP32H2))
-  #warning "You're using an experimental ESP32 chip variant, your mileage may vary!"
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6))
+  #warning "You're using an experimental ESP32 chip variant, developers only!"
 #endif
 
 // disable unavailable interfaces based on target chip and config
@@ -219,8 +218,8 @@
 // - button defaults
 #ifndef BUTTON_GPIO_OK
   // C- and H-series chips use GPIO 9 for BOOT button
-  #if (defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6) || \
-       defined(CONFIG_IDF_TARGET_ESP32H2))
+  #if (defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C5) || \
+       defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
     #define BUTTON_GPIO_OK 9
   #else
     // all others use GPIO 0
