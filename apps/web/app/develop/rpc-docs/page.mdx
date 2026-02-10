@@ -1,0 +1,111 @@
+---
+description:
+  TODO: Meta description
+---
+
+import { RpcDocs } from './rpcDocs'
+import { rpcMethods } from './rpcMethods'
+
+# JSON-RPC API documentation
+
+Colibri supports multiple ways of interfacing with the hardware, using the same JSON-RPC API.
+
+For testing the **BLE** interface, you can use an app like e.g. [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en) to send commands to it. The device exposes a GATT service with the UUID `31415926-5358-9793-2384-626433832795`, with two characteristics:
+
+- `C001`: _write_ your JSON-RPC command to this field
+- `C000`: you can _read_ the JSON-RPC response from this field (turn on notifications for best results)
+
+If you've enabled **debugging** features for your build, the **Debug Serial Interface** should automatically connect to your host PC on boot, and you should be able to use Arduino IDE's _Serial Monitor_ to send commands and receive responses (if not, dis- and reconnect the board and/or restart Arduino IDE).
+
+## Requests and responses
+
+This is how a typical JSON-RPC _request_ looks like:
+
+```json
+{
+  "jsonrpc": "2.0", // optional
+  "id": 42, // optional
+  "method": "getStatus",
+  "params": [] // optional if method has no parameters
+}
+```
+
+The `id` field is optional and used to match responses to requests, and can be any number. The `params` field can be used to pass arguments to the method. Optional parameters may be omitted or set to `undefined/null`. More examples for valid _requests_:
+
+```json
+{
+  "method": "unlock",
+  "params": ["CorrectHorseBatteryStaple"]
+}
+```
+
+```json
+{
+  "method": "selectWallet",
+  "params": [1]
+}
+// or
+{
+  "method": "selectWallet",
+  "params": [1, "m/44'/60'/0'/0/2"]
+}
+// or
+{
+  "method": "selectWallet",
+  "params": [1, "m/44'/60'/0'/0/2", "optionalPassphrase"]
+}
+// or
+{
+  "method": "selectWallet",
+  "params": [2, "m/44'/42069'/0'/0/0", undefined, 1]
+}
+```
+
+A _successful response_ will look like this:
+
+```json
+// Success, method "getStatus":
+{
+  "jsonrpc": "2.0",
+  "id": 42,
+  "result": [false, false, false, 0]
+}
+```
+
+Whereas an _error_ would look like this:
+
+```json
+// Error, unknown method name
+{
+  "jsonrpc": "2.0",
+  "id": 42,
+  "error": {
+    "code": -32601,
+    "message": "Method not found"
+  }
+}
+```
+
+### RPC error codes
+
+These are all the error codes that can be returned by the API:
+
+```typescript
+enum ErrorCode {
+  ParseError = -32700,
+  InvalidRequest = -32600,
+  MethodNotFound = -32601,
+  InvalidParams = -32602,
+  InternalError = -32603,
+  UserRejected = -32000,
+  Unauthorized = -32001,
+  NotImplemented = -32002,
+  UnknownError = 0,
+}
+```
+
+## JSON-RPC methods
+
+All available methods in the _latest_ API version, and their parameters and return values:
+
+<RpcDocs methods={rpcMethods} />
