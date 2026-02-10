@@ -4,6 +4,12 @@
 #include "misc/pixelcopy.hpp"
 #include "LGFXBase.hpp"
 
+#include "../Fonts/IPA/lgfx_font_japan.h"
+#include "../Fonts/efont/lgfx_efont_cn.h"
+#include "../Fonts/efont/lgfx_efont_ja.h"
+#include "../Fonts/efont/lgfx_efont_kr.h"
+#include "../Fonts/efont/lgfx_efont_tw.h"
+
 #include <stdint.h>
 #include <stddef.h>
 #include <math.h>
@@ -792,8 +798,8 @@ label_nextbyte: /// 次のデータを取得する;
                 //getSwap32(buf[1]); // vlw encoder version - discard
       yAdvance = getSwap32(buf[2]); // Font size in points, not pixels
                 //getSwap32(buf[3]); // discard
-      ascent   = getSwap32(buf[4]); // top of "d"
-      descent  = getSwap32(buf[5]); // bottom of "p"
+      ascent   = abs((int32_t)getSwap32(buf[4])); // top of "d"
+      descent  = abs((int32_t)getSwap32(buf[5])); // bottom of "p"
     }
 
     // These next gFont values might be updated when the Metrics are fetched
@@ -802,11 +808,11 @@ label_nextbyte: /// 次のデータを取得する;
     yAdvance   = std::max((int)yAdvance, ascent + descent);
     spaceWidth = yAdvance * 2 / 7;  // Guess at space width
 
-//ESP_LOGI("LGFX", "ascent:%d  descent:%d", gFont.ascent, gFont.descent);
+//printf("LGFX:ascent:%d  descent:%d\r\n", ascent, descent);
 
     if (!gCount) return false;
 
-//ESP_LOGI("LGFX", "font count:%d", gCount);
+//printf("LGFX:font count:%d\r\n", gCount);
 
     uint32_t bitmapPtr = 24 + (uint32_t)gCount * 28;
 
@@ -827,7 +833,7 @@ label_nextbyte: /// 次のデータを取得する;
       || !gWidth
       || !gxAdvance
       || !gdX) {
-//ESP_LOGE("LGFX", "can not alloc font table");
+//printf("LGFX:can not alloc font table\r\n");
       return false;
     }
 
@@ -848,12 +854,12 @@ label_nextbyte: /// 次のデータを取得する;
       uint16_t height = getSwap32(buffer[1]); // Height of glyph
       if ((unicode > 0xFF) || ((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F))) {
         int16_t dY =  (int16_t)getSwap32(buffer[4]); // y delta from baseline
-//Serial.printf("LGFX:unicode:%x  dY:%d\r\n", unicode, dY);
+//printf("LGFX:unicode:%x  dY:%d\r\n", unicode, dY);
         if (maxAscent < dY && unicode != 0x3000) {
           maxAscent = dY;
         }
         if (maxDescent < (height - dY) && unicode != 0x3000) {
-//Serial.printf("LGFX:maxDescent:%d\r\n", maxDescent);
+//printf("LGFX:maxDescent:%d\r\n", maxDescent);
           maxDescent = height - dY;
         }
       }
@@ -864,7 +870,7 @@ label_nextbyte: /// 次のデータを取得する;
 
     yAdvance = maxAscent + maxDescent;
 
-//Serial.printf("LGFX:maxDescent:%d\r\n", maxDescent);
+//printf("LGFX:maxDescent:%d\r\n", maxDescent);
     return true;
   }
 
@@ -1182,6 +1188,127 @@ label_nextbyte: /// 次のデータを取得する;
     const GLCDfont Font8x8C64 = { font8x8_c64, font8x8c64_info, 8, 8, 7 };
     const FixedBMPfont AsciiFont8x16  = { FontLib8x16 , font0_info,  8, 16, 13 };
     const FixedBMPfont AsciiFont24x48 = { FontLib24x48, fontlib24x48_info, 24, 48, 40 };
+
+    const U8g2font lgfxJapanMincho_8   = { lgfx_font_japan_mincho_8    };
+    const U8g2font lgfxJapanMincho_12  = { lgfx_font_japan_mincho_12   };
+    const U8g2font lgfxJapanMincho_16  = { lgfx_font_japan_mincho_16   };
+    const U8g2font lgfxJapanMincho_20  = { lgfx_font_japan_mincho_20   };
+    const U8g2font lgfxJapanMincho_24  = { lgfx_font_japan_mincho_24   };
+    const U8g2font lgfxJapanMincho_28  = { lgfx_font_japan_mincho_28   };
+    const U8g2font lgfxJapanMincho_32  = { lgfx_font_japan_mincho_32   };
+    const U8g2font lgfxJapanMincho_36  = { lgfx_font_japan_mincho_36   };
+    const U8g2font lgfxJapanMincho_40  = { lgfx_font_japan_mincho_40   };
+    const U8g2font lgfxJapanMinchoP_8  = { lgfx_font_japan_mincho_p_8  };
+    const U8g2font lgfxJapanMinchoP_12 = { lgfx_font_japan_mincho_p_12 };
+    const U8g2font lgfxJapanMinchoP_16 = { lgfx_font_japan_mincho_p_16 };
+    const U8g2font lgfxJapanMinchoP_20 = { lgfx_font_japan_mincho_p_20 };
+    const U8g2font lgfxJapanMinchoP_24 = { lgfx_font_japan_mincho_p_24 };
+    const U8g2font lgfxJapanMinchoP_28 = { lgfx_font_japan_mincho_p_28 };
+    const U8g2font lgfxJapanMinchoP_32 = { lgfx_font_japan_mincho_p_32 };
+    const U8g2font lgfxJapanMinchoP_36 = { lgfx_font_japan_mincho_p_36 };
+    const U8g2font lgfxJapanMinchoP_40 = { lgfx_font_japan_mincho_p_40 };
+    const U8g2font lgfxJapanGothic_8   = { lgfx_font_japan_gothic_8    };
+    const U8g2font lgfxJapanGothic_12  = { lgfx_font_japan_gothic_12   };
+    const U8g2font lgfxJapanGothic_16  = { lgfx_font_japan_gothic_16   };
+    const U8g2font lgfxJapanGothic_20  = { lgfx_font_japan_gothic_20   };
+    const U8g2font lgfxJapanGothic_24  = { lgfx_font_japan_gothic_24   };
+    const U8g2font lgfxJapanGothic_28  = { lgfx_font_japan_gothic_28   };
+    const U8g2font lgfxJapanGothic_32  = { lgfx_font_japan_gothic_32   };
+    const U8g2font lgfxJapanGothic_36  = { lgfx_font_japan_gothic_36   };
+    const U8g2font lgfxJapanGothic_40  = { lgfx_font_japan_gothic_40   };
+    const U8g2font lgfxJapanGothicP_8  = { lgfx_font_japan_gothic_p_8  };
+    const U8g2font lgfxJapanGothicP_12 = { lgfx_font_japan_gothic_p_12 };
+    const U8g2font lgfxJapanGothicP_16 = { lgfx_font_japan_gothic_p_16 };
+    const U8g2font lgfxJapanGothicP_20 = { lgfx_font_japan_gothic_p_20 };
+    const U8g2font lgfxJapanGothicP_24 = { lgfx_font_japan_gothic_p_24 };
+    const U8g2font lgfxJapanGothicP_28 = { lgfx_font_japan_gothic_p_28 };
+    const U8g2font lgfxJapanGothicP_32 = { lgfx_font_japan_gothic_p_32 };
+    const U8g2font lgfxJapanGothicP_36 = { lgfx_font_japan_gothic_p_36 };
+    const U8g2font lgfxJapanGothicP_40 = { lgfx_font_japan_gothic_p_40 };
+
+    const U8g2font efontCN_10     = { lgfx_efont_cn_10    };
+    const U8g2font efontCN_10_b   = { lgfx_efont_cn_10_b  };
+    const U8g2font efontCN_10_bi  = { lgfx_efont_cn_10_bi };
+    const U8g2font efontCN_10_i   = { lgfx_efont_cn_10_i  };
+    const U8g2font efontCN_12     = { lgfx_efont_cn_12    };
+    const U8g2font efontCN_12_b   = { lgfx_efont_cn_12_b  };
+    const U8g2font efontCN_12_bi  = { lgfx_efont_cn_12_bi };
+    const U8g2font efontCN_12_i   = { lgfx_efont_cn_12_i  };
+    const U8g2font efontCN_14     = { lgfx_efont_cn_14    };
+    const U8g2font efontCN_14_b   = { lgfx_efont_cn_14_b  };
+    const U8g2font efontCN_14_bi  = { lgfx_efont_cn_14_bi };
+    const U8g2font efontCN_14_i   = { lgfx_efont_cn_14_i  };
+    const U8g2font efontCN_16     = { lgfx_efont_cn_16    };
+    const U8g2font efontCN_16_b   = { lgfx_efont_cn_16_b  };
+    const U8g2font efontCN_16_bi  = { lgfx_efont_cn_16_bi };
+    const U8g2font efontCN_16_i   = { lgfx_efont_cn_16_i  };
+    const U8g2font efontCN_24     = { lgfx_efont_cn_24    };
+    const U8g2font efontCN_24_b   = { lgfx_efont_cn_24_b  };
+    const U8g2font efontCN_24_bi  = { lgfx_efont_cn_24_bi };
+    const U8g2font efontCN_24_i   = { lgfx_efont_cn_24_i  };
+
+    const U8g2font efontJA_10     = { lgfx_efont_ja_10    };
+    const U8g2font efontJA_10_b   = { lgfx_efont_ja_10_b  };
+    const U8g2font efontJA_10_bi  = { lgfx_efont_ja_10_bi };
+    const U8g2font efontJA_10_i   = { lgfx_efont_ja_10_i  };
+    const U8g2font efontJA_12     = { lgfx_efont_ja_12    };
+    const U8g2font efontJA_12_b   = { lgfx_efont_ja_12_b  };
+    const U8g2font efontJA_12_bi  = { lgfx_efont_ja_12_bi };
+    const U8g2font efontJA_12_i   = { lgfx_efont_ja_12_i  };
+    const U8g2font efontJA_14     = { lgfx_efont_ja_14    };
+    const U8g2font efontJA_14_b   = { lgfx_efont_ja_14_b  };
+    const U8g2font efontJA_14_bi  = { lgfx_efont_ja_14_bi };
+    const U8g2font efontJA_14_i   = { lgfx_efont_ja_14_i  };
+    const U8g2font efontJA_16     = { lgfx_efont_ja_16    };
+    const U8g2font efontJA_16_b   = { lgfx_efont_ja_16_b  };
+    const U8g2font efontJA_16_bi  = { lgfx_efont_ja_16_bi };
+    const U8g2font efontJA_16_i   = { lgfx_efont_ja_16_i  };
+    const U8g2font efontJA_24     = { lgfx_efont_ja_24    };
+    const U8g2font efontJA_24_b   = { lgfx_efont_ja_24_b  };
+    const U8g2font efontJA_24_bi  = { lgfx_efont_ja_24_bi };
+    const U8g2font efontJA_24_i   = { lgfx_efont_ja_24_i  };
+
+    const U8g2font efontKR_10     = { lgfx_efont_kr_10    };
+    const U8g2font efontKR_10_b   = { lgfx_efont_kr_10_b  };
+    const U8g2font efontKR_10_bi  = { lgfx_efont_kr_10_bi };
+    const U8g2font efontKR_10_i   = { lgfx_efont_kr_10_i  };
+    const U8g2font efontKR_12     = { lgfx_efont_kr_12    };
+    const U8g2font efontKR_12_b   = { lgfx_efont_kr_12_b  };
+    const U8g2font efontKR_12_bi  = { lgfx_efont_kr_12_bi };
+    const U8g2font efontKR_12_i   = { lgfx_efont_kr_12_i  };
+    const U8g2font efontKR_14     = { lgfx_efont_kr_14    };
+    const U8g2font efontKR_14_b   = { lgfx_efont_kr_14_b  };
+    const U8g2font efontKR_14_bi  = { lgfx_efont_kr_14_bi };
+    const U8g2font efontKR_14_i   = { lgfx_efont_kr_14_i  };
+    const U8g2font efontKR_16     = { lgfx_efont_kr_16    };
+    const U8g2font efontKR_16_b   = { lgfx_efont_kr_16_b  };
+    const U8g2font efontKR_16_bi  = { lgfx_efont_kr_16_bi };
+    const U8g2font efontKR_16_i   = { lgfx_efont_kr_16_i  };
+    const U8g2font efontKR_24     = { lgfx_efont_kr_24    };
+    const U8g2font efontKR_24_b   = { lgfx_efont_kr_24_b  };
+    const U8g2font efontKR_24_bi  = { lgfx_efont_kr_24_bi };
+    const U8g2font efontKR_24_i   = { lgfx_efont_kr_24_i  };
+
+    const U8g2font efontTW_10     = { lgfx_efont_tw_10    };
+    const U8g2font efontTW_10_b   = { lgfx_efont_tw_10_b  };
+    const U8g2font efontTW_10_bi  = { lgfx_efont_tw_10_bi };
+    const U8g2font efontTW_10_i   = { lgfx_efont_tw_10_i  };
+    const U8g2font efontTW_12     = { lgfx_efont_tw_12    };
+    const U8g2font efontTW_12_b   = { lgfx_efont_tw_12_b  };
+    const U8g2font efontTW_12_bi  = { lgfx_efont_tw_12_bi };
+    const U8g2font efontTW_12_i   = { lgfx_efont_tw_12_i  };
+    const U8g2font efontTW_14     = { lgfx_efont_tw_14    };
+    const U8g2font efontTW_14_b   = { lgfx_efont_tw_14_b  };
+    const U8g2font efontTW_14_bi  = { lgfx_efont_tw_14_bi };
+    const U8g2font efontTW_14_i   = { lgfx_efont_tw_14_i  };
+    const U8g2font efontTW_16     = { lgfx_efont_tw_16    };
+    const U8g2font efontTW_16_b   = { lgfx_efont_tw_16_b  };
+    const U8g2font efontTW_16_bi  = { lgfx_efont_tw_16_bi };
+    const U8g2font efontTW_16_i   = { lgfx_efont_tw_16_i  };
+    const U8g2font efontTW_24     = { lgfx_efont_tw_24    };
+    const U8g2font efontTW_24_b   = { lgfx_efont_tw_24_b  };
+    const U8g2font efontTW_24_bi  = { lgfx_efont_tw_24_bi };
+    const U8g2font efontTW_24_i   = { lgfx_efont_tw_24_i  };
   }
  }
 }

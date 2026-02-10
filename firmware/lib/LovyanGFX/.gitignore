@@ -1,3 +1,12 @@
+.pio
+sdkconfig*
+!sdkconfig.defaults
+build
+.vs
+.DS_Store
+.directory
+
+# ESP32 only + No Autodetect (using "PolymorphicLGFX" class instead)
 doc/
 examples*/
 src/LGFX_AUTODETECT*.hpp

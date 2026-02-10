@@ -1090,7 +1090,7 @@ namespace lgfx
       float fmidy  = midy*hratio;
       float hyp0   = pixelDistance( midx, midy, 0, 0 );
 
-      rgb888_t scanline[w];
+      auto scanline = (rgb888_t*)alloca(w * sizeof(rgb888_t));
 
       startWrite();
       for( int _y=0;_y<h;_y++ ) {
@@ -1117,7 +1117,7 @@ namespace lgfx
     if( !gradient.colors || gradient.count==0 ) return;
     bool is_vertical = style==VLINEAR;
     const uint32_t gradient_len = is_vertical ? h : w;
-    rgb888_t scanline[gradient_len];
+    auto scanline = (rgb888_t*)alloca(gradient_len * sizeof(rgb888_t));
     for(int i=0;i<gradient_len;i++) { // memoize one gradient scanline
       scanline[i] = map_gradient( i, 0, gradient_len, gradient );
     }
@@ -1395,6 +1395,8 @@ namespace lgfx
                : (dst_depth == rgb332_1Byte) ? pixelcopy_t::copy_grayscale_affine<rgb332_t>
                : (dst_depth == rgb888_3Byte) ? pixelcopy_t::copy_grayscale_affine<bgr888_t>
                : (dst_depth == rgb666_3Byte) ? pixelcopy_t::copy_grayscale_affine<bgr666_t>
+               : (dst_depth == rgb565_nonswapped) ? pixelcopy_t::copy_grayscale_affine<rgb565_t>
+               : (dst_depth == grayscale_8bit) ? pixelcopy_t::copy_grayscale_affine<grayscale_t>
                : nullptr;
 
     return pc;
@@ -1826,7 +1828,9 @@ namespace lgfx
     else               { if (dst_y < 0) { h += dst_y; src_y -= dst_y; dst_y = 0; } if (h > hei - src_y)  h = hei - src_y; }
     if (h < 1) return;
 
+    startWrite();
     _panel->copyRect(dst_x, dst_y, w, h, src_x, src_y);
+    endWrite();
   }
 
   void LGFXBase::read_rect(int32_t x, int32_t y, int32_t w, int32_t h, void* dst, pixelcopy_t* param)
@@ -1876,6 +1880,7 @@ namespace lgfx
     case color_depth_t::rgb666_3Byte: p.fp_copy = pixelcopy_t::compare_rgb_affine<bgr666_t>;  break;
     case color_depth_t::rgb565_2Byte: p.fp_copy = pixelcopy_t::compare_rgb_affine<swap565_t>; break;
     case color_depth_t::rgb332_1Byte: p.fp_copy = pixelcopy_t::compare_rgb_affine<rgb332_t>;  break;
+    case color_depth_t::grayscale_8bit: p.fp_copy = pixelcopy_t::compare_rgb_affine<grayscale_t>;  break;
     default: p.fp_copy = pixelcopy_t::compare_bit_affine;
       p.src_mask = (1 << p.src_bits) - 1;
       p.transp &= p.src_mask;
@@ -2749,8 +2754,10 @@ namespace lgfx
   bool LGFXBase::draw_bmp(DataWrapper* data, int32_t x, int32_t y, int32_t maxWidth, int32_t maxHeight, int32_t offX, int32_t offY, float zoom_x, float zoom_y, datum_t datum)
   {
     prepareTmpTransaction(data);
+    data->preRead();
     bitmap_header_t bmpdata;
     if (!bmpdata.load_bmp_header(data) || (bmpdata.biCompression > 3)) {
+      data->postRead();
       return false;
     }
 
@@ -2772,13 +2779,17 @@ namespace lgfx
                    , datum
                    , w, h))
     {
+      data->postRead();
       return true;
     }
 
     argb8888_t *palette = nullptr;
     if (bpp <= 8) {
       palette = (argb8888_t*)alloca(sizeof(argb8888_t*) * (1 << bpp));
-      if (!palette) { return false; }
+      if (!palette) {
+        data->postRead();
+        return false;
+      }
       data->seek(bmpdata.biSize + 14);
       data->read((uint8_t*)palette, (1 << bpp)*sizeof(argb8888_t)); // load palette
     }
@@ -2818,6 +2829,7 @@ namespace lgfx
     int32_t dst_y32_add = (1u << FP_SCALE) * zoom_y;
     if (bmpdata.biHeight > 0) dst_y32_add = - dst_y32_add;
 
+    data->postRead();
     this->startWrite(!data->hasParent());
 
     float affine[6] = { zoom_x, 0.0f, (float)x, 0.0f, 1.0f, 0.0f };
@@ -2855,6 +2867,7 @@ namespace lgfx
     info.end();
 
     this->endWrite();
+    data->preRead();
 
     return true;
   }
@@ -2935,7 +2948,7 @@ namespace lgfx
     lgfxJdec jpegdec;
 
     static constexpr uint16_t sz_pool = 3900;
-    uint8_t *pool = (uint8_t*)heap_alloc_dma(sz_pool);
+    uint8_t *pool = (uint8_t*)malloc(sz_pool);
     if (!pool)
     {
       // ESP_LOGW("LGFX", "jpeg memory alloc fail");
@@ -2947,7 +2960,7 @@ namespace lgfx
     if (jres != JDR_OK)
     {
       // ESP_LOGW("LGFX", "jpeg prepare error:%x", jres);
-      heap_free(pool);
+      free(pool);
       return false;
     }
 
@@ -2963,7 +2976,7 @@ namespace lgfx
                        , datum
                        , jpegdec.width, jpegdec.height))
     {
-      heap_free(pool);
+      free(pool);
       return false;
     }
 
@@ -2990,7 +3003,7 @@ namespace lgfx
     this->endWrite();
     drawinfo.data->preRead();
 
-    heap_free(pool);
+    free(pool);
 
     if (jres != JDR_OK) {
       // ESP_LOGW("LGFX", "jpeg decomp error:%x", jres);
