@@ -30,6 +30,7 @@
 #define USE_KECCAK 1
 #define USE_PRECOMPUTED_CP 0
 #define USE_BIP32_25519_CURVES 1
+#define USE_MONERO 1
 // end Colibri custom
 
 #ifndef OPTIMIZE_SIZE
@@ -98,7 +99,7 @@
 
 // support MONERO operations
 #ifndef USE_MONERO
-  #define USE_MONERO 1
+  #define USE_MONERO 0
 #endif
 
 // support CARDANO operations

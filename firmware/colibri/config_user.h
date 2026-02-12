@@ -27,7 +27,7 @@
 // #define TIMEOUT_WAIT_FOR_APPROVAL (12 * 1000)  // == 12sec; minimum value: 5000 (5sec)
 
 // - change timeout for auto-locking the device after inactivity (in ms)
-// #define TIMEOUT_INACTIVITY_LOCK (10 * 60 * 1000)  // == 10min; minimum value: 20000 (20sec)
+// #define TIMEOUT_INACTIVITY_LOCK (5 * 60 * 1000)  // == 5min; minimum value: 20000 (20sec)
 
 // - self destruct wallet after n failed unlock attempts
 // #define SELF_DESTRUCT_ENABLED false

@@ -202,7 +202,7 @@ Finally, open a PR with your changes. Don't forget to update `README` and `CHANG
 
 ## License
 
-Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the Colibri firmware is _copyright © 2024-2025 by Colibri contributors_, and is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License. It includes the following open-source libraries:
+Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comments), the Colibri firmware is _copyright © 2024-2026 by Colibri contributors_, and is licensed under the [AGPL 3.0](https://github.com/xtools-at/colibri/blob/main/LICENSE.md) - GNU Affero General Public License. It includes the following open-source libraries:
 
 - Espressif [Arduino Core ESP32](https://github.com/espressif/arduino-esp32) ([LGPL-2.1](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Espressif.LGPL-2.1.md))
 - [trezor-crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/LICENSE)) and [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Trezor.GPL-3.0.txt))

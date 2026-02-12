@@ -48,10 +48,8 @@ const char RPC_PARAMS_SELECT_WALLET[] =
     "[number: wallet id, string: (opt.) hd path, string: (opt.) bip32 passphrase, number: (opt.) "
     "force chain type (1=BTC|2=ETH)]";
 const char RPC_PARAMS_DIGEST[] = "[string: hex digest]";
-const char RPC_PARAMS_MSG[] =
-    "[string: plaintext message to sign, number: (opt.) chain type override]";
-const char RPC_PARAMS_TYPED_DATA_HASH[] =
-    "[string: hex domain separator hash, string: hex message hash]";
+const char RPC_PARAMS_MSG[] = "[string: plaintext message to sign, number: (opt.) chain type override]";
+const char RPC_PARAMS_TYPED_DATA_HASH[] = "[string: hex domain separator hash, string: hex message hash]";
 const char RPC_PARAMS_ETH_SIGN_TX[] =
     "[string: chainId, string: to, string: value, string: data, string: nonce, string: gasLimit, "
     "string: gasPrice/maxFeePerGas, string: (opt.) maxPriorityFeePerGas (EIP-1559)]";
@@ -59,8 +57,7 @@ const char RPC_PARAMS_ETH_SIGN_TX[] =
 const char RPC_RESULT_SUCCESS[] = "bool: success";
 const char RPC_RESULT_STRING[] = "string: result";
 const char RPC_RESULT_SIGNATURE[] = "string: signature";
-const char RPC_RESULT_LIST_METHODS[] =
-    "[...object: {string: method, string: params, string: result}]";
+const char RPC_RESULT_LIST_METHODS[] = "[...object: {string: method, string: params, string: result}]";
 const char RPC_RESULT_CREATE_MNEMONIC[] = "[number: wallet id, string: mnemonic phrase]";
 const char RPC_RESULT_ADD_MNEMONIC[] = "number: wallet id";
 const char RPC_RESULT_SELECTED_WALLET[] =
@@ -72,8 +69,7 @@ const char RPC_RESULT_STATUS[] =
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, string: display type, number: "
     "stored wallets]";
-const char RPC_MSG_MNEMONIC_SCREEN[] =
-    "The mnemonic phrase is being displayed on the device screen";
+const char RPC_MSG_MNEMONIC_SCREEN[] = "The mnemonic phrase is being displayed on the device screen";
 
 // ===== RPC ERROR MESSAGES ===== //
 const char RPC_ERROR_METHOD_NOT_FOUND[] = "Method not found";

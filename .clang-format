@@ -2,7 +2,7 @@ BasedOnStyle: Google
 IndentWidth: 2
 IndentPPDirectives: BeforeHash
 NamespaceIndentation: All
-ColumnLimit: 100
+ColumnLimit: 120
 AlignAfterOpenBracket: BlockIndent
 AlignOperands: DontAlign
 AlignEscapedNewlines: DontAlign

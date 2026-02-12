@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /*
- * Colibri Wallet - Libre DIY Hardware Wallet <https://colibri.diy>
- * Copyright (C) 2024-2025  xtools-at <https://github.com/xtools-at>
+ * Colibri Wallet - Libre DIY Crypto Hardware Wallet <https://colibri.diy>
+ * Copyright (C) 2024-2026  xtools-at <https://github.com/xtools-at>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -88,6 +88,9 @@
       #define log_s(...)
       #define log_ss(...)
     #endif
+  #else
+    #define log_s(...)
+    #define log_ss(...)
   #endif
 
 #else
@@ -100,20 +103,18 @@
 
 // ========== Board defaults ========== //
 // fail build for unsupported ESP32 targets
-#if (defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32H2) || \
-     defined(CONFIG_IDF_TARGET_ESP32P4))
+#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32H2) || defined(CONFIG_IDF_TARGET_ESP32P4))
   #error "You're using an unsupported ESP32 chip variant!"
 #endif
 
 // warn if using experimental targets
-#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6))
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6)) || defined(CONFIG_IDF_TARGET_ESP32C5)
   #warning "You're using an experimental ESP32 chip variant, developers only!"
 #endif
 
 // disable unavailable interfaces based on target chip and config
 // - USB-OTG is only available on S2, S3 and P4
-#if (!defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3) && \
-     !defined(CONFIG_IDF_TARGET_ESP32P4))
+#if (!defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3) && !defined(CONFIG_IDF_TARGET_ESP32P4))
   #ifndef INTERFACE_USB_DISABLED
     #define INTERFACE_USB_DISABLED
   #endif
@@ -126,9 +127,11 @@
   #endif
 #endif
 
-// - NimBLE only supports ESP32, S3 and C3, fall back to Arduino core BLE on other targets
-#if (!defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32C3) && \
-     !defined(CONFIG_IDF_TARGET_ESP32S3))
+// - NimBLE 2.x supports [ESP32, S3, C2, C3, C5, C6, H2], fall back to Arduino core BLE on other targets
+#if (!defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32S3) && \
+     !defined(CONFIG_IDF_TARGET_ESP32C3) && !defined(CONFIG_IDF_TARGET_ESP32C6) && \
+     !defined(CONFIG_IDF_TARGET_ESP32C5) && !defined(CONFIG_IDF_TARGET_ESP32C2) && \
+     !defined(CONFIG_IDF_TARGET_ESP32H2))
   #ifndef INTERFACE_BLE_NIMBLE_DISABLED
     #define INTERFACE_BLE_NIMBLE_DISABLED
   #endif
@@ -140,6 +143,7 @@
     #define INTERFACE_BLE_NIMBLE
   #elif !defined(INTERFACE_BLE_ARDUINO_DISABLED)
     #define INTERFACE_BLE_ARDUINO
+    #error "Arduino BLE support is not fully working yet, please use a compatible ESP32 chip"
   #else
     #define INTERFACE_BLE_DISABLED
   #endif
@@ -162,7 +166,7 @@
 
 // - storage
 #ifndef NVS_MAX_AVAILABLE_STORAGE
-  #define NVS_MAX_AVAILABLE_STORAGE 7280
+  #define NVS_MAX_AVAILABLE_STORAGE 7280  // with 20kB nvs partition size
 #endif
 
 #ifndef NVS_PARTITION_NAME
@@ -218,8 +222,8 @@
 // - button defaults
 #ifndef BUTTON_GPIO_OK
   // C- and H-series chips use GPIO 9 for BOOT button
-  #if (defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C5) || \
-       defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
+  #if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
+       defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
     #define BUTTON_GPIO_OK 9
   #else
     // all others use GPIO 0
@@ -257,7 +261,7 @@
 
 // defaults
 #ifndef DISPLAY_ROTATION
-  #define DISPLAY_ROTATION 1
+  #define DISPLAY_ROTATION 0
 #endif
 #ifndef DISPLAY_INVERT
   #define DISPLAY_INVERT false
@@ -318,6 +322,7 @@
     #define DISPLAY_TYPE "Small display"
   #else
     #define DISPLAY_TYPE_ID 2  // Normal-sized screen
+    #define DISPLAY_TYPE_DEFAULT
     #define DISPLAY_TYPE "Display support"
   #endif
 #endif
@@ -348,8 +353,7 @@
 #define STORAGE_SIZE_SYSTEM \
   (2 * HASH_LENGTH /* device key + checksum */ + AES_IV_SIZE /* device IV */ + \
    STORAGE_SIZE_LOGIN_ATTEMPTS /* login attempts */ + 64 /* buffer for NVS ids & -metadata */)
-#define MAX_STORED_KEYS \
-  ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
+#define MAX_STORED_KEYS ((NVS_MAX_AVAILABLE_STORAGE - STORAGE_SIZE_SYSTEM) / (MAX_MNEMONIC_LENGTH + AES_IV_SIZE + 16))
 #ifndef DEFAULT_MNEMONIC_WORDS
   #define DEFAULT_MNEMONIC_WORDS 24
 #endif
@@ -365,7 +369,7 @@
 
 // - inactivity auto-lock
 #ifndef TIMEOUT_INACTIVITY_LOCK
-  #define TIMEOUT_INACTIVITY_LOCK 600000  // 10min
+  #define TIMEOUT_INACTIVITY_LOCK 300000  // 5min
 #endif
 #if (TIMEOUT_INACTIVITY_LOCK < (20 * 1000))
   #error "TIMEOUT_INACTIVITY_LOCK must be >= 20000ms (20s)"
