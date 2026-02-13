@@ -341,6 +341,21 @@
   #endif
 #endif
 
+// ========== Camera ========== //
+#if defined(CAMERA_ENABLED)
+  #if !defined(CONFIG_IDF_TARGET_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32S3)
+    #error "Camera is only supported on ESP32, S2, and S3."
+  #endif
+
+  #if !defined(CAMERA_GPIO_PWDN) || !defined(CAMERA_GPIO_RESET) || !defined(CAMERA_GPIO_XCLK) || \
+      !defined(CAMERA_GPIO_SIOD) || !defined(CAMERA_GPIO_SIOC) || !defined(CAMERA_GPIO_D7) || \
+      !defined(CAMERA_GPIO_D6) || !defined(CAMERA_GPIO_D5) || !defined(CAMERA_GPIO_D4) || !defined(CAMERA_GPIO_D3) || \
+      !defined(CAMERA_GPIO_D2) || !defined(CAMERA_GPIO_D1) || !defined(CAMERA_GPIO_D0) || \
+      !defined(CAMERA_GPIO_VSYNC) || !defined(CAMERA_GPIO_HREF) || !defined(CAMERA_GPIO_PCLK)
+    #error "Incomplete camera pin configuration for selected board!"
+  #endif
+#endif
+
 // ========== Crypto ========== //
 // Constants
 #define PRIVATEKEY_LENGTH 32

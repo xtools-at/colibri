@@ -15,6 +15,10 @@
   #include "SerialDebugInterface.h"
 #endif
 
+#if defined(CAMERA_ENABLED)
+  #include "CameraInterface.h"
+#endif
+
 void initInterfaces();
 void updateInterfaces();
 void stopInterfaces();

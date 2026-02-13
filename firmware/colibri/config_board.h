@@ -93,6 +93,28 @@
 // #define DISPLAY_GPIO_BACKLIGHT -1 // -1 to disable
 // #define DISPLAY_GPIO_RST -1  // -1 if NC or connected to EN
 
+// ========== CAMERA CONFIG ========== //
+// [ESP32, S2, S3] only!
+// #define CAMERA_ENABLED
+
+// - Pin config (no defaults, all required)
+// #define CAMERA_GPIO_PWDN -1
+// #define CAMERA_GPIO_RESET -1
+// #define CAMERA_GPIO_XCLK 21
+// #define CAMERA_GPIO_SIOD 26
+// #define CAMERA_GPIO_SIOC 27
+// #define CAMERA_GPIO_D7 35
+// #define CAMERA_GPIO_D6 34
+// #define CAMERA_GPIO_D5 39
+// #define CAMERA_GPIO_D4 36
+// #define CAMERA_GPIO_D3 19
+// #define CAMERA_GPIO_D2 18
+// #define CAMERA_GPIO_D1 5
+// #define CAMERA_GPIO_D0 4
+// #define CAMERA_GPIO_VSYNC 25
+// #define CAMERA_GPIO_HREF 23
+// #define CAMERA_GPIO_PCLK 22
+
 // ========== EXPERT/DEVELOPER SETTINGS ========== //
 // Use custom serial baud rate
 // #define BOARD_SERIAL_BAUD_RATE 115200
