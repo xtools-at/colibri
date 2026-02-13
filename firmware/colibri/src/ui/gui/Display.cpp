@@ -14,13 +14,13 @@ void displayText(const char* message) {
   display.fillScreen(DISPLAY_COLOR_BG);
   display.setTextColor(DISPLAY_COLOR_TEXT);
 
+  display.setFont(&fonts::Font0);
   float textSize = 1.0f;
   #ifndef DISPLAY_SMALL
   textSize = 2.0f;
   #endif
 
   display.setTextSize(textSize);
-  display.setFont(&fonts::Font0);
   display.setTextDatum(middle_center);
   display.drawString(message, display.width() / 2, display.height() / 2);
 
@@ -36,7 +36,7 @@ void initDisplay() {
 
   displayText(HW_MANUFACTURER_NAME);
   log_d("Initialized display: %s", DISPLAY_TYPE);
-  delay(200);
+  delay(500);
 }
 
 #endif

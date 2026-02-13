@@ -56,9 +56,6 @@ class BLEServerCallback : public NimBLEServerCallbacks {
   void onAuthenticationComplete(NimBLEConnInfo& connInfo) {
     log_d("BLE authentication complete");
     setStateConnected(BleConnected);
-
-    delay(2000);
-    displayMessage(DISPLAY_LOCKED);
   }
 
   void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) {

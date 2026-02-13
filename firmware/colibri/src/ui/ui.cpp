@@ -159,10 +159,14 @@ void setStateConnected(Connection conn) {
   wallet.lock();
   if (connection == DebugSerialConnected) {
     displayMessage(DISPLAY_DEBUG);
+    delay(2000);
   } else if (connection > DebugSerialConnected) {
+    displayMessage(DISPLAY_CONNECTED);
+    delay(500);
     displayMessage(DISPLAY_LOCKED);
   } else {
     displayMessage(DISPLAY_NOT_CONNECTED);
+    delay(500);
   }
 
   updateUi();
