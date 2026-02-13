@@ -41,8 +41,8 @@ $ echo "Developers only!"
 ### One-time setup of Arduino IDE
 
 - [Download Arduino IDE](https://www.arduino.cc/en/software) and [enable support for ESP32 boards](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions). Internally we're using these versions to build:
-  - Arduino IDE 2.3.2 (w/ Arduino CLI 0.35.3)
-  - `esp32` Arduino Core 3.1.0 (w/ ESP-IDF 5.3)
+  - Arduino IDE 2.3.7
+  - `esp32` Arduino Core 3.3.6
 - Go to `File > Preferences` and enable _"Show files inside sketches"_ and _"Show verbose output during compile"_
 - Connect your ESP32 dev board via USB
 - Change the target board in Arduino IDE (`Tools > Board > esp32 > ESP32XX Dev Module`, where "XX" is your ESP32 chip type; or select whatever fits your hardware better)

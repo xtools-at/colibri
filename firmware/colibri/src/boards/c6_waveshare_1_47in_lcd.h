@@ -2,14 +2,16 @@
 #pragma once
 
 #define LED_GPIO_NEOPIXEL 8
-#define LED_ON 0  // == LOW, TODO: verify
+#define LED_ON 0  // == LOW
 
 // Onboard 1.47" OLED display config
 #define DISPLAY_ENABLED
-
 #define DISPLAY_ST7789
 #define DISPLAY_WIDTH 172
 #define DISPLAY_HEIGHT 320
+#define DISPLAY_ROTATION 3
+#define DISPLAY_OFFSET_X 34
+#define DISPLAY_INVERT true
 
 // Display pins
 #define DISPLAY_GPIO_SPI_MOSI 6

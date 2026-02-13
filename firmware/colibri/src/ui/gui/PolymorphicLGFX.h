@@ -30,7 +30,7 @@ class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ILI9341 _panel_instance;
 
   #else
-    #error "No display type selected, please check `config_board.h`"
+    #error "No supported display type selected, please check `config_board.h`"
   #endif
 
   // Bus:
@@ -82,14 +82,14 @@ class LGFX : public lgfx::LGFX_Device {
       // I2C
       cfg.i2c_addr = 0x3C;
       cfg.i2c_port = 0;  // (0 or 1)
-      cfg.freq_write = 400000;
-      cfg.freq_read = 400000;
+      cfg.freq_write = 100000;
+      cfg.freq_read = 100000;
       cfg.pin_sda = DISPLAY_GPIO_I2C_SDA;  // SDA
       cfg.pin_scl = DISPLAY_GPIO_I2C_SCL;  // SCL
-      cfg.prefix_len = 0;
-        // cfg.prefix_len = 1;
-        // cfg.prefix_cmd = 0x00;
-        // cfg.prefix_data = 0x40;
+      cfg.prefix_len = 1;
+      cfg.prefix_cmd = 0x00;
+      cfg.prefix_data = 0x40;
+
   #endif
 
       _bus_instance.config(cfg);
@@ -103,29 +103,33 @@ class LGFX : public lgfx::LGFX_Device {
       cfg.pin_rst = DISPLAY_GPIO_RST;  // (-1 = disable)
       cfg.pin_busy = -1;  // (-1 = disable)
 
-      cfg.panel_width = DISPLAY_WIDTH;
       cfg.panel_height = DISPLAY_HEIGHT;
+      cfg.panel_width = DISPLAY_WIDTH;
       cfg.offset_x = DISPLAY_OFFSET_X;
       cfg.offset_y = DISPLAY_OFFSET_Y;
       cfg.offset_rotation = DISPLAY_OFFSET_ROTATION;
-      cfg.dummy_read_pixel = 8;
-      cfg.dummy_read_bits = 1;
-      cfg.readable = true;
       cfg.invert = DISPLAY_INVERT;
+      cfg.readable = false;
       cfg.rgb_order = false;
       cfg.dlen_16bit = false;
-      cfg.bus_shared = true;
+      cfg.bus_shared = false;
+      // cfg.dummy_read_pixel = 8;
+      // cfg.dummy_read_bits = 1;
 
   // Set the following only if there is a display offset issue with drivers
   // that have variable pixel counts, such as ST7735 or ILI9163.
   #if defined(DISPLAY_ST7735)
-      cfg.memory_width = DISPLAY_WIDTH;
       cfg.memory_height = DISPLAY_HEIGHT;
+      cfg.memory_width = DISPLAY_WIDTH;
+  #elif defined(DISPLAY_SH110X)
+        // cfg.memory_height = 128;
+        // cfg.memory_width = 64;
   #endif
 
       _panel_instance.config(cfg);
     }
 
+  #if (DISPLAY_GPIO_BACKLIGHT != -1)
     {  // -- Backlight
       auto cfg = _light_instance.config();
 
@@ -137,6 +141,7 @@ class LGFX : public lgfx::LGFX_Device {
       _light_instance.config(cfg);
       _panel_instance.setLight(&_light_instance);
     }
+  #endif
 
     /*
     // TODO: implement touchscreen support

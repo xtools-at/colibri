@@ -12,7 +12,7 @@ WalletResponse Wallet::wipeRemote(bool interfacesOnly) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
 
   // approve request on hardware
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_WIPE)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (interfacesOnly) {
     wipe(false, true);
@@ -42,7 +42,7 @@ void Wallet::wipe(bool wipeStore, bool wipeIfaces) {
 
 WalletResponse Wallet::setPassword(std::string& password) {
   // approve request on hardware
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_PASSWORD)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   // password is set and encrypted keys exist -> reset password
   bool isPasswordChange = false;
@@ -126,7 +126,7 @@ WalletResponse Wallet::unlock(std::string& password, bool requiresApproval) {
   if (!isPasswordSet()) return WalletResponse(InvalidRequest, RPC_ERROR_PW_NOT_SET);
 
   // approve request on hardware
-  if (requiresApproval && !waitForApproval()) {
+  if (requiresApproval && !waitForApproval(DISPLAY_APPROVE_UNLOCK)) {
     return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
   }
 
@@ -214,6 +214,7 @@ void Wallet::lock() {
   timeLastActivity = 0;
 
   locked = true;
+  displayMessage(DISPLAY_LOCKED);
 }
 
 WalletResponse Wallet::selectWallet(
@@ -320,14 +321,12 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
       newCounter = counter;
     } else {
       log_e(
-          "Error: non-existing wallet id #%d passed, using next available slot #%d instead",
-          overwriteId, newWalletId
+          "Error: non-existing wallet id #%d passed, using next available slot #%d instead", overwriteId, newWalletId
       );
     }
   }
 
-  if (store.isOutOfBounds(newWalletId))
-    return WalletResponse(InvalidRequest, RPC_ERROR_MNEMONIC_STORE);
+  if (store.isOutOfBounds(newWalletId)) return WalletResponse(InvalidRequest, RPC_ERROR_MNEMONIC_STORE);
 
   log_ss("input mnemonic: %s", mnemonic.c_str());
   if (!mnemonic_check(mnemonic.c_str())) {
@@ -335,7 +334,7 @@ WalletResponse Wallet::addMnemonic(std::string& mnemonic, uint16_t overwriteId) 
   }
 
   // approve request on hardware
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_ADD_MNEMONIC)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   // encrypt mnemonic with password
   encryptAndStoreMnemonic(newWalletId, mnemonic, pwHash);
@@ -513,7 +512,7 @@ std::string Wallet::getAddress() {
 
 WalletResponse Wallet::signDigest(std::string& hexDigest) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_SIGN_HASH)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   std::string signature;
 
@@ -537,7 +536,7 @@ WalletResponse Wallet::signDigest(std::string& hexDigest) {
 
 WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainTypeOverride) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_SIGN_TX)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
   log_i("Signing tx (chain type %d)", useChainType);
@@ -552,7 +551,7 @@ WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainType
 
 WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOverride) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_SIGN_MSG)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   std::string signature;
   ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
@@ -575,17 +574,15 @@ WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOver
   return WalletResponse(signature);
 }
 
-WalletResponse Wallet::signTypedDataHash(
-    std::string& domainSeparatorHash, std::string& messageHash
-) {
+WalletResponse Wallet::signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash) {
   log_i(
-      "Signing typed data - domainSeparatorHash: %s; messageHash: %s", domainSeparatorHash.c_str(),
-      messageHash.c_str()
+      "Signing typed data - domainSeparatorHash: %s; messageHash: %s", domainSeparatorHash.c_str(), messageHash.c_str()
   );
   std::string signature;
 
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-  if (!waitForApproval()) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_SIGN_TYPED_DATA_HASH))
+    return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (chainType == ETH) {
     signature = ethSignTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
@@ -625,9 +622,7 @@ void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t enc
   memzero(mnemonicStr, sizeof(mnemonicStr));
 }
 
-void Wallet::encryptAndStoreMnemonic(
-    uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]
-) {
+void Wallet::encryptAndStoreMnemonic(uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]) {
   // create and store iv
   uint8_t iv[AES_IV_SIZE];
   generateEntropy(iv, AES_IV_SIZE);

@@ -54,6 +54,9 @@ Connection connection = NotConnected;
 void setup() {
   led_turnOn(RgbColor::Busy);
 
+  // display setup & boot screen
+  initDisplay();
+
   // enable Serial when debugging
 #if (CORE_DEBUG_LEVEL > 0)
   Serial.begin(BOARD_SERIAL_BAUD_RATE);
@@ -65,9 +68,6 @@ void setup() {
   log_printf("> Serial debug log level: %d\n", CORE_DEBUG_LEVEL);
 #endif
 
-  // display setup & boot screen
-  initDisplay();
-
   // rpc setup
   rpc.init();
   delay(50);
@@ -75,17 +75,11 @@ void setup() {
   // interfaces setup
   initInterfaces();
   delay(100);
-
-  // TODO: show start screen
 }
 
 void loop() {
   updateUi();
   updateInterfaces();
-  if (isOtaActive) {
-    updateOta();
-  }
 
-  // debounce
-  delay(5);
+  // delay(5);
 }

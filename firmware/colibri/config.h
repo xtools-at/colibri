@@ -103,12 +103,12 @@
 
 // ========== Board defaults ========== //
 // fail build for unsupported ESP32 targets
-#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32H2) || defined(CONFIG_IDF_TARGET_ESP32P4))
+#if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32P4))
   #error "You're using an unsupported ESP32 chip variant!"
 #endif
 
 // warn if using experimental targets
-#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C6)) || defined(CONFIG_IDF_TARGET_ESP32C5)
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32H2))
   #warning "You're using an experimental ESP32 chip variant, developers only!"
 #endif
 
@@ -166,7 +166,7 @@
 
 // - storage
 #ifndef NVS_MAX_AVAILABLE_STORAGE
-  #define NVS_MAX_AVAILABLE_STORAGE 7280  // with 20kB nvs partition size
+  #define NVS_MAX_AVAILABLE_STORAGE 7280  // with 20kB nvs partition size (~13kB reserved for system, BLE, etc.)
 #endif
 
 #ifndef NVS_PARTITION_NAME
@@ -313,7 +313,11 @@
 
 // display type categories:
 #ifndef DISPLAY_TYPE_ID
-  #if (!defined(DISPLAY_ENABLED))
+  #if defined(DISPLAY_TOUCH_ENABLED)
+    #define DISPLAY_TYPE_ID 3  // Touchscreen
+    #define DISPLAY_TYPE_TOUCH
+    #define DISPLAY_TYPE "Touchscreen display"
+  #elif (!defined(DISPLAY_ENABLED))
     #define DISPLAY_TYPE_ID 0  // No screen
     #define DISPLAY_TYPE "No display"
   #elif (DISPLAY_WIDTH < 80)

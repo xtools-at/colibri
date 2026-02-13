@@ -10,6 +10,10 @@
 #define DISPLAY_ST7789
 #define DISPLAY_WIDTH 135
 #define DISPLAY_HEIGHT 240
+#define DISPLAY_OFFSET_X 52
+#define DISPLAY_OFFSET_Y 40
+#define DISPLAY_ROTATION 3
+#define DISPLAY_INVERT true
 
 // Display pins
 #define DISPLAY_GPIO_SPI_MOSI 19

@@ -45,8 +45,7 @@ void SerialDebugInterface::update() {
       size_t offset = 0;
 
       while (offset < outputLength) {
-        size_t chunkSize =
-            (outputLength - offset) > batchSize ? batchSize : (outputLength - offset);
+        size_t chunkSize = (outputLength - offset) > batchSize ? batchSize : (outputLength - offset);
         Serial.write(output.c_str() + offset, chunkSize);
         Serial.flush();
         offset += chunkSize;

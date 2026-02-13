@@ -25,8 +25,10 @@ extern Connection connection;
 
 void updateUi();
 
-bool waitForApproval(RgbColor color = Hot);
+bool waitForApproval(const char* text, RgbColor color = Hot);
 
 void setStateConnected(Connection conn);
 
 void setStateBusy(bool busy);
+
+void displayMessage(const char* message);

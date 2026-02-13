@@ -94,6 +94,22 @@ const char RPC_ERROR_MNEMONIC_STORE[] = "Keystore is full";
 const char RPC_ERROR_WALLET_NOT_FOUND[] = "Wallet not found or invalid HD path";
 const char RPC_ERROR_WALLET_INTERNAL[] = "Internal error setting up wallet";
 
+// ===== Display ===== //
+const char DISPLAY_APPROVE[] = "Approve?";
+const char DISPLAY_APPROVE_XPUB[] = "Export Xpub?";
+const char DISPLAY_APPROVE_WIPE[] = "Wipe wallet?";
+const char DISPLAY_APPROVE_PASSWORD[] = "Set password?";
+const char DISPLAY_APPROVE_UNLOCK[] = "Unlock?";
+const char DISPLAY_APPROVE_ADD_MNEMONIC[] = "Add new key?";
+const char DISPLAY_APPROVE_SIGN_HASH[] = "Sign hash?";
+const char DISPLAY_APPROVE_SIGN_TX[] = "Sign tx?";
+const char DISPLAY_APPROVE_SIGN_MSG[] = "Sign message?";
+const char DISPLAY_APPROVE_SIGN_TYPED_DATA_HASH[] = "Sign data?";
+const char DISPLAY_DEBUG[] = "DEBUG MODE";
+const char DISPLAY_CONNECTED[] = "Connected";
+const char DISPLAY_NOT_CONNECTED[] = "Not Connected";
+const char DISPLAY_LOCKED[] = "Locked";
+
 // ===== Storage ===== //
 const char STORAGE_NVS_PARTITION_NAME[] = NVS_PARTITION_NAME;
 const char STORAGE_SYS[] = "sys";

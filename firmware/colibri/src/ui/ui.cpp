@@ -32,7 +32,7 @@ static void checkForGesture() {
   // check for wipe request
   if (buttonCancel.isMultiPressed(10)) {
     log_i("Device wipe initiated");
-    if (!waitForApproval(RgbColor::Warning)) {
+    if (!waitForApproval(DISPLAY_APPROVE_WIPE, RgbColor::Warning)) {
       return;
     }
 
@@ -45,9 +45,7 @@ static void checkForTimeout() {
   uint64_t delta = now > wallet.timeLastActivity ? now - wallet.timeLastActivity : 0;
 
   if (wallet.timeLastActivity > 0 && delta > TIMEOUT_INACTIVITY_LOCK) {
-    log_i(
-        "Auto-locking device after inactivity of %d ms (limit=%d)", delta, TIMEOUT_INACTIVITY_LOCK
-    );
+    log_i("Auto-locking device after inactivity of %d ms (limit=%d)", delta, TIMEOUT_INACTIVITY_LOCK);
     log_d("- Now:   %d", now);
     log_d("- Last:  %d", wallet.timeLastActivity);
 
@@ -88,12 +86,20 @@ void updateUi() {
   checkForTimeout();
 }
 
-bool waitForApproval(RgbColor color) {
+void displayMessage(const char* message = DISPLAY_APPROVE) {
+#ifdef DISPLAY_ENABLED
+  displayText(message);
+#endif
+}
+
+bool waitForApproval(const char* text, RgbColor color) {
   log_i("Waiting for user approval...");
   // reset auto-lock timeout
   if (!wallet.isLocked() && wallet.isKeySet()) {
     wallet.timeLastActivity = millis();
   }
+
+  displayMessage(text);
 
   // set led hot
   isHot = true;
@@ -149,6 +155,16 @@ bool waitForApproval(RgbColor color) {
 void setStateConnected(Connection conn) {
   log_d("Interface connected: %s (%d)", conn > 0 ? "true" : "false", conn);
   connection = conn;
+
+  wallet.lock();
+  if (connection == DebugSerialConnected) {
+    displayMessage(DISPLAY_DEBUG);
+  } else if (connection > DebugSerialConnected) {
+    displayMessage(DISPLAY_LOCKED);
+  } else {
+    displayMessage(DISPLAY_NOT_CONNECTED);
+  }
+
   updateUi();
 }
 

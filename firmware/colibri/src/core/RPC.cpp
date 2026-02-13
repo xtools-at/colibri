@@ -87,7 +87,7 @@ void getSelectedWallet(const JsonDocument& request, JsonDocument& response) {
 }
 
 void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
-  if (!waitForApproval()) {
+  if (!waitForApproval(DISPLAY_APPROVE_XPUB)) {
     return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
   }
 
@@ -99,7 +99,7 @@ void exportXpubRoot(const JsonDocument& request, JsonDocument& response) {
 }
 
 void exportXpubAccount(const JsonDocument& request, JsonDocument& response) {
-  if (!waitForApproval()) {
+  if (!waitForApproval(DISPLAY_APPROVE_XPUB)) {
     return rpcError(response, RPC_ERROR_USER_REJECTED, Status::UserRejected);
   }
 
@@ -259,31 +259,25 @@ void JsonRpcHandler::init() {
   addMethod(RPC_METHOD_PING, ping, EMPTY, RPC_RESULT_STRING, Permission::Always);
   addMethod(
       RPC_METHOD_LIST_METHODS,
-      [this](const JsonDocument& request, JsonDocument& response) { this->listMethods(response); },
-      EMPTY, RPC_RESULT_LIST_METHODS, Permission::Always
+      [this](const JsonDocument& request, JsonDocument& response) { this->listMethods(response); }, EMPTY,
+      RPC_RESULT_LIST_METHODS, Permission::Always
   );
   addMethod(RPC_METHOD_SET_PW, setPassword, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Permission::Always);
   addMethod(RPC_METHOD_GET_STATUS, getStatus, EMPTY, RPC_RESULT_STATUS, Permission::Always);
 
   // after password is set
-  addMethod(
-      RPC_METHOD_UNLOCK, unlock, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Permission::AfterPasswordSetup
-  );
+  addMethod(RPC_METHOD_UNLOCK, unlock, RPC_PARAMS_PW, RPC_RESULT_SUCCESS, Permission::AfterPasswordSetup);
   addMethod(RPC_METHOD_LOCK, lock, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterPasswordSetup);
 
   // after unlock
   addMethod(RPC_METHOD_WIPE, wipe, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
+  addMethod(RPC_METHOD_DELETE_PAIRED_DEVICES, deletePairedDevices, EMPTY, RPC_RESULT_SUCCESS, Permission::AfterUnlock);
   addMethod(
-      RPC_METHOD_DELETE_PAIRED_DEVICES, deletePairedDevices, EMPTY, RPC_RESULT_SUCCESS,
+      RPC_METHOD_CREATE_MNEMONIC, createMnemonic, RPC_PARAMS_CREATE_MNEMONIC, RPC_RESULT_CREATE_MNEMONIC,
       Permission::AfterUnlock
   );
   addMethod(
-      RPC_METHOD_CREATE_MNEMONIC, createMnemonic, RPC_PARAMS_CREATE_MNEMONIC,
-      RPC_RESULT_CREATE_MNEMONIC, Permission::AfterUnlock
-  );
-  addMethod(
-      RPC_METHOD_ADD_MNEMONIC, addMnemonic, RPC_PARAMS_ADD_MNEMONIC, RPC_RESULT_ADD_MNEMONIC,
-      Permission::AfterUnlock
+      RPC_METHOD_ADD_MNEMONIC, addMnemonic, RPC_PARAMS_ADD_MNEMONIC, RPC_RESULT_ADD_MNEMONIC, Permission::AfterUnlock
   );
   addMethod(RPC_METHOD_GET_INFO, getDeviceInfo, EMPTY, RPC_RESULT_INFO, Permission::AfterUnlock);
 
@@ -291,28 +285,21 @@ void JsonRpcHandler::init() {
   addMethod(RPC_METHOD_GET_WALLET, getSelectedWallet, EMPTY, RPC_RESULT_SELECTED_WALLET);
   addMethod(RPC_METHOD_EXPORT_XPUB_ROOT, exportXpubRoot, EMPTY, RPC_RESULT_EXPORT_XPUB);
   addMethod(RPC_METHOD_EXPORT_XPUB_ACCOUNT, exportXpubAccount, EMPTY, RPC_RESULT_EXPORT_XPUB);
-  addMethod(
-      RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET
-  );
+  addMethod(RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET);
 
   // - signing
   addMethod(RPC_METHOD_SIGN_HASH, signDigest, RPC_PARAMS_DIGEST, RPC_RESULT_SIGNATURE);
   addMethod(RPC_METHOD_SIGN_MSG, signMessage, RPC_PARAMS_MSG, RPC_RESULT_SIGNATURE);
-  addMethod(
-      RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH,
-      RPC_RESULT_SIGNATURE
-  );
-  addMethod(
-      RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX, RPC_RESULT_SIGNATURE
-  );
+  addMethod(RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH, signTypedDataHash, RPC_PARAMS_TYPED_DATA_HASH, RPC_RESULT_SIGNATURE);
+  addMethod(RPC_METHOD_ETH_SIGN_TX, signEthereumTransaction, RPC_PARAMS_ETH_SIGN_TX, RPC_RESULT_SIGNATURE);
 
   initialised = true;
 }
 
 // Add or update a method with its handling function and parameter description
 void JsonRpcHandler::addMethod(
-    const char* name, std::function<void(const JsonDocument&, JsonDocument&)> handle,
-    const char* paramsDescription, const char* resultDescription, Permission allowed
+    const char* name, std::function<void(const JsonDocument&, JsonDocument&)> handle, const char* paramsDescription,
+    const char* resultDescription, Permission allowed
 ) {
   methods[name] = {handle, paramsDescription, resultDescription, allowed};
 }
@@ -360,8 +347,7 @@ bool JsonRpcHandler::validateRequest(const JsonDocument& request, JsonDocument& 
   }
 
   // check if keys are set
-  if ((wallet.isLocked() || !wallet.isKeySet()) &&
-      methods[methodName].allowed >= Permission::AfterKeysSetupAndUnlock) {
+  if ((wallet.isLocked() || !wallet.isKeySet()) && methods[methodName].allowed >= Permission::AfterKeysSetupAndUnlock) {
     log_e("Error: keys not set");
     rpcError(response, RPC_ERROR_MNEMONIC_NOT_SET, Status::InvalidRequest);
     return false;
@@ -369,12 +355,11 @@ bool JsonRpcHandler::validateRequest(const JsonDocument& request, JsonDocument& 
 
   // Check if the request contains parameters.
   // Methods with only one optional parameter are not detected, hardcode affected ones here.
-  bool methodRequiresParams = strlen(methods[methodName].paramsDescription) != 0 &&
-      methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0;
+  bool methodRequiresParams =
+      strlen(methods[methodName].paramsDescription) != 0 && methodName.compare(RPC_METHOD_CREATE_MNEMONIC) != 0;
 
   if (methodRequiresParams &&
-      (request[RPC_PARAMS].isNull() || request[RPC_PARAMS].size() == 0 ||
-       request[RPC_PARAMS][0].isNull())) {
+      (request[RPC_PARAMS].isNull() || request[RPC_PARAMS].size() == 0 || request[RPC_PARAMS][0].isNull())) {
     log_e("Error: bad params");
     rpcError(response, RPC_ERROR_INVALID_PARAMS, Status::InvalidParams);
     return false;

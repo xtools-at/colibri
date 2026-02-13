@@ -4,51 +4,38 @@
 #include "Display.h"
 
 #ifdef DISPLAY_ENABLED
-static TFT_eSPI lcd;
-// static TFT_eSprite sprite(&lcd);
 
-static void drawDemo() {
-  lcd.startWrite();
+static TFT_eSPI display;
+// static TFT_eSprite sprite(&display);
 
-  lcd.setTextColor(TFT_WHITE);
-  lcd.drawNumber(lcd.getRotation(), 16, 0);
+void displayText(const char* message) {
+  display.startWrite();
+  display.clearDisplay();
+  display.fillScreen(TFT_BLACK);
+  display.setTextColor(TFT_GREENYELLOW);
 
-  lcd.setFont(&fonts::FreeMono9pt7b);
-  lcd.setTextColor(0xFF0000U);
-  lcd.drawString("R", 30, 16);
+  float textSize = 1.0f;
+  #ifndef DISPLAY_SMALL
+  textSize = 2.0f;
+  #endif
 
-  lcd.setFont(&fonts::Font2);
-  lcd.setTextDatum(bottom_right);
-  lcd.drawString("bottom_right", lcd.width() / 2, lcd.height() / 2);
+  display.setTextSize(textSize);
+  display.setFont(&fonts::Font0);
+  display.setTextDatum(middle_center);
+  display.drawString(message, display.width() / 2, display.height() / 2);
 
-  lcd.setFont(&fonts::FreeMono12pt7b);
-  lcd.setTextColor(0x00FF00U);
-  lcd.drawString("G", 40, 16);
-
-  lcd.setFont(&fonts::Font0);
-  lcd.setTextColor(0x0000FFU);
-  lcd.drawString("B", 50, 16);
-
-  lcd.drawFastVLine(lcd.width() / 2, 0, lcd.height(), 0xFFFFFFU);
-  lcd.drawFastHLine(0, lcd.height() / 2, lcd.width(), 0xFFFFFFU);
-
-  lcd.drawRect(30, 30, lcd.width() - 60, lcd.height() - 60, 2 * 7);
-
-  lcd.endWrite();
+  display.drawRect(5, 5, display.width() - 10, display.height() - 10, TFT_GREENYELLOW);
+  display.endWrite();
 }
 
 void initDisplay() {
-  lcd.init();
-  lcd.setRotation(DISPLAY_ROTATION);
-  lcd.setBrightness(DISPLAY_BRIGHTNESS);
-  lcd.setColorDepth(DISPLAY_COLOR_DEPTH);
+  display.setRotation(DISPLAY_ROTATION);
+  display.setBrightness(DISPLAY_BRIGHTNESS);
+  display.setColorDepth(DISPLAY_COLOR_DEPTH);
+  display.begin();
 
-  lcd.setTextSize((std::max(lcd.width(), lcd.height()) + 255) >> 8);
-
-  lcd.fillScreen(TFT_BLACK);
-
-  // TODO: show splash screen instead
-  drawDemo();
+  displayText(HW_MANUFACTURER_NAME);
+  log_d("Initialized display: %s", DISPLAY_TYPE);
 }
 
 #endif

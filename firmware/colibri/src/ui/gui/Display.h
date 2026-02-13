@@ -7,6 +7,7 @@
   #include "PolymorphicLGFX.h"
 
 void initDisplay();
+void displayText(const char* message);
 
 #else
 

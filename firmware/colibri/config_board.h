@@ -10,17 +10,18 @@
 // #include "src/boards/32_devkit.h";
 // #include "src/boards/c3_supermini.h";
 // #include "src/boards/s3_supermini.h";
-// #include "src/boards/s3_wroom_camera.h";
 
 // - Boards with displays:
-// #include "src/boards/32_t3display_1_14in_lcd.h";
+// #include "src/boards/32_t-display_1_14in_lcd.h";
 // #include "src/boards/c3_mini_0_42in_oled.h";
+// #include "src/boards/c6_waveshare_1_47in_lcd.h";
+// #include "src/boards/s3_adafruit_feather_1_14in_tft.h";
 
 // - Experimental/developers only:
 // #include "src/boards/c6_supermini.h";
-// #include "src/boards/c6_waveshare_1_47in_lcd.h"; // untested
 // #include "src/boards/h2_supermini.h";
 // #include "src/boards/s2_wemos_d1mini.h";
+// #include "src/boards/s3_wroom_camera.h";
 
 //*/
 // >>>> ...OR set up custom board below:
@@ -36,10 +37,6 @@
 // Setup the buttons your board has
 // #define BUTTON_GPIO_OK 0 // default: BOOT button (0 or 9 depending on chip)
 // #define BUTTON_GPIO_CANCEL 1 // default: not defined
-// #define BUTTON_GPIO_LEFT 2 // default: not defined // UNUSED
-// #define BUTTON_GPIO_RIGHT 3  // default: not defined // UNUSED
-// #define BUTTON_GPIO_UP 4 // default: not defined // UNUSED
-// #define BUTTON_GPIO_DOWN 5  // default: not defined // UNUSED
 
 // Alternative input/UI modes
 // #define BUTTON_MODE INPUT_PULLUP
@@ -68,11 +65,11 @@
 
 //*/
 // > Panel config:
-// #define DISPLAY_WIDTH 80 // default: not defined
 // #define DISPLAY_HEIGHT 160 // default: not defined
+// #define DISPLAY_WIDTH 80 // default: not defined
 // #define DISPLAY_BRIGHTNESS 200 // 0-255
 // #define DISPLAY_COLOR_DEPTH 16 // 1/2/4/8/16/24
-// #define DISPLAY_ROTATION 1 // 0-4
+// #define DISPLAY_ROTATION 0 // 0-4
 // #define DISPLAY_INVERT false
 // #define DISPLAY_OFFSET_X 0
 // #define DISPLAY_OFFSET_Y 0
