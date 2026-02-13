@@ -11,8 +11,8 @@ static TFT_eSPI display;
 void displayText(const char* message) {
   display.startWrite();
   display.clearDisplay();
-  display.fillScreen(TFT_BLACK);
-  display.setTextColor(TFT_GREENYELLOW);
+  display.fillScreen(DISPLAY_COLOR_BG);
+  display.setTextColor(DISPLAY_COLOR_TEXT);
 
   float textSize = 1.0f;
   #ifndef DISPLAY_SMALL
@@ -24,7 +24,7 @@ void displayText(const char* message) {
   display.setTextDatum(middle_center);
   display.drawString(message, display.width() / 2, display.height() / 2);
 
-  display.drawRect(5, 5, display.width() - 10, display.height() - 10, TFT_GREENYELLOW);
+  display.drawRect(5, 5, display.width() - 10, display.height() - 10, DISPLAY_COLOR_TEXT);
   display.endWrite();
 }
 
@@ -36,6 +36,7 @@ void initDisplay() {
 
   displayText(HW_MANUFACTURER_NAME);
   log_d("Initialized display: %s", DISPLAY_TYPE);
+  delay(200);
 }
 
 #endif

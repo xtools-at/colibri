@@ -331,6 +331,16 @@
   #endif
 #endif
 
+// display colors
+#if defined(DISPLAY_ENABLED)
+  #ifndef DISPLAY_COLOR_TEXT
+    #define DISPLAY_COLOR_TEXT TFT_GREEN
+  #endif
+  #ifndef DISPLAY_COLOR_BG
+    #define DISPLAY_COLOR_BG TFT_BLACK
+  #endif
+#endif
+
 // ========== Crypto ========== //
 // Constants
 #define PRIVATEKEY_LENGTH 32

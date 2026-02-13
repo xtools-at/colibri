@@ -12,6 +12,13 @@
 // key each boot.
 // #define BLE_PAIRING_KEY 200913
 
+// > GUI settings
+#if defined(DISPLAY_ENABLED)
+// - display colors
+// #define DISPLAY_COLOR_TEXT TFT_GREEN
+// #define DISPLAY_COLOR_BG TFT_BLACK
+#endif
+
 // > Wallet settings
 
 // - change the default wallet/chain (pick one)
