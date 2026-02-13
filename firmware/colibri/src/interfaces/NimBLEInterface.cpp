@@ -4,12 +4,11 @@
 #include "NimBLEInterface.h"
 
 #if defined(INTERFACE_BLE_NIMBLE)
+  #include "../../constants.h"
 
-const uint32_t propRead =
-    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::READ_AUTHEN;
-const uint32_t propWrite =
-    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN;
-const uint16_t maxCharValueLen = 251 - 3;
+const uint32_t propRead = NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::READ_AUTHEN;
+const uint32_t propWrite = NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::WRITE_AUTHEN;
+const uint16_t maxCharValueLen = 247;
 
 std::string requestBuffer;
 bool requestReady = false;
@@ -19,11 +18,18 @@ static uint16_t getMaxChunkLen(uint16_t peerMtu) {
   return maxLen > maxCharValueLen ? maxCharValueLen : maxLen;
 }
 
+static void displayPin() {
+  #ifdef DISPLAY_ENABLED
+  String pin = String("PIN:") + String(NimBLEDevice::getSecurityPasskey());
+  displayMessage(pin.c_str());
+  #endif
+}
+
 // ========== BLE Callbacks ========== //
 class BLEWriteCallback : public NimBLECharacteristicCallbacks {
   NimBLEUUID inputUuid = NimBLEUUID(BLE_CHARACTERISTIC_INPUT);
 
-  void onWrite(NimBLECharacteristic *pCharacteristic) {
+  void onWrite(NimBLECharacteristic* pCharacteristic) {
     if (requestReady || (pCharacteristic->getUUID() != inputUuid)) {
       return;
     }
@@ -47,54 +53,17 @@ class BLEWriteCallback : public NimBLECharacteristicCallbacks {
 };
 
 class BLEServerCallback : public NimBLEServerCallbacks {
-  void onConnect(NimBLEServer *pServer, ble_gap_conn_desc *desc) {
-    // only allow one connection
-    if (pServer->getConnectedCount() > 1) {
-      pServer->disconnect(desc->conn_handle);
-      return;
-    }
-
-    // wallet should be locked after connection
-    wallet.lock();
-
-    // set led indicator
+  void onAuthenticationComplete(NimBLEConnInfo& connInfo) {
+    log_d("BLE authentication complete");
     setStateConnected(BleConnected);
 
-    // stop advertising
-    pServer->stopAdvertising();
-
-    // request data length update from peer
-    pServer->setDataLen(desc->conn_handle, 0x00FB);
+    delay(2000);
+    displayMessage(DISPLAY_LOCKED);
   }
 
-  void onDisconnect(NimBLEServer *pServer) {
-    if (pServer->getConnectedCount() > 0) {
-      return;
-    }
-
-    wallet.lock();
+  void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) {
     setStateConnected(NotConnected);
-
-    // restart advertising
-    pServer->startAdvertising();
-  }
-
-  uint32_t onPassKeyRequest() {
-  #ifdef DISPLAY_ENABLED
-      // TODO: show passkey on display
-  #endif
-
-    return NimBLEDevice::getSecurityPasskey();
-  }
-
-  bool onConfirmPIN(uint32_t pin) {
-    // approve pairing request on wallet
-    if (!waitForApproval(Connecting)) {
-      return false;
-    }
-
-    // check pin
-    return (NimBLEDevice::getSecurityPasskey() == pin);
+    displayPin();
   }
 };
 
@@ -106,63 +75,54 @@ void NimBLEInterface::init() {
 
   // init
   NimBLEDevice::init(BLE_SERVER_NAME);
+  NimBLEDevice::setPower(3);
+  NimBLEDevice::setMTU(247);
   NimBLEDevice::setSecurityAuth(true, true, true);
   NimBLEDevice::setSecurityIOCap(BLE_HS_IO_DISPLAY_ONLY);
-  NimBLEDevice::setPower(ESP_PWR_LVL_P9);
-  NimBLEDevice::setMTU(512);
+
+  // set/generate pairing key
+  #ifndef DISPLAY_ENABLED
+  NimBLEDevice::setSecurityPasskey(BLE_PAIRING_KEY);
+  #else
+  NimBLEDevice::setSecurityPasskey(randomNumber(111111, 999999));
+  #endif
 
   pServer = NimBLEDevice::createServer();
   pServer->setCallbacks(new BLEServerCallback());
+  pServer->advertiseOnDisconnect(true);
   pService = pServer->createService(BLE_SERVICE_UUID);
 
   // BLE service characteristics
   // - input:
-  BLEWriteCallback *writeCallback = new BLEWriteCallback();
+  BLEWriteCallback* writeCallback = new BLEWriteCallback();
   pCharInput = pService->createCharacteristic(BLE_CHARACTERISTIC_INPUT, propRead | propWrite);
   pCharInput->setCallbacks(writeCallback);
   pCharInput->setValue(std::string(BLE_INPUT_DEFAULT_MSG));
 
   // - output:
-  pCharOutput =
-      pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
+  pCharOutput = pService->createCharacteristic(BLE_CHARACTERISTIC_OUTPUT, propRead | NIMBLE_PROPERTY::NOTIFY);
   pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
 
   // start BLE advertising
   pService->start();
   pAdvertising = NimBLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(BLE_SERVICE_UUID);
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);
-  pAdvertising->setMinPreferred(0x12);
+  pAdvertising->enableScanResponse(true);
+  // pAdvertising->setPreferredParams(0x12, 0xC80);
+  pAdvertising->setName(BLE_SERVER_NAME);
   pAdvertising->start();
+  delay(10);
 
-  // set/generate pairing key
-  #ifndef DISPLAY_ENABLED
-  delay(20);
-  NimBLEDevice::setSecurityPasskey(BLE_PAIRING_KEY);
-  #else
-  NimBLEDevice::setSecurityPasskey(randomNumber(111111, 999999));
-  #endif
+  displayPin();
 }
 
 void NimBLEInterface::stop() {
+  if (!initialised) {
+    return;
+  }
   disconnect();
 
-  if (pAdvertising != NULL) {
-    pAdvertising->stop();
-  }
-  if (pServer != NULL) {
-    pServer->stopAdvertising();
-    if (pService != NULL) {
-      pServer->removeService(pService, true);
-    }
-  }
-
-  NimBLEDevice::deinit(true);
-
-  pAdvertising = NULL;
-  pService = NULL;
-  pServer = NULL;
+  pServer->stopAdvertising();
 
   initialised = false;
 }
@@ -197,13 +157,11 @@ void NimBLEInterface::update() {
   }
 }
 
-void NimBLEInterface::sendResponse(std::string &data) {
+void NimBLEInterface::sendResponse(std::string& data) {
   if (pServer->getConnectedCount() == 0) {
     requestReady = false;
     return;
   }
-
-  bool hasSubscribers = pCharOutput->getSubscribedCount() > 0;
 
   // prevent messages from getting truncated, figure out "sweet spot" for chunk size
   uint16_t peerMtu = pServer->getPeerMTU(pServer->getPeerInfo(0).getConnHandle());
@@ -221,9 +179,6 @@ void NimBLEInterface::sendResponse(std::string &data) {
     pCharOutput->setValue(chunk);
     delay(5);
 
-    // quit early if there are no subscribers
-    if (!hasSubscribers) break;
-
     // notify subscribers
     pCharOutput->notify();
     delay(150);
@@ -231,13 +186,8 @@ void NimBLEInterface::sendResponse(std::string &data) {
     offset += chunkLen;
   }
 
-  // don't reset characteristics if there are no subscribers (for manual review)
-  if (hasSubscribers) {
-    delay(50);
-
-    pCharInput->setValue(std::string(BLE_INPUT_DEFAULT_MSG));
-    pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
-  }
+  pCharInput->setValue(std::string(BLE_INPUT_DEFAULT_MSG));
+  pCharOutput->setValue(std::string(BLE_OUTPUT_DEFAULT_MSG));
 
   requestReady = false;
 }
