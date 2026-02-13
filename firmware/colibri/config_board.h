@@ -9,6 +9,8 @@
 // - Simple boards without displays:
 // #include "src/boards/32_devkit.h";
 // #include "src/boards/c3_supermini.h";
+// #include "src/boards/c6_supermini.h";
+// #include "src/boards/h2_supermini.h";
 // #include "src/boards/s3_supermini.h";
 
 // - Boards with displays:
@@ -18,8 +20,6 @@
 // #include "src/boards/s3_adafruit_feather_1_14in_tft.h";
 
 // - Experimental/developers only:
-// #include "src/boards/c6_supermini.h";
-// #include "src/boards/h2_supermini.h";
 // #include "src/boards/s2_wemos_d1mini.h";
 // #include "src/boards/s3_wroom_camera.h";
 

@@ -2,7 +2,7 @@
 #pragma once
 
 // General
-#define LED_GPIO_NEOPIXEL 34
+#define LED_GPIO_NEOPIXEL 33
 // #define LED_GPIO 13
 
 // Display
