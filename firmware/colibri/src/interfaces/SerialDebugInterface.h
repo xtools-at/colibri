@@ -3,6 +3,8 @@
 
 #include "AbstractInterface.h"
 
+#if defined(DEBUG_INTERFACE_SERIAL)
+
 /*
  * Insecure serial interface without any TLS,
  * for debugging with test keys only.
@@ -23,3 +25,5 @@ class SerialDebugInterface : public Interface {
   std::string inputBuffer;
   bool connected;
 };
+
+#endif

@@ -31,7 +31,8 @@ tmp.*
 *.xx
 
 # library files
-firmware/lib/**/examples*/**
+firmware/lib/**/example*/**
+firmware/lib/**/demo*/**
 firmware/lib/**/extras/**
 firmware/lib/**/tests/**
 firmware/lib/**/doc*/**

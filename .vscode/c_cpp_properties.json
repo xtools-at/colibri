@@ -9,7 +9,8 @@
                 "~/.arduino15/packages/esp32/tools/esp32s3-libs/**/include/newlib/platform_include",
                 "~/.arduino15/packages/esp32/**",
                 "~/.arduino15/packages/**",
-                "${workspaceFolder}/firmware/**",
+                "${workspaceFolder}/firmware/colibri/**",
+                "${workspaceFolder}/firmware/lib/**",
                 "~/Arduino/**"
 
             ],

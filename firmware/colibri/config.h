@@ -50,8 +50,8 @@
 
 // ========== Debug ========== //
 // Additional flag to log sensitive information (mnemonics, password, etc.).
-// Set `0` to disable, `1` to enable, `2` to log critically sensitive data - keep disabled unless
-// you REALLY know what you're doing!
+// Set `0` to disable, `1` to enable, `2` to log critically sensitive data
+// Keep disabled, unless you REALLY know what you're doing!
 #define DEBUG_LOG_SENSITIVE 0
 
 // Arduino core serial debug log level (insecure) - should be set in Arduino IDE directly instead
@@ -259,7 +259,7 @@
   #error "Incomplete display configuration, check `config_board.h`"
 #endif
 
-// defaults
+// Defaults
 #ifndef DISPLAY_ROTATION
   #define DISPLAY_ROTATION 0
 #endif
@@ -290,25 +290,50 @@
 #ifndef DISPLAY_OFFSET_ROTATION
   #define DISPLAY_OFFSET_ROTATION 0
 #endif
-// - SPI TODO:
-#ifndef DISPLAY_GPIO_SPI_MOSI
-  #define DISPLAY_GPIO_SPI_MOSI 3
-#endif
+
+// - pins
 #ifndef DISPLAY_GPIO_SPI_MISO
   #define DISPLAY_GPIO_SPI_MISO -1
 #endif
-#ifndef DISPLAY_GPIO_SPI_SCLK
-  #define DISPLAY_GPIO_SPI_SCLK 2
+#ifndef DISPLAY_GPIO_CS
+  #define DISPLAY_GPIO_CS -1
 #endif
-#ifndef DISPLAY_GPIO_SPI_DC
-  #define DISPLAY_GPIO_SPI_DC 6
+#ifndef DISPLAY_GPIO_BACKLIGHT
+  #define DISPLAY_GPIO_BACKLIGHT -1
 #endif
-// - I2C TODO:
-#ifndef DISPLAY_GPIO_I2C_SDA
-  #define DISPLAY_GPIO_I2C_SDA 5
+#ifndef DISPLAY_GPIO_RST
+  #define DISPLAY_GPIO_RST -1
 #endif
-#ifndef DISPLAY_GPIO_I2C_SCL
-  #define DISPLAY_GPIO_I2C_SCL 6
+
+#if defined(DISPLAY_ENABLED)
+  // - I2C
+  #if (defined(DISPLAY_GPIO_I2C_SDA) && defined(DISPLAY_GPIO_I2C_SCL))
+    #define DISPLAY_USE_I2C
+  #endif
+
+  // - SPI
+  #if !defined(DISPLAY_USE_I2C) && \
+      (!defined(DISPLAY_GPIO_SPI_MOSI) || !defined(DISPLAY_GPIO_SPI_SCLK) || !defined(DISPLAY_GPIO_SPI_DC))
+    #error "Missing display pin configuration, check `config_board.h`"
+  #endif
+#endif
+
+// - display colors
+#if defined(DISPLAY_ENABLED)
+  #ifndef DISPLAY_COLOR_TEXT
+    #define DISPLAY_COLOR_TEXT TFT_GREEN
+  #endif
+  #ifndef DISPLAY_COLOR_BG
+    #define DISPLAY_COLOR_BG TFT_BLACK
+  #endif
+#endif
+
+// - QR codes
+#ifndef QR_MAX_VERSION
+  #define QR_MAX_VERSION 8
+#endif
+#ifndef QR_MODULE_DRAW_SIZE
+  #define QR_MODULE_DRAW_SIZE 4
 #endif
 
 // display type categories:
@@ -328,16 +353,6 @@
     #define DISPLAY_TYPE_ID 2  // Normal-sized screen
     #define DISPLAY_TYPE_DEFAULT
     #define DISPLAY_TYPE "Display support"
-  #endif
-#endif
-
-// display colors
-#if defined(DISPLAY_ENABLED)
-  #ifndef DISPLAY_COLOR_TEXT
-    #define DISPLAY_COLOR_TEXT TFT_GREEN
-  #endif
-  #ifndef DISPLAY_COLOR_BG
-    #define DISPLAY_COLOR_BG TFT_BLACK
   #endif
 #endif
 

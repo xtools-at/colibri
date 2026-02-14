@@ -88,7 +88,20 @@ void updateUi() {
 
 void displayMessage(const char* message = DISPLAY_APPROVE) {
 #ifdef DISPLAY_ENABLED
-  displayText(message);
+  drawText(message);
+#endif
+}
+
+bool displayQrCode(const char* data) {
+#if defined(DISPLAY_ENABLED) && !defined(DISPLAY_SMALL)
+  esp_qrcode_config_t cfg = (esp_qrcode_config_t){
+      .display_func = drawQrCode,
+      .max_qrcode_version = QR_MAX_VERSION,
+      .qrcode_ecc_level = ESP_QRCODE_ECC_LOW,
+  };
+
+  // display via callback to `Display` class
+  return esp_qrcode_generate(&cfg, data) == ESP_OK;
 #endif
 }
 

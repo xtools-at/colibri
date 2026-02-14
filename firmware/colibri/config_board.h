@@ -76,22 +76,25 @@
 // #define DISPLAY_OFFSET_ROTATION 0
 
 // > Connection and pin config:
-// - 2-wire I2C /TODO: figure out defaults for different chips
-// #define DISPLAY_USE_I2C // -> set this if not using SPI
-// #define DISPLAY_GPIO_I2C_SDA 5
-// #define DISPLAY_GPIO_I2C_SCL 6
+// - 2-wire I2C
+// #define DISPLAY_GPIO_I2C_SDA 5 // default: not defined
+// #define DISPLAY_GPIO_I2C_SCL 6 // default: not defined
 
-// - 3/4-wire SPI: /TODO: figure out defaults for different chips
-// #define DISPLAY_GPIO_SPI_MOSI 3 // aka SDA
+// - 3/4-wire SPI:
+// #define DISPLAY_GPIO_SPI_MOSI 3 // aka SDA - default: not defined
 // #define DISPLAY_GPIO_SPI_MISO -1 // -1 if using 3-wire SPI display
-// #define DISPLAY_GPIO_SPI_SCLK 2 // aka SCK
-// #define DISPLAY_GPIO_SPI_DC 6
+// #define DISPLAY_GPIO_SPI_SCLK 2 // aka SCK - default: not defined
+// #define DISPLAY_GPIO_SPI_DC 6 // default: not defined
 
 //*/
 // > Panel pin config:
 // #define DISPLAY_GPIO_CS -1 // -1 to disable
 // #define DISPLAY_GPIO_BACKLIGHT -1 // -1 to disable
 // #define DISPLAY_GPIO_RST -1  // -1 if NC or connected to EN
+
+// - QR code config
+// #define QR_MAX_VERSION 8 // 1-40, influences QR code capacity, size on screen and required performance
+// #define QR_MODULE_DRAW_SIZE 4 // size of each QR code *module* (square) in pixels, influences QR code size on screen
 
 // ========== CAMERA CONFIG ========== //
 // [ESP32, S2, S3] only!

@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
-#include <esp_system.h>
-
 #include "../../config.h"
+// config first
+
+#include <esp_system.h>
+#include <qrcode.h>
+
 #include "../core/ota/ota.h"
 #include "./gui/Display.h"
 #include "AsyncButton.h"
@@ -32,3 +35,5 @@ void setStateConnected(Connection conn);
 void setStateBusy(bool busy);
 
 void displayMessage(const char* message);
+
+bool displayQrCode(const char* data);

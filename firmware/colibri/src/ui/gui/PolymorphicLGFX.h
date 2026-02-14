@@ -121,9 +121,6 @@ class LGFX : public lgfx::LGFX_Device {
   #if defined(DISPLAY_ST7735)
       cfg.memory_height = DISPLAY_HEIGHT;
       cfg.memory_width = DISPLAY_WIDTH;
-  #elif defined(DISPLAY_SH110X)
-        // cfg.memory_height = 128;
-        // cfg.memory_width = 64;
   #endif
 
       _panel_instance.config(cfg);

@@ -11,20 +11,18 @@
 
 #include "bcur.h"
 
-#ifdef INTERFACE_QR
-
 /*
  * START ported and/or adapted code from Jade wallet firmware (licensed under MIT, see
  * `licenses/Blockstream.MIT.txt`):
  * https://github.com/Blockstream/Jade/blob/348f972c77314fd6e2fc170d43168fef3cf65cf1/main/bcur.c
  */
-  #define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
-    (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
-  #define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
+#define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
+  (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
+#define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
 
 static void encodeHdKey(
-    CborEncoder *encoder, HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH],
-    std::string &hdPath, uint8_t hdPathDepth, const uint32_t fingerprints[7]
+    CborEncoder* encoder, HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath,
+    uint8_t hdPathDepth, const uint32_t fingerprints[7]
 ) {
   // init key map
   CborEncoder key_map_encoder;
@@ -50,12 +48,12 @@ static void encodeHdKey(
     {
       e = cbor_encode_uint(&key_path_map_encoder, 1);
       CborEncoder key_path_array_encoder;
-      e = cbor_encoder_create_array(
-          &key_path_map_encoder, &key_path_array_encoder, 2 * hdPathDepth
-      );
+      e = cbor_encoder_create_array(&key_path_map_encoder, &key_path_array_encoder, 2 * hdPathDepth);
+      const char* hdPathCStr = hdPath.c_str();
+
       for (int i = 0; i < hdPathDepth; ++i) {
         bool isHardened = false;
-        uint32_t pathSegment = extractHdPathSegment(hdPath.c_str(), i + 1, isHardened);
+        uint32_t pathSegment = extractHdPathSegment(hdPathCStr, i + 1, isHardened);
 
         e = cbor_encode_uint(&key_path_array_encoder, pathSegment);
         e = cbor_encode_boolean(&key_path_array_encoder, isHardened);
@@ -65,16 +63,16 @@ static void encodeHdKey(
       e = cbor_encoder_close_container(&key_path_map_encoder, &key_path_array_encoder);
     }
 
-    // TODO: - add account fingerprint
+    // - add account fingerprint
     e = cbor_encode_uint(&key_path_map_encoder, 2);
     e = cbor_encode_uint(&key_path_map_encoder, fingerprints[hdPathDepth]);
 
-    // TODO: - add depth - BTC only
+    // - add depth - BTC only
     e = cbor_encode_uint(&key_path_map_encoder, 3);
     e = cbor_encode_uint(&key_path_map_encoder, hdPathDepth);
   }
 
-  // TODO: parent fingerprint - immediate parent
+  // parent fingerprint - immediate parent
   uint32_t parentFp = fingerprints[hdPathDepth > 1 ? hdPathDepth - 1 : 0];
   e = cbor_encode_uint(&key_map_encoder, 8);
   e = cbor_encode_uint(&key_map_encoder, parentFp);
@@ -87,7 +85,7 @@ static void encodeHdKey(
   e = cbor_encoder_close_container(encoder, &key_map_encoder);
 }
 
-static void encodeScriptVariantTag(CborEncoder *encoder, const uint32_t bipPurpose) {
+static void encodeScriptVariantTag(CborEncoder* encoder, const uint32_t bipPurpose) {
   switch (bipPurpose) {
     case 84:  // P2WPKH
       cbor_encode_tag(encoder, 404);
@@ -103,7 +101,7 @@ static void encodeScriptVariantTag(CborEncoder *encoder, const uint32_t bipPurpo
 }
 
 UR getUrHdKey(
-    HDNode *node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath, uint8_t hdPathDepth,
+    HDNode* node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, uint8_t hdPathDepth,
     const uint32_t fingerprints[7]
 ) {
   uint8_t cbor[128];
@@ -122,8 +120,8 @@ UR getUrHdKey(
 }
 
 UR getUrAccount(
-    HDNode *node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string &hdPath,
-    uint8_t hdPathDepth, const uint32_t fingerprints[7]
+    HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, uint8_t hdPathDepth,
+    const uint32_t fingerprints[7]
 ) {
   uint8_t cbor[128];
   CborEncoder encoder;
@@ -175,7 +173,7 @@ UR getUrAccount(
  * END ported code from Jade Wallet firmware
  */
 
-UR getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16]) {
+UR getUrEthSignature(const uint8_t* signature, const uint8_t uuid[16]) {
   uint8_t cbor[128];
   CborEncoder encoder;
 
@@ -205,14 +203,16 @@ UR getUrEthSignature(const uint8_t *signature, const uint8_t uuid[16]) {
   return ur;
 }
 
-UREncoder getUREncoder(UR &ur, size_t maxFragmentLen) {
+UREncoder getUREncoder(UR& ur, size_t maxFragmentLen) {
   return UREncoder(ur, BCUR_MAX_FRAGMENT_SIZE(maxFragmentLen, ur.type().c_str()), 0, 8);
 }
 
 // ========= UR Decoding =========
 
+// UR validateUr(UR& ur)
+
 // TODO: `eth-sign-request`
-static void parseEthSignRequest(UR &ur) {
+static void parseEthSignRequest(UR& ur) {
   // init parser
   CborParser parser;
   CborValue value;
@@ -253,8 +253,9 @@ static void parseEthSignRequest(UR &ur) {
   }
 }
 
-void parseUr(UR &ur) {
-  const char *urType = ur.type().c_str();
+/*
+void parseUr(UR& ur) {
+  const char* urType = ur.type().c_str();
 
   // parse different action types
   if (!strncasecmp(urType, UR_TYPE_ETH_SIGN_REQUEST, sizeof(UR_TYPE_ETH_SIGN_REQUEST))) {
@@ -263,6 +264,7 @@ void parseUr(UR &ur) {
     // unknown type
   }
 }
+*/
 
 /*
 void howToUse() {
@@ -280,5 +282,3 @@ void howToUse() {
   }
 }
 */
-
-#endif

@@ -4,13 +4,18 @@
 #include "../../../config.h"
 
 #ifdef DISPLAY_ENABLED
+  #include <qrcode.h>
+
   #include "PolymorphicLGFX.h"
 
 void initDisplay();
-void displayText(const char* message);
+void drawText(const char* message);
+void drawQrCode(esp_qrcode_handle_t qrcode);
 
 #else
 
   #define initDisplay()
+  #define drawText(...)
+  #define drawQrCode(...)
 
 #endif

@@ -3,6 +3,8 @@
 
 #include "SerialDebugInterface.h"
 
+#if defined(DEBUG_INTERFACE_SERIAL)
+
 void SerialDebugInterface::init() {
   // Serial is initialised in main.cpp > setup()
   Serial.println("> Serial debug RPC interface initialized\n");
@@ -62,12 +64,11 @@ void SerialDebugInterface::stop() {
   initialised = false;
 }
 
-void SerialDebugInterface::disconnect() {
-  connected = false;
-  setStateConnected(NotConnected);
-}
+void SerialDebugInterface::disconnect() { connected = false; }
 
 void SerialDebugInterface::wipe() {
   stop();
   inputBuffer.clear();
 }
+
+#endif
