@@ -28,10 +28,7 @@ void AsyncLed::update() {
       lastBlinkTime = currentTime;
       ledState = !ledState;  // Toggle LED state
 #ifdef LED_GPIO_NEOPIXEL
-      if (isNeopixel)
-        setPixelRgbColor(
-            ledState == LED_ON ? ledRgbColor : RgbColor::Off
-        );  // Set color or turn off
+      if (isNeopixel) setPixelRgbColor(ledState == LED_ON ? ledRgbColor : RgbColor::Off);  // Set color or turn off
 #else
       if (!isNeopixel) digitalWrite(pin, ledState);
 #endif
@@ -106,8 +103,8 @@ uint8_t AsyncLed::getColorComponent(RgbColor color, uint8_t component) {
 }
 
 void AsyncLed::setPixelRgbColor(RgbColor color) {
-  rgbLedWrite(
-      LED_GPIO_NEOPIXEL, getColorComponent(color, 0), getColorComponent(color, 1),
+  rgbLedWriteOrdered(
+      LED_GPIO_NEOPIXEL, LED_NEOPIXEL_COLOR_ORDER, getColorComponent(color, 0), getColorComponent(color, 1),
       getColorComponent(color, 2)
   );
 }

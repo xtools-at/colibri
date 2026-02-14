@@ -3,6 +3,7 @@
 
 #define LED_GPIO_NEOPIXEL 8
 #define LED_ON 0  // == LOW
+#define LED_NEOPIXEL_COLOR_ORDER LED_COLOR_ORDER_RGB
 
 // Onboard 1.47" OLED display config
 #define DISPLAY_ENABLED

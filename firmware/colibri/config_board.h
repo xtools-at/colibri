@@ -33,6 +33,7 @@
 // #define LED_GPIO 7 // default: LED_BUILTIN
 // #define LED_GPIO_NEOPIXEL 8 // default: not defined
 // #define LED_NEOPIXEL_BRIGHTNESS_PERCENT 25
+// #define LED_NEOPIXEL_COLOR_ORDER LED_COLOR_ORDER_GRB
 
 // Setup the buttons your board has
 // #define BUTTON_GPIO_OK 0 // default: BOOT button (0 or 9 depending on chip)

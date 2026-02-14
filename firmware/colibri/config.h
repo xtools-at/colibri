@@ -219,6 +219,10 @@
   #error "LED_NEOPIXEL_BRIGHTNESS_PERCENT must be between 10 and 100"
 #endif
 
+#ifndef LED_NEOPIXEL_COLOR_ORDER
+  #define LED_NEOPIXEL_COLOR_ORDER LED_COLOR_ORDER_GRB
+#endif
+
 // - button defaults
 #ifndef BUTTON_GPIO_OK
   // C- and H-series chips use GPIO 9 for BOOT button
