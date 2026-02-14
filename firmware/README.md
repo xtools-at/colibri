@@ -211,4 +211,5 @@ Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comme
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
 - [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
 - [TinyCBOR for Arduino](https://github.com/soburi/tinycbor) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TinyCBOR/LICENSE))
+- [quirc](https://github.com/dlbeer/quirc) ([ISC](https://github.com/xtools-at/colibri/blob/main/firmware/lib/quirc-Arduino/LICENSE))
 - [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA) ([AGPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/src/core/ota/ElegantOTA/LICENSE))
