@@ -7,10 +7,11 @@
 
 void SerialDebugInterface::init() {
   // Serial is initialised in main.cpp > setup()
-  Serial.println("> Serial debug RPC interface initialized\n");
   initialised = true;
   connected = true;
+  inputBuffer.reserve(SIGN_REQUEST_MAX_DATA_SIZE);
   setStateConnected(DebugSerialConnected);
+  Serial.println("> Serial debug RPC interface initialized\n");
 }
 
 void SerialDebugInterface::update() {
@@ -41,8 +42,8 @@ void SerialDebugInterface::update() {
       rpc.handleRequest(inputBuffer, output);
       inputBuffer.clear();
 
-      // return RPC response in batches if longer than 512 characters
-      const size_t batchSize = 512;
+      // return RPC response in batches if longer than serial buffer size
+      const size_t batchSize = 256;
       size_t outputLength = output.length();
       size_t offset = 0;
 
@@ -61,14 +62,13 @@ void SerialDebugInterface::update() {
 
 void SerialDebugInterface::stop() {
   disconnect();
+  inputBuffer.clear();
+  inputBuffer.reserve(1);
   initialised = false;
 }
 
 void SerialDebugInterface::disconnect() { connected = false; }
 
-void SerialDebugInterface::wipe() {
-  stop();
-  inputBuffer.clear();
-}
+void SerialDebugInterface::wipe() { stop(); }
 
 #endif
