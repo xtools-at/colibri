@@ -146,6 +146,7 @@ void createMnemonic(const JsonDocument& request, JsonDocument& response) {
     resultsArray.add(r.status);
 #if (defined(DISPLAY_ENABLED) && !defined(DISPLAY_TYPE_SMALL))
     resultsArray.add(RPC_MSG_MNEMONIC_SCREEN);
+    displayMessage(r.result.c_str());
 #else
     resultsArray.add(r.result);
 #endif
@@ -188,6 +189,31 @@ void selectWallet(const JsonDocument& request, JsonDocument& response) {
   } else {
     getSelectedWallet(request, response);
   }
+}
+
+void urRequestPair(const JsonDocument& request, JsonDocument& response) {
+  WalletResponse r = wallet.urRequestPair();
+  if (r.status < Ok) {
+    rpcError(response, r.error, r.status);
+  } else {
+    response[RPC_RESULT] = r.result;
+  }
+
+  memzero(&r, sizeof(r));
+}
+
+void urSign(const JsonDocument& request, JsonDocument& response) {
+  // decode single-part UR
+  UR ur = URDecoder::decode(request[RPC_PARAMS][0].as<std::string>());
+
+  WalletResponse r = wallet.urSign(ur);
+  if (r.status < Ok) {
+    rpcError(response, r.error, r.status);
+  } else {
+    response[RPC_RESULT] = r.result;
+  }
+
+  memzero(&r, sizeof(r));
 }
 
 void signDigest(const JsonDocument& request, JsonDocument& response) {
@@ -236,15 +262,49 @@ void signTypedDataHash(const JsonDocument& request, JsonDocument& response) {
 }
 
 void signEthereumTransaction(const JsonDocument& request, JsonDocument& response) {
-  JsonArrayConst params = request[RPC_PARAMS];
+  JsonArrayConst input = request[RPC_PARAMS];
+  if (input.size() < 7) {
+    rpcError(response, RPC_ERROR_INVALID_PARAMS, Status::InvalidParams);
+    return;
+  }
 
-  WalletResponse r = wallet.signTransaction(params);
+  EthTxData tx;
+  {
+    tx.isEip1559 = input.size() > 7;
+    // parse hex input
+    uint8_t chainIdBytes[8];
+    size_t chainIdLen = fromHex(input[0].as<const char*>(), chainIdBytes, 8);
+    tx.chainId = bytesToUint64(chainIdBytes, chainIdLen);
+
+    fromHex(input[1].as<const char*>(), tx.to, ADDRESS_LENGTH);
+
+    tx.valueSize = fromHex(input[2].as<const char*>(), tx.value, sizeof(tx.value));
+
+    const char* dataStr = input[3];
+    size_t dataLen = (strlen(dataStr) - 2) / 2;
+    tx.dataSize = fromHex(dataStr, tx.data, dataLen);
+
+    tx.nonceSize = fromHex(input[4].as<const char*>(), tx.nonce, sizeof(tx.nonce));
+
+    tx.gasLimitSize = fromHex(input[5].as<const char*>(), tx.gasLimit, sizeof(tx.gasLimit));
+
+    tx.maxGasFeeSize = fromHex(input[6].as<const char*>(), tx.maxGasFee, sizeof(tx.maxGasFee));
+
+    if (tx.isEip1559) {
+      // EIP-1559
+      tx.maxPriorityFeePerGasSize =
+          fromHex(input[7].as<const char*>(), tx.maxPriorityFeePerGas, sizeof(tx.maxPriorityFeePerGas));
+    }
+  }
+
+  WalletResponse r = wallet.signEthTransaction(tx);
   if (r.status < Ok) {
     rpcError(response, r.error, r.status);
   } else {
     response[RPC_RESULT] = r.result;
   }
 
+  memzero(&tx, sizeof(tx));
   memzero(&r, sizeof(r));
 }
 
@@ -286,6 +346,10 @@ void JsonRpcHandler::init() {
   addMethod(RPC_METHOD_EXPORT_XPUB_ROOT, exportXpubRoot, EMPTY, RPC_RESULT_EXPORT_XPUB);
   addMethod(RPC_METHOD_EXPORT_XPUB_ACCOUNT, exportXpubAccount, EMPTY, RPC_RESULT_EXPORT_XPUB);
   addMethod(RPC_METHOD_SELECT_WALLET, selectWallet, RPC_PARAMS_SELECT_WALLET, RPC_RESULT_SELECTED_WALLET);
+
+  // - BC-UR related
+  addMethod(RPC_METHOD_UR_PAIR, urRequestPair, EMPTY, RPC_RESULT_UR);
+  addMethod(RPC_METHOD_UR_SIGN, urSign, RPC_RESULT_UR, RPC_RESULT_UR);
 
   // - signing
   addMethod(RPC_METHOD_SIGN_HASH, signDigest, RPC_PARAMS_DIGEST, RPC_RESULT_SIGNATURE);
@@ -403,11 +467,12 @@ void JsonRpcHandler::handleRequest(const std::string& input, std::string& output
   }
 
   // validate payload
-  bool valid = validateRequest(request, response);
-  if (valid) {
+  if (validateRequest(request, response)) {
     // call the RPC method if payload passed validation
     methods[request[RPC_METHOD]].handle(request, response);
   }
+
+  displayMessage(response.containsKey(RPC_ERROR) ? DISPLAY_ERROR : DISPLAY_SUCCESS);
 
   // serialize response
   serializeJson(response, output);

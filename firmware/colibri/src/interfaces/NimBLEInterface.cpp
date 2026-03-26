@@ -70,6 +70,8 @@ void NimBLEInterface::init() {
   if (initialised) return;
   initialised = true;
 
+  requestBuffer.reserve(SIGN_REQUEST_MAX_DATA_SIZE);
+
   // init
   NimBLEDevice::init(BLE_SERVER_NAME);
   NimBLEDevice::setPower(3);
@@ -121,6 +123,8 @@ void NimBLEInterface::stop() {
 
   pServer->stopAdvertising();
 
+  requestBuffer.reserve(1);
+
   initialised = false;
 }
 
@@ -128,6 +132,8 @@ void NimBLEInterface::disconnect() {
   if (!initialised) {
     return;
   }
+  requestBuffer.clear();
+  requestReady = false;
 
   size_t peersNum = pServer->getConnectedCount();
   for (int i = 0; i < peersNum; i++) {
@@ -138,8 +144,6 @@ void NimBLEInterface::disconnect() {
 
 void NimBLEInterface::wipe() {
   disconnect();
-  requestBuffer.clear();
-  requestReady = false;
   NimBLEDevice::deleteAllBonds();
 }
 

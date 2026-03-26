@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Contains ported code from Jade wallet firmware licensed under MIT, see notes below.
 
 #pragma once
-
-/*
- * For more information on the BC-UR specification and the EIP-4527 extension, see also:
- * - https://developer.blockchaincommons.com/ur/
- * - https://github.com/BlockchainCommons/bc-ur
- * - https://eips.ethereum.org/EIPS/eip-4527
- */
 
 #include "bcur.h"
 
@@ -18,7 +12,7 @@
  */
 #define BCUR_NUM_FRAGMENTS(num_pure_fragments) \
   (num_pure_fragments <= 300 ? 4 * num_pure_fragments / 3 : num_pure_fragments + 100)
-#define BCUR_MAX_FRAGMENT_SIZE(capacity, type) ((capacity - strlen(type) - 12 - 42) / 2)
+#define BCUR_MAX_FRAGMENT_SIZE(capacity, typeLen) ((capacity - typeLen - 12 - 42) / 2)
 
 static void encodeHdKey(
     CborEncoder* encoder, HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath,
@@ -27,6 +21,7 @@ static void encodeHdKey(
   // init key map
   CborEncoder key_map_encoder;
   CborError e = cbor_encoder_create_map(encoder, &key_map_encoder, 5);
+  log_d("CBOR create result: %s", e == CborNoError ? "success" : "error");
 
   // account pubkey
   e = cbor_encode_uint(&key_map_encoder, 3);
@@ -61,6 +56,7 @@ static void encodeHdKey(
 
       // Close the path array
       e = cbor_encoder_close_container(&key_path_map_encoder, &key_path_array_encoder);
+      urfree_encoder(&key_path_array_encoder);
     }
 
     // - add account fingerprint
@@ -70,6 +66,10 @@ static void encodeHdKey(
     // - add depth - BTC only
     e = cbor_encode_uint(&key_path_map_encoder, 3);
     e = cbor_encode_uint(&key_path_map_encoder, hdPathDepth);
+
+    // close the key path map
+    e = cbor_encoder_close_container(&key_map_encoder, &key_path_map_encoder);
+    urfree_encoder(&key_path_map_encoder);
   }
 
   // parent fingerprint - immediate parent
@@ -83,9 +83,12 @@ static void encodeHdKey(
 
   // close the key map
   e = cbor_encoder_close_container(encoder, &key_map_encoder);
+  log_d("CBOR close result: %s", e == CborNoError ? "success" : "error");
+  urfree_encoder(&key_map_encoder);
 }
 
 static void encodeScriptVariantTag(CborEncoder* encoder, const uint32_t bipPurpose) {
+  log_d("encoding script variant tag for purpose %d", bipPurpose);
   switch (bipPurpose) {
     case 84:  // P2WPKH
       cbor_encode_tag(encoder, 404);
@@ -100,37 +103,53 @@ static void encodeScriptVariantTag(CborEncoder* encoder, const uint32_t bipPurpo
   }
 }
 
-UR getUrHdKey(
-    HDNode* node, uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, uint8_t hdPathDepth,
-    const uint32_t fingerprints[7]
+static std::string encodeUr(UR& ur, size_t maxFragmentLen = 384) {
+  UREncoder urEncoder = UREncoder(ur, BCUR_MAX_FRAGMENT_SIZE(maxFragmentLen, ur.type().length()));
+  std::string result = urEncoder.next_part();
+  if (!urEncoder.is_complete()) {
+    log_e("UR encoding not complete after first part, but only single part expected for this use case");
+  }
+
+  toUpperCase(result);
+
+  urfree_encoder(&urEncoder);
+
+  return result;
+}
+
+std::string getUrHdKey(
+    HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, const uint32_t fingerprints[7]
 ) {
   uint8_t cbor[128];
   CborEncoder encoder;
   cbor_encoder_init(&encoder, cbor, sizeof(cbor), 0);
 
-  encodeHdKey(&encoder, node, pubkeyAccount, hdPath, hdPathDepth, fingerprints);
+  encodeHdKey(&encoder, node, pubkeyAccount, hdPath, 3, fingerprints);
 
   // create UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
+  log_d("CBOR data length: %d", cborLen);
   UR ur(std::string(UR_TYPE_HDKEY), ByteVector(cbor, cbor + cborLen));
 
   urfree_encoder(&encoder);
 
-  return ur;
+  return encodeUr(ur);
 }
 
-UR getUrAccount(
-    HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, uint8_t hdPathDepth,
-    const uint32_t fingerprints[7]
+// TODO: BTC
+std::string getUrAccount(
+    HDNode* node, const uint8_t pubkeyAccount[PUBLICKEY_LENGTH], std::string& hdPath, const uint32_t fingerprints[7]
 ) {
   uint8_t cbor[128];
   CborEncoder encoder;
-  cbor_encoder_init(&encoder, cbor, 128, 0);
+  cbor_encoder_init(&encoder, cbor, sizeof(cbor), 0);
   {
+    uint8_t hdPathDepth = 3;
     // Fingerprint and list of output descriptors
     CborEncoder root_map_encoder;
     CborError e = cbor_encoder_create_map(&encoder, &root_map_encoder, 2);
     // ASSERT(e == CborNoError);
+    log_d("CBOR create result: %s", e == CborNoError ? "success" : "error");
 
     // fingerprint - immediate parent, or root parent of the path given ?
     e = cbor_encode_uint(&root_map_encoder, 1);
@@ -151,29 +170,32 @@ UR getUrAccount(
 
       // Close the array
       e = cbor_encoder_close_container(&root_map_encoder, &key_array_encoder);
+      log_d("CBOR array close result: %s", e == CborNoError ? "success" : "error");
       urfree_encoder(&key_array_encoder);
     }
 
     // Close the root map
     e = cbor_encoder_close_container(&encoder, &root_map_encoder);
-    // ASSERT(e == CborNoError);
+    log_d("CBOR root map close result: %s", e == CborNoError ? "success" : "error");
     urfree_encoder(&root_map_encoder);
   }
 
   // create UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
+  log_d("CBOR data length: %d", cborLen);
   UR ur(std::string(UR_TYPE_ACCOUNT), ByteVector(cbor, cbor + cborLen));
 
   urfree_encoder(&encoder);
 
-  return ur;
+  return encodeUr(ur);
 }
 
 /*
  * END ported code from Jade Wallet firmware
  */
 
-UR getUrEthSignature(const uint8_t* signature, const uint8_t uuid[16]) {
+// TODO: signature request response
+std::string getUrEthSignature(const uint8_t* signature, const uint8_t uuid[16]) {
   uint8_t cbor[128];
   CborEncoder encoder;
 
@@ -192,93 +214,190 @@ UR getUrEthSignature(const uint8_t* signature, const uint8_t uuid[16]) {
 
   // close
   e = cbor_encoder_close_container(&encoder, &key_map_encoder);
+  urfree_encoder(&key_map_encoder);
 
   // get UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
   UR ur(std::string(UR_TYPE_ETH_SIGNATURE), ByteVector(cbor, cbor + cborLen));
 
   urfree_encoder(&encoder);
-  urfree_encoder(&key_map_encoder);
 
-  return ur;
+  return encodeUr(ur);
 }
 
-UREncoder getUREncoder(UR& ur, size_t maxFragmentLen) {
-  return UREncoder(ur, BCUR_MAX_FRAGMENT_SIZE(maxFragmentLen, ur.type().c_str()), 0, 8);
-}
-
-// ========= UR Decoding =========
-
-// UR validateUr(UR& ur)
-
-// TODO: `eth-sign-request`
-static void parseEthSignRequest(UR& ur) {
+// `eth-sign-request`
+int parseEthSignRequest(UR& ur, UrEthSignRequest& request) {
   // init parser
   CborParser parser;
-  CborValue value;
-  cbor_parser_init(ur.cbor().data(), ur.cbor().size(), 0, &parser, &value);
+  CborValue root;
+  CborError e;
+
+  cbor_parser_init(ur.cbor().data(), ur.cbor().size(), 0, &parser, &root);
 
   // open map
   CborValue map;
-  cbor_value_enter_container(&value, &map);
+  cbor_value_enter_container(&root, &map);
 
   while (!cbor_value_at_end(&map)) {
-    uint64_t key;
-    cbor_value_get_uint64(&map, &key);
-    cbor_value_advance(&map);
+    int64_t key = 0;
+    CborType type = cbor_value_get_type(&map);
+
+    if (type == CborIntegerType) {
+      cbor_value_get_int64(&map, &key);
+      cbor_value_advance(&map);
+
+      while (cbor_value_get_type(&map) == CborTagType) {
+        cbor_value_advance(&map);
+      }
+    }
 
     switch (key) {
-      case 1:  // request-id: uuid/bytes[16]
-        break;
-      case 2: {  // sign-data: bytes - contents depend on `data-type`
-        size_t len;
-        cbor_value_get_string_length(&map, &len);
-        uint8_t data[len];
-        cbor_value_copy_byte_string(&map, data, &len, NULL);
-        // request.signData = std::vector<uint8_t>(data, data + len);
+      // uuid
+      case 1: {
+        if (cbor_value_get_type(&map) != CborByteStringType) {
+          log_e("Expected byte string for request-id, got type %d", cbor_value_get_type(&map));
+          break;
+        }
+
+        size_t len = 16;
+        e = cbor_value_copy_byte_string(&map, request.id, &len, NULL);
+
+        if (e != CborNoError) log_e("Error parsing request-id: %d", e);
+        log_d("Parsed request-id (UUID): %s", toHex(request.id, len).c_str());
+
         break;
       }
-      case 3:  // data-type: integer // 1 = legacy tx; 2 = typed data; 3 = message; 4 = typed tx
+
+      // sign data
+      case 2: {
+        if (cbor_value_get_type(&map) != CborByteStringType) {
+          log_e("Expected byte string for data, got type %d", cbor_value_get_type(&map));
+          break;
+        }
+
+        e = cbor_value_get_string_length(&map, &request.dataLen);
+        e = cbor_value_copy_byte_string(&map, request.data, &request.dataLen, NULL);
+
+        if (e != CborNoError) log_e("Error parsing sign data: %d", e);
+        log_d("Parsed sign data (len=%d): %s", (int)request.dataLen, toHex(request.data, request.dataLen).c_str());
+
         break;
-      case 4:  // Ethereum chain-id: integer
+      }
+
+      // sign data type: integer // 1 = legacy tx; 2 = typed data; 3 = message; 4 = typed tx
+      case 3: {
+        int64_t dataType;
+        e = cbor_value_get_int64(&map, &dataType);
+        request.dataType = (uint32_t)dataType;
+
+        log_d("Parsed UR type: %d", request.dataType);
+
         break;
-      case 5:  // derivation path: #5.304(crypto-keypath)
+      }
+
+      // Ethereum chain id
+      case 4: {
+        int64_t chainId;
+        e = cbor_value_get_int64(&map, &chainId);
+        request.chainId = (uint32_t)chainId;
+
+        log_d("Parsed chain-id: %d", request.chainId);
+
         break;
-      case 6:  // Ethereum address: bytes[20]
+      }
+
+      // hdPath Map
+      case 5: {
+        // Map hdPath/fingerprint
+        CborValue hdPathMap;
+        if (!cbor_value_is_container(&map)) {
+          log_e("Expected container for hdPath map, got type %d", cbor_value_get_type(&map));
+          break;
+        }
+        e = cbor_value_enter_container(&map, &hdPathMap);
+        if (e != CborNoError) {
+          log_e("Error entering hdPath map: %d", e);
+          break;
+        }
+
+        // 1 - hd path array
+        e = cbor_value_advance(&hdPathMap);
+        CborValue hdPathArray;
+        if (!cbor_value_is_container(&hdPathMap)) {
+          log_e("Expected container for hdPath array, got type %d", cbor_value_get_type(&hdPathMap));
+          break;
+        }
+        e = cbor_value_enter_container(&hdPathMap, &hdPathArray);
+        if (e != CborNoError) {
+          log_e("Error entering hdPath array: %d", e);
+          break;
+        }
+
+        std::string hdPathStr = "m";
+        while (!cbor_value_at_end(&hdPathArray)) {
+          if (cbor_value_get_type(&hdPathArray) == CborIntegerType) {
+            int64_t pathSegment;
+            cbor_value_get_int64(&hdPathArray, &pathSegment);
+            log_d("Parsed path segment: %d", (int)pathSegment);
+
+            hdPathStr += "/" + std::to_string(pathSegment);
+          } else if (cbor_value_is_boolean(&hdPathArray)) {
+            bool res;
+            cbor_value_get_boolean(&hdPathArray, &res);
+            log_d("isHardened: %s", res ? "true" : "false");
+
+            hdPathStr += (res ? "'" : "");
+          } else {
+            log_e(
+                "Unexpected type in hdPath array, expected int and bool pairs, got type %d\n",
+                cbor_value_get_type(&hdPathArray)
+            );
+            break;
+          }
+
+          cbor_value_advance(&hdPathArray);
+        }
+        request.hdPath = hdPathStr;
+        log_d("Parsed hdPath: %s", request.hdPath.c_str());
+
+        e = cbor_value_leave_container(&hdPathMap, &hdPathArray);
+
+        // 2 - account fingerprint
+        cbor_value_advance(&hdPathMap);
+        int64_t accountFingerprint;
+        e = cbor_value_get_int64(&hdPathMap, &accountFingerprint);
+        uint32_t fp = (uint32_t)accountFingerprint;
+
+        request.fingerprint = fp;
+        log_d("Parsed account fingerprint: %u / 0x%08x", fp, fp);
+
+        // cleanup
+        while (!cbor_value_at_end(&hdPathMap)) {
+          cbor_value_advance(&hdPathMap);
+        }
+        e = cbor_value_leave_container(&map, &hdPathMap);
+
+        continue;
+      }
+
+      // wallet address
+      case 6: {
+        if (cbor_value_get_type(&map) != CborByteStringType) {
+          log_e("Expected byte string for address, got type %d", cbor_value_get_type(&map));
+          continue;
+        }
+
+        size_t len = ADDRESS_LENGTH;
+        e = cbor_value_copy_byte_string(&map, request.address, &len, NULL);
+
+        if (e != CborNoError) log_e("Error parsing address: %d", e);
+        log_d("Parsed address: %s", toHex(request.address, len).c_str());
+
         break;
-      case 7:  // origin string
-        break;
+      }
     }
     cbor_value_advance(&map);
   }
+
+  return e;
 }
-
-/*
-void parseUr(UR& ur) {
-  const char* urType = ur.type().c_str();
-
-  // parse different action types
-  if (!strncasecmp(urType, UR_TYPE_ETH_SIGN_REQUEST, sizeof(UR_TYPE_ETH_SIGN_REQUEST))) {
-    parseEthSignRequest(ur);
-  } else {
-    // unknown type
-  }
-}
-*/
-
-/*
-void howToUse() {
-  // init, add parts
-  URDecoder urDecoder;
-  urDecoder.receive_part("ur:foo/2345");
-  urDecoder.receive_part("ur:foo/6789");
-
-  // create UR object if complete
-  if (urDecoder.is_complete()) {
-    if (urDecoder.is_failure()) return;
-
-    const UR ur = urDecoder.result_ur();
-    parseUr(ur);
-  }
-}
-*/

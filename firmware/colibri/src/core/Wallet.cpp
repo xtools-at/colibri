@@ -534,19 +534,12 @@ WalletResponse Wallet::signDigest(std::string& hexDigest) {
   return WalletResponse(signature);
 }
 
-WalletResponse Wallet::signTransaction(JsonArrayConst input, ChainType chainTypeOverride) {
+WalletResponse Wallet::signEthTransaction(EthTxData& tx) {
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
   if (!waitForApproval(DISPLAY_APPROVE_SIGN_TX)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  uint8_t sig[RECOVERABLE_SIGNATURE_LENGTH];
 
-  ChainType useChainType = chainTypeOverride ? chainTypeOverride : chainType;
-  log_i("Signing tx (chain type %d)", useChainType);
-
-  if (useChainType == ETH) {
-    // Ethereum
-    return ethSignTransaction(&hdNode, input);
-  }
-
-  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+  return ethSignTransaction(&hdNode, tx, sig);
 }
 
 WalletResponse Wallet::signMessage(std::string& message, ChainType chainTypeOverride) {
@@ -581,8 +574,7 @@ WalletResponse Wallet::signTypedDataHash(std::string& domainSeparatorHash, std::
   std::string signature;
 
   if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
-  if (!waitForApproval(DISPLAY_APPROVE_SIGN_TYPED_DATA_HASH))
-    return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+  if (!waitForApproval(DISPLAY_APPROVE_SIGN_TYPED_DATA)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
 
   if (chainType == ETH) {
     signature = ethSignTypedDataHash(&hdNode, domainSeparatorHash, messageHash);
@@ -595,6 +587,120 @@ WalletResponse Wallet::signTypedDataHash(std::string& domainSeparatorHash, std::
   }
 
   return WalletResponse(signature);
+}
+
+WalletResponse Wallet::urRequestPair() {
+  if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
+  if (!waitForApproval(DISPLAY_APPROVE_PAIR)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+  std::string urTxt;
+
+  if (chainType == ETH) {
+    urTxt = getUrHdKey(&hdNode, pubkeyAccount, hdPath, fingerprints);
+  } else if (chainType == BTC) {
+    // ur = getUrAccount(&hdNode, pubkeyAccount, hdPath, fingerprints);
+    return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+  } else {
+    return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
+  }
+
+  if (urTxt.empty()) {
+    return WalletResponse(InternalError, RPC_ERROR_INTERNAL_ERROR);
+  }
+
+  displayQrCode(urTxt.c_str());
+
+  return WalletResponse(urTxt);
+};
+
+WalletResponse Wallet::urSign(UR& ur) {
+  if (isLocked()) return WalletResponse(Unauthorized, RPC_ERROR_LOCKED);
+
+  if (!ur.is_valid()) {
+    return WalletResponse(ParseError, RPC_ERROR_INVALID_UR);
+  }
+
+  log_d("Processing UR signing request, type: %s", ur.type().c_str());
+
+  if (chainType == ETH) {
+    if (ur.type().compare(UR_TYPE_ETH_SIGN_REQUEST) == 0) {
+      UrEthSignRequest request;
+      int e = parseEthSignRequest(ur, request);
+      if (e != CborNoError) {
+        log_e("Error parsing ETH signing request: %d", e);
+        return WalletResponse(ParseError, RPC_ERROR_INVALID_UR);
+      }
+      // free UR memory after parsing
+      ur = UR("", ByteVector());
+
+      // TODO: check fingerprint, switch wallet
+
+      // determine signing method based on data type
+      // TODO: all: sig error handling
+      switch (request.dataType) {
+        case 1:
+        case 4: {
+          // ETH tx
+          EthTxData tx;
+          bool isLegacyTx = request.dataType == 1;
+          bool success = isLegacyTx ? decodeLegacyTx(request.data, request.dataLen, tx)
+                                    : decodeEip1559Tx(request.data, request.dataLen, tx);
+          if (!success) {
+            log_e("Error decoding ETH transaction");
+            return WalletResponse(ParseError, RPC_ERROR_DECODING);
+          }
+
+          // display transaction details for user approval
+          if (!waitForApproval(DISPLAY_APPROVE_SIGN_TX)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+          uint8_t sigBytes[RECOVERABLE_SIGNATURE_LENGTH];
+          ethSignTransaction(&hdNode, tx, sigBytes);
+          std::string sig = getUrEthSignature(sigBytes, request.id);
+          return WalletResponse(sig);
+        }
+
+        case 2: {
+          // typed data
+          uint8_t hash[HASH_LENGTH];
+          JsonDocument typedDataJson;
+          auto parseError = deserializeJson(typedDataJson, request.data, request.dataLen);
+          if (parseError) {
+            log_e("Error parsing typed data JSON: %s", parseError.c_str());
+            return WalletResponse(ParseError, RPC_ERROR_DECODING);
+          }
+
+          // display details for user approval
+          if (!waitForApproval(DISPLAY_APPROVE_SIGN_TYPED_DATA))
+            return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+          EIP712::computeTypedDataHash(typedDataJson, hash);
+          uint8_t sigBytes[RECOVERABLE_SIGNATURE_LENGTH];
+          ethSignRecoverableDigest(&hdNode, hash, sigBytes);
+          std::string sig = getUrEthSignature(sigBytes, request.id);
+          return WalletResponse(sig);
+        }
+
+        case 3: {
+          // message
+          // display details for user approval
+          if (!waitForApproval(DISPLAY_APPROVE_SIGN_MSG)) return WalletResponse(UserRejected, RPC_ERROR_USER_REJECTED);
+
+          uint8_t sigBytes[RECOVERABLE_SIGNATURE_LENGTH];
+          ethSignMessage(&hdNode, request.data, request.dataLen, sigBytes);
+          std::string sig = getUrEthSignature(sigBytes, request.id);
+          return WalletResponse(sig);
+        }
+
+        default:
+          log_e("Unsupported ETH signing request data type: %d", request.dataType);
+          return WalletResponse(InvalidParams, RPC_ERROR_INVALID_UR_DATA);
+      }
+    } else {
+      return WalletResponse(InvalidParams, RPC_ERROR_INVALID_UR_TYPE);
+    }
+  }
+
+  return WalletResponse(NotImplemented, RPC_ERROR_NOT_IMPLEMENTED);
 }
 
 void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t encKey[HASH_LENGTH]) {
@@ -616,10 +722,10 @@ void Wallet::decryptStoredMnemonic(uint16_t id, std::string& output, uint8_t enc
   output = std::string(mnemonicStr);
 
   // clear memory
-  memzero(encrMnemonic, sizeof(encrMnemonic));
-  memzero(iv, sizeof(iv));
   memzero(mnemonicBytes, sizeof(mnemonicBytes));
   memzero(mnemonicStr, sizeof(mnemonicStr));
+  memzero(encrMnemonic, sizeof(encrMnemonic));
+  memzero(iv, sizeof(iv));
 }
 
 void Wallet::encryptAndStoreMnemonic(uint16_t id, std::string& mnemonic, uint8_t encKey[HASH_LENGTH]) {

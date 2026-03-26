@@ -34,7 +34,6 @@
  *
  * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
  */
-#include "types.h"
 
 // ========== System ========== //
 #ifndef HW_MANUFACTURER_NAME
@@ -108,7 +107,7 @@
 #endif
 
 // warn if using experimental targets
-#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32H2))
+#if (defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32H2))
   #warning "You're using an experimental ESP32 chip variant, developers only!"
 #endif
 
@@ -227,8 +226,11 @@
 #ifndef BUTTON_GPIO_OK
   // C- and H-series chips use GPIO 9 for BOOT button
   #if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
-       defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
+       defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
     #define BUTTON_GPIO_OK 9
+  #elif (defined(CONFIG_IDF_TARGET_ESP32C5))
+    // ...yet C5 has BOOT button on GPIO 28
+    #define BUTTON_GPIO_OK 28
   #else
     // all others use GPIO 0
     #define BUTTON_GPIO_OK 0
@@ -327,6 +329,7 @@
   #ifndef DISPLAY_COLOR_TEXT
     #define DISPLAY_COLOR_TEXT TFT_GREEN
   #endif
+
   #ifndef DISPLAY_COLOR_BG
     #define DISPLAY_COLOR_BG TFT_BLACK
   #endif
@@ -336,20 +339,32 @@
 #ifndef QR_MAX_VERSION
   #define QR_MAX_VERSION 8
 #endif
-#ifndef QR_MODULE_DRAW_SIZE
-  #define QR_MODULE_DRAW_SIZE 4
+
+#ifndef QR_MODULE_PIXEL_SIZE
+  #if (DISPLAY_WIDTH < 128 || DISPLAY_HEIGHT < 128)
+    #define QR_MODULE_PIXEL_SIZE 1
+  #elif (DISPLAY_WIDTH < 160 || DISPLAY_HEIGHT < 160)
+    #define QR_MODULE_PIXEL_SIZE 2
+  #elif (DISPLAY_WIDTH < 192 || DISPLAY_HEIGHT < 192)
+    #define QR_MODULE_PIXEL_SIZE 3
+  #else
+    #define QR_MODULE_PIXEL_SIZE 4
+  #endif
 #endif
 
 // display type categories:
 #ifndef DISPLAY_TYPE_ID
   #if defined(DISPLAY_TOUCH_ENABLED)
+    #ifndef DISPLAY_ENABLED
+      #define DISPLAY_ENABLED
+    #endif
     #define DISPLAY_TYPE_ID 3  // Touchscreen
     #define DISPLAY_TYPE_TOUCH
-    #define DISPLAY_TYPE "Touchscreen display"
+    #define DISPLAY_TYPE "Touchscreen"
   #elif (!defined(DISPLAY_ENABLED))
     #define DISPLAY_TYPE_ID 0  // No screen
     #define DISPLAY_TYPE "No display"
-  #elif (DISPLAY_WIDTH < 80)
+  #elif (DISPLAY_WIDTH < 128 || DISPLAY_HEIGHT < 128)
     #define DISPLAY_TYPE_ID 1  // Small screen
     #define DISPLAY_TYPE_SMALL
     #define DISPLAY_TYPE "Small display"
@@ -392,6 +407,9 @@
 #ifndef DEFAULT_HD_PATH
   #define DEFAULT_HD_PATH "m/44'/60'/0'/0/0"
 #endif
+#define SIGN_REQUEST_MAX_DATA_SIZE 2048
+
+#include "types.h"
 
 // Keystore
 #define MIN_PASSPHRASE_LENGTH 12

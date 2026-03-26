@@ -9,6 +9,7 @@
 // - Simple boards without displays:
 // #include "src/boards/32_devkit.h";
 // #include "src/boards/c3_supermini.h";
+// #include "src/boards/c5_devkit.h";
 // #include "src/boards/c6_supermini.h";
 // #include "src/boards/h2_supermini.h";
 // #include "src/boards/s3_supermini.h";
@@ -92,10 +93,6 @@
 // #define DISPLAY_GPIO_CS -1 // -1 to disable
 // #define DISPLAY_GPIO_BACKLIGHT -1 // -1 to disable
 // #define DISPLAY_GPIO_RST -1  // -1 if NC or connected to EN
-
-// - QR code config
-// #define QR_MAX_VERSION 8 // 1-40, influences QR code capacity, size on screen and required performance
-// #define QR_MODULE_DRAW_SIZE 4 // size of each QR code *module* (square) in pixels, influences QR code size on screen
 
 // ========== CAMERA CONFIG ========== //
 // [ESP32, S2, S3] only!

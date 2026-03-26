@@ -10,9 +10,11 @@
 #include "../signers/polkadot.h"
 #include "../signers/solana.h"
 #include "../ui/ui.h"
+#include "../utils/EIP712.h"
 #include "../utils/chains.h"
 #include "../utils/crypto.h"
 #include "Storage.h"
+#include "bcur.h"
 
 extern Storage store;
 
@@ -50,6 +52,8 @@ class Wallet {
       uint16_t id, const char* hdPath = DEFAULT_HD_PATH, const char* bip32Passphrase = "",
       ChainType inChainType = UNKNOWN
   );
+  WalletResponse urRequestPair();
+  WalletResponse urSign(UR&);
 
   std::string getPublicKey();
   std::string getAddress();
@@ -57,7 +61,7 @@ class Wallet {
   WalletResponse signDigest(std::string& hexDigest);
   WalletResponse signMessage(std::string& message, ChainType chainTypeOverride = UNKNOWN);
   WalletResponse signTypedDataHash(std::string& domainSeparatorHash, std::string& messageHash);
-  WalletResponse signTransaction(JsonArrayConst input, ChainType chainTypeOverride = UNKNOWN);
+  WalletResponse signEthTransaction(EthTxData& tx);
 
  private:
   void deleteHdNode();

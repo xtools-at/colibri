@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Contains ported code from Trezor firmware licensed under GPL 3.0, see notes below.
 #pragma once
 
 #include "bitcoin.h"
@@ -11,7 +12,7 @@
  * https://github.com/trezor/trezor-firmware/blob/29e03bd873977a498dbce79616bfb3fe4b7a0698/legacy/firmware/crypto.c
  */
 
-static uint32_t ser_length(uint32_t len, uint8_t *out) {
+static uint32_t ser_length(uint32_t len, uint8_t* out) {
   if (len < 253) {
     out[0] = len & 0xFF;
     return 1;
@@ -31,14 +32,13 @@ static uint32_t ser_length(uint32_t len, uint8_t *out) {
 }
 
 static void cryptoMessageHash(
-    const BitcoinNetwork *coin, const uint8_t *message, size_t message_len,
-    uint8_t hash[HASHER_DIGEST_LENGTH]
+    const BitcoinNetwork* coin, const uint8_t* message, size_t message_len, uint8_t hash[HASHER_DIGEST_LENGTH]
 ) {
   Hasher hasher;
-  const curve_info *curve = get_curve_by_name(SECP256K1_NAME);
+  const curve_info* curve = get_curve_by_name(SECP256K1_NAME);
 
   hasher_Init(&hasher, curve->hasher_sign);
-  hasher_Update(&hasher, (const uint8_t *)coin->messageHeader, strlen(coin->messageHeader));
+  hasher_Update(&hasher, (const uint8_t*)coin->messageHeader, strlen(coin->messageHeader));
   uint8_t varint[5] = {0};
   uint32_t l = ser_length(message_len, varint);
   hasher_Update(&hasher, varint, l);
@@ -47,8 +47,7 @@ static void cryptoMessageHash(
 }
 
 static int cryptoMessageSign(
-    HDNode *node, uint32_t bipPurpose, uint32_t slip44, const uint8_t *message, size_t message_len,
-    uint8_t *signature
+    HDNode* node, uint32_t bipPurpose, uint32_t slip44, const uint8_t* message, size_t message_len, uint8_t* signature
 ) {
   uint8_t script_type_info = 0;
   switch (bipPurpose) {
@@ -66,7 +65,7 @@ static int cryptoMessageSign(
   }
 
   uint8_t hash[HASHER_DIGEST_LENGTH] = {0};
-  const BitcoinNetwork *coin = getBitcoinNetwork(slip44);
+  const BitcoinNetwork* coin = getBitcoinNetwork(slip44);
   cryptoMessageHash(coin, message, message_len, hash);
 
   uint8_t pby = 0;
@@ -77,10 +76,10 @@ static int cryptoMessageSign(
   return result;
 }
 
-std::string btcGetAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip44) {
+std::string btcGetAddress(HDNode* node, uint32_t bipPurpose, uint32_t slip44) {
   char address[MAX_ADDRESS_LENGTH];
 
-  const BitcoinNetwork *network = getBitcoinNetwork(slip44);
+  const BitcoinNetwork* network = getBitcoinNetwork(slip44);
   /*
   // TODO: vendor lib for Taproot doesn't compile in Arduino's C++ environment
   if (bipPurpose == 86) {
@@ -105,14 +104,14 @@ std::string btcGetAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip44) {
   } else if (bipPurpose == 49) {
     // BIP-49: P2WPKH-nested-in-P2SH address
     ecdsa_get_address_segwit_p2sh(
-        node->public_key, network->addressTypeP2SH, node->curve->hasher_pubkey,
-        node->curve->hasher_base58, address, MAX_ADDRESS_LENGTH
+        node->public_key, network->addressTypeP2SH, node->curve->hasher_pubkey, node->curve->hasher_base58, address,
+        MAX_ADDRESS_LENGTH
     );
   } else {
     // BIP-44: legacy P2PKH address
     ecdsa_get_address(
-        node->public_key, network->addressType, node->curve->hasher_pubkey,
-        node->curve->hasher_base58, address, MAX_ADDRESS_LENGTH
+        node->public_key, network->addressType, node->curve->hasher_pubkey, node->curve->hasher_base58, address,
+        MAX_ADDRESS_LENGTH
     );
   }
   return std::string(address);
@@ -121,14 +120,11 @@ std::string btcGetAddress(HDNode *node, uint32_t bipPurpose, uint32_t slip44) {
  * END ported code from Trezor firmware
  */
 
-std::string btcSignMessage(
-    HDNode *node, std::string &message, uint32_t bipPurpose, uint32_t slip44
-) {
+std::string btcSignMessage(HDNode* node, std::string& message, uint32_t bipPurpose, uint32_t slip44) {
   uint8_t signature[RECOVERABLE_SIGNATURE_LENGTH];
-  const char *msg = message.c_str();
+  const char* msg = message.c_str();
 
-  if (cryptoMessageSign(node, bipPurpose, slip44, (uint8_t *)msg, message.length(), signature) !=
-      0) {
+  if (cryptoMessageSign(node, bipPurpose, slip44, (uint8_t*)msg, message.length(), signature) != 0) {
     return "";
   }
 

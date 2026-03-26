@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Contains ported code from Trezor firmware licensed under GPL 3.0, see notes below.
 #pragma once
 
 #include <string>
+
+#include "config.h"
 
 enum ChainType : uint16_t {
   UNKNOWN = 0,
@@ -62,6 +65,35 @@ struct WalletResponse {
   WalletResponse(std::string result) : status(Ok), result(result) {}
   WalletResponse() : status(Ok) {}
   WalletResponse(Status code) : status(code) {}
+};
+
+struct UrEthSignRequest {
+  uint8_t data[SIGN_REQUEST_MAX_DATA_SIZE];
+  size_t dataLen;
+  uint32_t dataType;
+  uint32_t chainId;
+  uint32_t fingerprint;
+  std::string hdPath;
+  uint8_t id[16];  // optional UUID
+  uint8_t address[ADDRESS_LENGTH];  // optional
+};
+
+struct EthTxData {
+  uint64_t chainId;
+  uint8_t to[ADDRESS_LENGTH];
+  uint8_t value[32];
+  size_t valueSize;
+  uint8_t data[SIGN_REQUEST_MAX_DATA_SIZE];
+  size_t dataSize;
+  uint8_t nonce[32];
+  size_t nonceSize;
+  uint8_t gasLimit[32];
+  size_t gasLimitSize;
+  uint8_t maxGasFee[32];
+  size_t maxGasFeeSize;
+  bool isEip1559;
+  uint8_t maxPriorityFeePerGas[32];
+  size_t maxPriorityFeePerGasSize;
 };
 
 /*

@@ -3,7 +3,7 @@
 
 #include "helpers.h"
 
-bool isAllZero(const uint8_t *value, size_t len) {
+bool isAllZero(const uint8_t* value, size_t len) {
   if (len == 0) return true;
 
   for (size_t i = 0; i < len; i++) {
@@ -15,7 +15,7 @@ bool isAllZero(const uint8_t *value, size_t len) {
   return true;
 }
 
-std::string toHex(const uint8_t *data, size_t len, bool add0xPrefix) {
+std::string toHex(const uint8_t* data, size_t len, bool add0xPrefix) {
   const char hex_digits[] = "0123456789abcdef";
   std::string hex(len * 2 + (add0xPrefix ? 2 : 0), '\0');
   size_t offset = 0;
@@ -43,7 +43,7 @@ static uint8_t hexDigitToValue(char hexDigit) {
   }
 }
 
-size_t fromHex(const char *hex, uint8_t *bytes, size_t maxBytesLen) {
+size_t fromHex(const char* hex, uint8_t* bytes, size_t maxBytesLen) {
   size_t len = strlen(hex);
   size_t start = 0;
 
@@ -85,7 +85,7 @@ void uint32ToBytes(uint32_t value, uint8_t output[4]) {
 }
 
 // Helper method to convert bytes to uint64_t
-uint64_t bytesToUint64(const uint8_t *bytes, size_t maxLen) {
+uint64_t bytesToUint64(const uint8_t* bytes, size_t maxLen) {
   size_t len = maxLen == 0 || maxLen > 8 ? 8 : maxLen;
 
   uint64_t value = 0;
@@ -93,4 +93,8 @@ uint64_t bytesToUint64(const uint8_t *bytes, size_t maxLen) {
     value = (value << 8) | bytes[i];
   }
   return value;
+}
+
+void toUpperCase(std::string& str) {
+  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::toupper(c); });
 }

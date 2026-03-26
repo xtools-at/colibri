@@ -5,6 +5,13 @@
 
 const char EMPTY[] = "";
 
+// ===== BC-UR ===== //
+const char UR_PREFIX[] = "ur:";
+const char UR_TYPE_HDKEY[] = "crypto-hdkey";
+const char UR_TYPE_ACCOUNT[] = "crypto-account";
+const char UR_TYPE_ETH_SIGNATURE[] = "eth-signature";
+const char UR_TYPE_ETH_SIGN_REQUEST[] = "eth-sign-request";
+
 // ===== RPC ===== //
 const char RPC_JSONRPC[] = "jsonrpc";
 const char RPC_JSONRPC_VERSION[] = "2.0";
@@ -36,6 +43,8 @@ const char RPC_METHOD_SIGN_HASH[] = "signHash";
 const char RPC_METHOD_SIGN_MSG[] = "signMessage";
 const char RPC_METHOD_ETH_SIGN_TYPED_DATA_HASH[] = "eth_signTypedDataHash";
 const char RPC_METHOD_ETH_SIGN_TX[] = "eth_signTransaction";
+const char RPC_METHOD_UR_PAIR[] = "ur_pair";
+const char RPC_METHOD_UR_SIGN[] = "ur_sign";
 
 // ===== RPC PARAMS & RESULTS ===== //
 const char RPC_PARAMS_PW[] = "[string: password]";
@@ -69,6 +78,7 @@ const char RPC_RESULT_STATUS[] =
 const char RPC_RESULT_INFO[] =
     "[string: name, string: firmware version, string: board type, string: display type, number: "
     "stored wallets]";
+const char RPC_RESULT_UR[] = "string: BC-UR";
 const char RPC_MSG_MNEMONIC_SCREEN[] = "The mnemonic phrase is being displayed on the device screen";
 
 // ===== RPC ERROR MESSAGES ===== //
@@ -93,18 +103,27 @@ const char RPC_ERROR_MNEMONIC_INVALID[] = "Invalid seed phrase";
 const char RPC_ERROR_MNEMONIC_STORE[] = "Keystore is full";
 const char RPC_ERROR_WALLET_NOT_FOUND[] = "Wallet not found or invalid HD path";
 const char RPC_ERROR_WALLET_INTERNAL[] = "Internal error setting up wallet";
+const char RPC_ERROR_INVALID_UR[] = "Invalid UR";
+const char RPC_ERROR_INVALID_UR_TYPE[] = "Unsupported UR type";
+const char RPC_ERROR_INVALID_UR_DATA[] = "Invalid UR data type";
+const char RPC_ERROR_DECODING[] = "Error decoding data";
 
 // ===== Display ===== //
-const char DISPLAY_APPROVE[] = "Approve?";
+const char DISPLAY_SPLASH[] = "COLIBRI";
 const char DISPLAY_APPROVE_XPUB[] = "Export Xpub?";
 const char DISPLAY_APPROVE_WIPE[] = "Wipe wallet?";
+const char DISPLAY_APPROVE_PAIR[] = "Pair wallet?";
 const char DISPLAY_APPROVE_PASSWORD[] = "Set password?";
 const char DISPLAY_APPROVE_UNLOCK[] = "Unlock?";
 const char DISPLAY_APPROVE_ADD_MNEMONIC[] = "Add new key?";
 const char DISPLAY_APPROVE_SIGN_HASH[] = "Sign hash?";
 const char DISPLAY_APPROVE_SIGN_TX[] = "Sign tx?";
 const char DISPLAY_APPROVE_SIGN_MSG[] = "Sign message?";
-const char DISPLAY_APPROVE_SIGN_TYPED_DATA_HASH[] = "Sign data?";
+const char DISPLAY_APPROVE_SIGN_TYPED_DATA[] = "Sign data?";
+const char DISPLAY_APPROVED[] = "Approved";
+const char DISPLAY_REJECTED[] = "Rejected";
+const char DISPLAY_ERROR[] = "Error";
+const char DISPLAY_SUCCESS[] = "Success";
 const char DISPLAY_DEBUG[] = "DEBUG MODE";
 const char DISPLAY_CONNECTED[] = "Connected";
 const char DISPLAY_NOT_CONNECTED[] = "Not Connected";
@@ -122,10 +141,3 @@ const char STORAGE_SYS_CHECKSUM[] = "cks";
 // ===== BLE ===== //
 const char BLE_INPUT_DEFAULT_MSG[] = "Input JSON-RPC";
 const char BLE_OUTPUT_DEFAULT_MSG[] = "Output JSON-RPC";
-
-// ===== BC-UR ===== //
-const char UR_PREFIX[] = "ur:";
-const char UR_TYPE_HDKEY[] = "crypto-hdkey";
-const char UR_TYPE_ACCOUNT[] = "crypto-account";
-const char UR_TYPE_ETH_SIGNATURE[] = "eth-signature";
-const char UR_TYPE_ETH_SIGN_REQUEST[] = "eth-sign-request";

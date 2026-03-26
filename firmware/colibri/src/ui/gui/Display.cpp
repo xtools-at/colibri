@@ -34,7 +34,7 @@ void initDisplay() {
   display.setColorDepth(DISPLAY_COLOR_DEPTH);
   display.begin();
 
-  drawText("COLIBRI");
+  drawText(DISPLAY_SPLASH);
   log_d("Initialized display: %s", DISPLAY_TYPE);
   delay(500);
 }
@@ -44,18 +44,17 @@ void drawQrCode(esp_qrcode_handle_t qrCode) {
 
   display.startWrite();
   display.clearDisplay();
-  display.fillScreen(TFT_LIGHTGREY);
+  display.fillScreen(TFT_DARKGREY);
 
   int size = esp_qrcode_get_size(qrCode);
-  int32_t pixels = QR_MODULE_DRAW_SIZE;
+  log_d("Drawing QR code of size %d", size);
+  int32_t px = QR_MODULE_PIXEL_SIZE;
+  int32_t offset = (min(display.width(), display.height()) - (size * px)) / 2;
 
   for (size_t y = 0; y < size; y++) {
     for (size_t x = 0; x < size; x++) {
-      int color = TFT_WHITE;
-      if (esp_qrcode_get_module(qrCode, x, y)) {
-        color = TFT_BLACK;
-      }
-      display.fillRect(x * pixels, y * pixels, pixels, pixels, color);
+      int color = esp_qrcode_get_module(qrCode, x, y) ? TFT_BLACK : TFT_WHITE;
+      display.fillRect(x * px + offset, y * px + offset, px, px, color);
     }
   }
 

@@ -22,22 +22,18 @@ void Storage::wipe() {
 
   // format file system
   nvs_flash_erase();
-  delay(50);
+  delay(150);
   nvs_flash_init();
-  delay(50);
+  delay(150);
 }
 
 uint16_t Storage::readWalletCounter() { return getUShort(STORAGE_SYS_WALLET_COUNTER); }
 
-void Storage::writeWalletCounter(uint16_t counter) {
-  return putUShort(STORAGE_SYS_WALLET_COUNTER, counter);
-}
+void Storage::writeWalletCounter(uint16_t counter) { return putUShort(STORAGE_SYS_WALLET_COUNTER, counter); }
 
 uint16_t Storage::readLoginAttempts() { return getUShort(STORAGE_SYS_LOGIN_ATTEMPTS); }
 
-void Storage::writeLoginAttempts(uint16_t attempts) {
-  return putUShort(STORAGE_SYS_LOGIN_ATTEMPTS, attempts);
-}
+void Storage::writeLoginAttempts(uint16_t attempts) { return putUShort(STORAGE_SYS_LOGIN_ATTEMPTS, attempts); }
 
 bool Storage::writeMnemonic(uint16_t index, const uint8_t* mnemonic, size_t len) {
   return putBytes(STORAGE_KEYS, index, mnemonic, len);
@@ -47,17 +43,11 @@ size_t Storage::readMnemonic(uint16_t index, uint8_t* mnemonic) {
   return getBytes(STORAGE_KEYS, index, mnemonic, MAX_MNEMONIC_LENGTH);
 }
 
-bool Storage::hasMnemonic(uint16_t index) {
-  return hasBytes(STORAGE_KEYS, index, MAX_MNEMONIC_LENGTH);
-}
+bool Storage::hasMnemonic(uint16_t index) { return hasBytes(STORAGE_KEYS, index, MAX_MNEMONIC_LENGTH); }
 
-bool Storage::writeIv(uint16_t index, const uint8_t* iv) {
-  return putBytes(STORAGE_IVS, index, iv, AES_IV_SIZE);
-}
+bool Storage::writeIv(uint16_t index, const uint8_t* iv) { return putBytes(STORAGE_IVS, index, iv, AES_IV_SIZE); }
 
-size_t Storage::readIv(uint16_t index, uint8_t* iv) {
-  return getBytes(STORAGE_IVS, index, iv, AES_IV_SIZE);
-}
+size_t Storage::readIv(uint16_t index, uint8_t* iv) { return getBytes(STORAGE_IVS, index, iv, AES_IV_SIZE); }
 
 bool Storage::hasIv(uint16_t index) { return hasBytes(STORAGE_IVS, index, AES_IV_SIZE); }
 

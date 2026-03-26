@@ -29,7 +29,7 @@ class BLESecurityCallback : public BLESecurityCallbacks {
 
     // approve pairing request on wallet
     // TODO: this isn't triggered
-    if (!waitForApproval(Connecting)) {
+    if (!waitForApproval("", Connecting)) {
       return false;
     }
 
@@ -52,7 +52,7 @@ class BLESecurityCallback : public BLESecurityCallbacks {
 class BLEWriteCallback : public BLECharacteristicCallbacks {
   BLEUUID inputUuid = BLEUUID(BLE_CHARACTERISTIC_INPUT);
 
-  void onWrite(BLECharacteristic *pCharacteristic) override {
+  void onWrite(BLECharacteristic* pCharacteristic) override {
     if (reqReady || !pCharacteristic->getUUID().equals(inputUuid)) {
       return;
     }
@@ -76,7 +76,7 @@ class BLEWriteCallback : public BLECharacteristicCallbacks {
 };
 
 class BLEServerCallback : public BLEServerCallbacks {
-  void onConnect(BLEServer *pServer) override {
+  void onConnect(BLEServer* pServer) override {
     // only allow one connection
     if (pServer->getConnectedCount() > 1) {
       pServer->disconnect(pServer->getConnId());
@@ -97,7 +97,7 @@ class BLEServerCallback : public BLEServerCallbacks {
     pServer->updatePeerMTU(pServer->getConnId(), 512);
   }
 
-  void onDisconnect(BLEServer *pServer) override {
+  void onDisconnect(BLEServer* pServer) override {
     // TODO: interface hangs after disconnect
     if (pServer->getConnectedCount() > 0) {
       return;
@@ -125,20 +125,18 @@ void ArduinoBLEInterface::init() {
 
   pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLEServerCallback());
-  BLEService *pService = pServer->createService(BLE_SERVICE_UUID);
+  BLEService* pService = pServer->createService(BLE_SERVICE_UUID);
 
   // BLE service characteristics
   // - input:
-  BLEWriteCallback *writeCallback = new BLEWriteCallback();
-  pCharInput =
-      pService->createCharacteristic(BLE_CHARACTERISTIC_INPUT, BLECharacteristic::PROPERTY_WRITE);
+  BLEWriteCallback* writeCallback = new BLEWriteCallback();
+  pCharInput = pService->createCharacteristic(BLE_CHARACTERISTIC_INPUT, BLECharacteristic::PROPERTY_WRITE);
   pCharInput->setCallbacks(writeCallback);
   pCharInput->setValue(String(BLE_INPUT_DEFAULT_MSG));
 
   // - output:
   pCharOutput = pService->createCharacteristic(
-      BLE_CHARACTERISTIC_OUTPUT,
-      BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+      BLE_CHARACTERISTIC_OUTPUT, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
   );
   pCharOutput->setValue(String(BLE_OUTPUT_DEFAULT_MSG));
   // Creates BLE Descriptor 0x2902: Client Characteristic Configuration Descriptor (CCCD)
@@ -160,7 +158,7 @@ void ArduinoBLEInterface::init() {
   #endif
 
   // set security settings
-  BLESecurity *pSecurity = new BLESecurity();
+  BLESecurity* pSecurity = new BLESecurity();
   pSecurity->setStaticPIN(securityPasskey);
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
   pSecurity->setCapability(ESP_IO_CAP_OUT);
@@ -218,7 +216,7 @@ void ArduinoBLEInterface::update() {
   }
 }
 
-void ArduinoBLEInterface::sendResponse(String &data) {
+void ArduinoBLEInterface::sendResponse(String& data) {
   log_d("Sending response: %s", data.c_str());
   if (pServer->getConnectedCount() == 0) {
     reqReady = false;

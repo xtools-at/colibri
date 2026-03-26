@@ -86,7 +86,7 @@ void updateUi() {
   checkForTimeout();
 }
 
-void displayMessage(const char* message = DISPLAY_APPROVE) {
+void displayMessage(const char* message) {
 #ifdef DISPLAY_ENABLED
   drawText(message);
 #endif
@@ -155,6 +155,7 @@ bool waitForApproval(const char* text, RgbColor color) {
   }
 
   // blink led, reset hot state
+  displayMessage(isApproved ? DISPLAY_APPROVED : DISPLAY_REJECTED);
   led_indicate(isApproved);
   isHot = false;
 

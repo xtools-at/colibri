@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+// Contains ported code from Trezor firmware licensed under GPL 3.0, see notes below.
 #pragma once
 
 #include "chains.h"
@@ -251,10 +252,7 @@ uint32_t extractHdPathSegment(const char* hdPath, uint8_t seg, bool& isHardened)
     isHardened = true;
   }
 
-  log_v(
-      "extracted HD path segment #%d: %s -> %d / start: %d, end: %d", seg, segmentStr.c_str(),
-      segment, start, end
-  );
+  log_v("extracted HD path segment #%d: %s -> %d / start: %d, end: %d", seg, segmentStr.c_str(), segment, start, end);
 
   path.clear();
   segmentStr.clear();
