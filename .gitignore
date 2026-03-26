@@ -36,6 +36,7 @@ firmware/lib/**/demo*/**
 firmware/lib/**/extras/**
 firmware/lib/**/tests/**
 firmware/lib/**/doc*/**
+firmware/lib/**/script*/**
 
 # experimental files and folders
 firmware/dev

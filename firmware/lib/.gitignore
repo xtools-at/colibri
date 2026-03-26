@@ -1,0 +1,4 @@
+# Specific library excludes
+lvgl/env_support/**
+lvgl/zephyr/**
+lvgl/libs/nema_gfx/**/**
