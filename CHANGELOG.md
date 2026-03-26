@@ -4,16 +4,21 @@
 
 ## v0.0.5
 
-(TODO: date)
+2026-03-26
 
-- `*` App: Webapp for [colibri.diy](https://colibri.diy) for device setup and docs
+- `+` Core: basic _display_ support using [LGFX](https://github.com/lovyan03/LovyanGFX), with simple user feedback (to be replaced with a proper screen manager + LVGL on top)
+- `+` Core: added support for new boards and chip variants:
+  - Added support for ESP-C6/C5, experimental support for ESP32-H2
+  - Added four pre-configured boards with built-in displays
 - `+` Wallet: Account pubkey + xpub derivation
-- `+` Core: improved configuration schema
-- `#` Core: cleaned up RPC interface
-- `!` SDK: experimental Typescript/React SDK
-- `!` Core: experimental base _display_ integration using [LGFX](https://github.com/lovyan03/LovyanGFX)
-- `!` Core: experimental base _OTA firmware update_ integration
-- `!` Wallet: experimental base [BC-UR](https://github.com/BlockchainCommons/bc-ur) integration
+- `#` Core: added option to configure RGB/Neopixel LED color order
+- `#` Core: cleaned up RPC interface, improved configuration schema
+- `#` Wallet: BLE interface fixes and random pairing PIN generation for boards with displays
+- `~` Core: updated build setup to latest ESP32 Arduino core `3.3.7` and Arduino IDE `2.3.8`
+- `~` Core: updated embedded libraries to recent versions, updated NimBLE interface to use new syntax
+- `!` Wallet: experimental [BC-UR](https://github.com/BlockchainCommons/bc-ur)/[EIP-4527](https://eips.ethereum.org/EIPS/eip-4527) support for Ethereum, for QR-based signing:
+  - QR-based pairing to 3rd party wallets (triggered via new RPC method `ur_pair`)
+  - BC-UR parser for signing (RPC: `uth_sign`), for potential companion apps to scan QR codes and transmit the contents to Colibri
 
 ## v0.0.4
 

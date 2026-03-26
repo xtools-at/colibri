@@ -20,8 +20,11 @@ Colibri is built to support a wide range of **ESP32** chips and boards, not just
 The following _Espressif_ chips are supported:
 
 - ESP32-C3
+- ESP32-C5
+- ESP32-C6
 - ESP32-S3
 - ESP32 ("classic")
+- ESP32-H2
 
 The minimum requirements for your development board are:
 
@@ -29,20 +32,11 @@ The minimum requirements for your development board are:
 - one _programmable_ LED (simple, or Neopixel RGB)
 - Bluetooth Low Energy support
 
-#### Experimental hardware support
-
-```bash
-$ echo "Developers only!"
-```
-
-- _ESP32-C6_ and _ESP32-H2_ can be built and may work, but haven't been tested thoroughly yet.
-- _ESP32-S2_ and _ESP32-P4_ don't support BLE, but have USB-OTG. They could be used for development purposes with the _Serial Debug Interface_.
-
 ### One-time setup of Arduino IDE
 
 - [Download Arduino IDE](https://www.arduino.cc/en/software) and [enable support for ESP32 boards](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions). Internally we're using these versions to build:
-  - Arduino IDE 2.3.7
-  - `esp32` Arduino Core 3.3.6
+  - Arduino IDE 2.3.8
+  - `esp32` Arduino Core 3.3.7
 - Go to `File > Preferences` and enable _"Show files inside sketches"_ and _"Show verbose output during compile"_
 - Connect your ESP32 dev board via USB
 - Change the target board in Arduino IDE (`Tools > Board > esp32 > ESP32XX Dev Module`, where "XX" is your ESP32 chip type; or select whatever fits your hardware better)
@@ -208,6 +202,7 @@ Unless otherwise noted (e.g. in README/LICENSE files, or file headers and -comme
 - [trezor-crypto lib](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698/crypto) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TrezorCrypto-Arduino/LICENSE)) and [Trezor firmware](https://github.com/trezor/trezor-firmware/tree/29e03bd873977a498dbce79616bfb3fe4b7a0698) ([GPL-3.0](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Trezor.GPL-3.0.txt))
 - Blockstream [ESP32 bc-ur lib](https://github.com/Blockstream/esp32_bc-ur/tree/0c94321e1d60ce81631d022bab8cdbfa6dc6aa0d) ([BSD-2-Clause-Patent](https://github.com/xtools-at/colibri/blob/main/firmware/lib/esp32_bc-ur-Arduino/LICENSE)) and [Jade firmware](https://github.com/Blockstream/Jade/tree/348f972c77314fd6e2fc170d43168fef3cf65cf1/main) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/colibri/licenses/Blockstream.MIT.txt))
 - [LovyanGFX](https://github.com/lovyan03/LovyanGFX) ([FreeBSD](https://github.com/xtools-at/colibri/blob/main/firmware/lib/LovyanGFX/license.txt))
+- [LGVL](https://github.com/lvgl/lvgl) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/lvgl/LICENCE.txt))
 - [ArduinoJson](https://github.com/bblanchon/ArduinoJson) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/ArduinoJson/LICENSE.txt))
 - [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) ([Apache-2.0](https://github.com/xtools-at/colibri/blob/main/firmware/lib/NimBLE-Arduino/LICENSE))
 - [TinyCBOR for Arduino](https://github.com/soburi/tinycbor) ([MIT](https://github.com/xtools-at/colibri/blob/main/firmware/lib/TinyCBOR/LICENSE))
