@@ -2,7 +2,6 @@
 #pragma once
 
 #define LED_GPIO 8
-#define LED_ON 0  // == LOW
 
 // Onboard 0.42" OLED display config
 #define DISPLAY_ENABLED

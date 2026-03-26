@@ -43,7 +43,7 @@
 // Alternative input/UI modes
 // #define BUTTON_MODE INPUT_PULLUP
 // #define BUTTON_PUSHED LOW
-// #define LED_ON HIGH
+// #define LED_ON HIGH // C- and H-series chips default to LOW, all others default to HIGH
 
 // ========== DISPLAY CONFIG ========== //
 // #define DISPLAY_ENABLED

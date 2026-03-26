@@ -204,9 +204,16 @@
 #endif
 
 #ifndef LED_ON
-  #define LED_ON HIGH
-  #define LED_OFF LOW
-#elif (LED_ON == HIGH)
+  // C- and H-series boards seem to default to LOW
+  #if (defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32C3) || \
+       defined(CONFIG_IDF_TARGET_ESP32C5) || defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32H2))
+    #define LED_ON LOW
+  #else
+    #define LED_ON HIGH
+  #endif
+#endif
+
+#if (LED_ON == HIGH)
   #define LED_OFF LOW
 #else
   #define LED_OFF HIGH

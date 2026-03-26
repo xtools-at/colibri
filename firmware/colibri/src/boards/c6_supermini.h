@@ -2,4 +2,3 @@
 #pragma once
 
 #define LED_GPIO_NEOPIXEL 8
-#define LED_ON 0  // == LOW
