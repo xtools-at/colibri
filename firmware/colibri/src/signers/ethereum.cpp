@@ -147,12 +147,29 @@ static void hash_rlp_length(SHA3_CTX* ctx, uint32_t length, uint8_t firstbyte) {
 }
 
 static void hash_rlp_field(SHA3_CTX* ctx, const uint8_t* buf, size_t size) {
-  hash_rlp_length(ctx, size, buf[0]);
+  hash_rlp_length(ctx, size, size ? buf[0] : 0);
   hash_data(ctx, buf, size);
+}
+
+// encoded size of an RLP string, header included
+static uint32_t rlp_calculate_length(uint32_t length, uint8_t firstbyte) {
+  if (length == 1 && firstbyte <= 0x7f) return 1;
+  if (length <= 55) return 1 + length;
+  if (length <= 0xff) return 2 + length;
+  if (length <= 0xffff) return 3 + length;
+  return 4 + length;
+}
+
+static uint32_t rlp_calculate_number_length(uint64_t number) {
+  uint32_t bytes = 0;
+  for (uint64_t rest = number; rest > 0; rest >>= 8) bytes++;
+  // 0 is the empty string
+  return bytes == 1 && number <= 0x7f ? 1 : 1 + bytes;
 }
 
 static void hash_rlp_number(SHA3_CTX* ctx, uint64_t number) {
   if (!number) {
+    hash_rlp_length(ctx, 0, 0);
     return;
   }
   uint8_t data[8] = {0};
@@ -203,7 +220,12 @@ static void sign_transaction(
   sha3_256_Init(&ctx);
 
   // Hash the transaction fields
-  hash_rlp_list_length(&ctx, nonce_size + gas_price_size + gas_limit_size + to_size + value_size + data_size);
+  hash_rlp_list_length(
+      &ctx, rlp_calculate_length(nonce_size, nonce[0]) + rlp_calculate_length(gas_price_size, gas_price[0]) +
+                rlp_calculate_length(gas_limit_size, gas_limit[0]) + rlp_calculate_length(to_size, to[0]) +
+                rlp_calculate_length(value_size, value[0]) + rlp_calculate_length(data_size, data[0]) +
+                rlp_calculate_number_length(chain_id) + 2  // empty r and s
+  );
   hash_rlp_field(&ctx, nonce, nonce_size);
   hash_rlp_field(&ctx, gas_price, gas_price_size);
   hash_rlp_field(&ctx, gas_limit, gas_limit_size);
@@ -234,11 +256,15 @@ static void sign_eip1559_transaction(
   sha3_256_Init(&ctx);
 
   // Hash the transaction fields
-  hash_rlp_number(&ctx, 2);  // EIP1559 transaction type
+  const uint8_t txType = 2;  // EIP-1559 transaction type (EIP-2718)
+  hash_data(&ctx, &txType, 1);
   hash_rlp_list_length(
-      &ctx,
-      chain_id + nonce_size + max_priority_fee_size + max_gas_fee_size + gas_limit_size + to_size + value_size +
-          data_size
+      &ctx, rlp_calculate_number_length(chain_id) + rlp_calculate_length(nonce_size, nonce[0]) +
+                rlp_calculate_length(max_priority_fee_size, max_priority_fee[0]) +
+                rlp_calculate_length(max_gas_fee_size, max_gas_fee[0]) +
+                rlp_calculate_length(gas_limit_size, gas_limit[0]) + rlp_calculate_length(to_size, to[0]) +
+                rlp_calculate_length(value_size, value[0]) + rlp_calculate_length(data_size, data[0]) +
+                1  // empty access list
   );
   hash_rlp_number(&ctx, chain_id);
   hash_rlp_field(&ctx, nonce, nonce_size);
@@ -248,6 +274,7 @@ static void sign_eip1559_transaction(
   hash_rlp_field(&ctx, to, to_size);
   hash_rlp_field(&ctx, value, value_size);
   hash_rlp_field(&ctx, data, data_size);
+  hash_rlp_list_length(&ctx, 0);  // access list
 
   uint8_t hash[32] = {0};
   keccak_Final(&ctx, hash);
