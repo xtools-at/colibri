@@ -56,7 +56,6 @@ static void encodeHdKey(
 
       // Close the path array
       e = cbor_encoder_close_container(&key_path_map_encoder, &key_path_array_encoder);
-      urfree_encoder(&key_path_array_encoder);
     }
 
     // - add account fingerprint
@@ -69,7 +68,6 @@ static void encodeHdKey(
 
     // close the key path map
     e = cbor_encoder_close_container(&key_map_encoder, &key_path_map_encoder);
-    urfree_encoder(&key_path_map_encoder);
   }
 
   // parent fingerprint - immediate parent
@@ -84,7 +82,6 @@ static void encodeHdKey(
   // close the key map
   e = cbor_encoder_close_container(encoder, &key_map_encoder);
   log_d("CBOR close result: %s", e == CborNoError ? "success" : "error");
-  urfree_encoder(&key_map_encoder);
 }
 
 static void encodeScriptVariantTag(CborEncoder* encoder, const uint32_t bipPurpose) {
@@ -112,7 +109,6 @@ static std::string encodeUr(UR& ur, size_t maxFragmentLen = 384) {
 
   toUpperCase(result);
 
-  urfree_encoder(&urEncoder);
 
   return result;
 }
@@ -131,7 +127,6 @@ std::string getUrHdKey(
   log_d("CBOR data length: %d", cborLen);
   UR ur(std::string(UR_TYPE_HDKEY), ByteVector(cbor, cbor + cborLen));
 
-  urfree_encoder(&encoder);
 
   return encodeUr(ur);
 }
@@ -171,13 +166,11 @@ std::string getUrAccount(
       // Close the array
       e = cbor_encoder_close_container(&root_map_encoder, &key_array_encoder);
       log_d("CBOR array close result: %s", e == CborNoError ? "success" : "error");
-      urfree_encoder(&key_array_encoder);
     }
 
     // Close the root map
     e = cbor_encoder_close_container(&encoder, &root_map_encoder);
     log_d("CBOR root map close result: %s", e == CborNoError ? "success" : "error");
-    urfree_encoder(&root_map_encoder);
   }
 
   // create UR object
@@ -185,7 +178,6 @@ std::string getUrAccount(
   log_d("CBOR data length: %d", cborLen);
   UR ur(std::string(UR_TYPE_ACCOUNT), ByteVector(cbor, cbor + cborLen));
 
-  urfree_encoder(&encoder);
 
   return encodeUr(ur);
 }
@@ -214,13 +206,11 @@ std::string getUrEthSignature(const uint8_t* signature, const uint8_t uuid[16]) 
 
   // close
   e = cbor_encoder_close_container(&encoder, &key_map_encoder);
-  urfree_encoder(&key_map_encoder);
 
   // get UR object
   size_t cborLen = cbor_encoder_get_buffer_size(&encoder, cbor);
   UR ur(std::string(UR_TYPE_ETH_SIGNATURE), ByteVector(cbor, cbor + cborLen));
 
-  urfree_encoder(&encoder);
 
   return encodeUr(ur);
 }
