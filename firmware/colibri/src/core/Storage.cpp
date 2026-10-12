@@ -20,10 +20,10 @@ void Storage::wipe() {
   preferences.end();
   delay(10);
 
-  // format file system
-  nvs_flash_erase();
+  // format file system (the configured partition, which isn't necessarily the default one)
+  nvs_flash_erase_partition(STORAGE_NVS_PARTITION_NAME);
   delay(150);
-  nvs_flash_init();
+  nvs_flash_init_partition(STORAGE_NVS_PARTITION_NAME);
   delay(150);
 }
 
