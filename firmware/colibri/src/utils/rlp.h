@@ -11,6 +11,7 @@
 typedef struct {
   const uint8_t* ptr;
   size_t len;
+  bool isList;
 } RLPItem;
 
 typedef struct {
